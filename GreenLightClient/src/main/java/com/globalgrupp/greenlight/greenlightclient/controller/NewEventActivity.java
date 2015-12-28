@@ -8,7 +8,11 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.EditText;
 import com.globalgrupp.greenlight.greenlightclient.R;
+import com.globalgrupp.greenlight.greenlightclient.classes.CreateEventOperation;
+import com.globalgrupp.greenlight.greenlightclient.classes.CreateEventParams;
 import com.globalgrupp.greenlight.greenlightclient.classes.SimpleGeoCoords;
 
 import java.util.List;
@@ -48,6 +52,7 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
                 }
             });
             setSupportActionBar(mActionBarToolbar);
+            setEvents();
         }
         catch (Exception e){
             e.printStackTrace();
@@ -64,4 +69,22 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
         super.onBackPressed();
     }
 
+    public void setEvents(){
+        final Button createEventButton= (Button) findViewById(R.id.btnCreateEvent);
+        createEventButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try{
+                    String serverURL = "http://192.168.1.38:8080/event/createEvent";//todo config
+                    // Use AsyncTask execute Method To Prevent ANR Problem
+                    EditText et=(EditText) findViewById(R.id.etEventText);
+                    CreateEventParams params=new CreateEventParams(serverURL,eLocation.getLongtitude(),eLocation.getLatitude(),et.getText().toString());
+                    new CreateEventOperation().execute(params);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        });
+
+    }
 }

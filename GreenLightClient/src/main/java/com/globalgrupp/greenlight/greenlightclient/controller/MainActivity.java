@@ -20,6 +20,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -150,6 +151,10 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
                         .title("Me")
                         .snippet("My location")
                         .position(myLoc));
+                final CameraPosition cameraPosition = new CameraPosition.Builder()
+                        .target(myLoc)      // Sets the center of the map to Mountain View
+                        .zoom(13).build();              // Sets the zoom
+
             }
         }catch(SecurityException e){}
 
@@ -194,55 +199,4 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
         }
         return false;
     }
-
-
-//
-//    protected LocationManager locationManager;
-//
-//    @Override
-//    public void onCreate(Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//        setContentView(R.layout.createevent);
-//        Log.i("start App ","start App");
-//        //locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
-//        final Button createEventButton= (Button) findViewById(R.id.btnCreateEvent);
-//        createEventButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                String locationProvider = LocationManager.NETWORK_PROVIDER;
-//                try{
-//                    locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-//
-//                    LocationListener locationListener = new LocationListener() {
-//                        public void onLocationChanged(Location location) {
-//                            // Called when a new location is found by the network location provider.
-//                            //makeUseOfNewLocation(location);
-//                        }
-//
-//                        public void onStatusChanged(String provider, int status, Bundle extras) {}
-//
-//                        public void onProviderEnabled(String provider) {}
-//
-//                        public void onProviderDisabled(String provider) {}
-//                    };
-//                    Location lastKnownLocation = locationManager.getLastKnownLocation(locationProvider);
-//                    if (lastKnownLocation==null){
-//                        lastKnownLocation=new Location(locationProvider);
-//                        lastKnownLocation.setAltitude(-1);
-//                        lastKnownLocation.setLatitude(-1);
-//                    }
-//
-//                    String serverURL = "http://10.0.2.2:8080/event/createEvent";//todo config
-//
-//                    // Use AsyncTask execute Method To Prevent ANR Problem
-//                    EditText et=(EditText) findViewById(R.id.etEventText);
-//                    CreateEventParams params=new CreateEventParams(serverURL,lastKnownLocation.getLongitude(),lastKnownLocation.getLatitude(),et.getText().toString());
-//                    new CreateEventOperation().execute(params);
-//                }catch (Exception e){
-//                    Log.i("location error",e.getMessage()+e.getStackTrace()[0].toString());
-//                    e.printStackTrace();
-//                }
-//            }
-//        });
-//    }
 }
