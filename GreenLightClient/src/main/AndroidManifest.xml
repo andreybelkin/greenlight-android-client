@@ -35,8 +35,11 @@
             </intent-filter>
         </activity>
         <activity
-                android:name=".controller.NewEventActivity"
-                android:label="@string/create_new_event" />
+            android:name=".controller.NewEventActivity"
+            android:label="@string/create_new_event" />
+        <activity
+                android:name=".controller.EventDetailsActivity"
+                android:label="" />
     </application>
 
 </manifest>

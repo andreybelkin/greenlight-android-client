@@ -24,15 +24,19 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.HashMap;
 import java.util.List;
 
-public class MainActivity extends ActionBarActivity  implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,AdapterView.OnItemClickListener, MenuItem.OnMenuItemClickListener {
+public class MainActivity extends ActionBarActivity  implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,AdapterView.OnItemClickListener, MenuItem.OnMenuItemClickListener,GoogleMap.OnInfoWindowClickListener {
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
 
     protected LocationManager locationManager;
+
+    private HashMap<String, Long> mMarkers = new HashMap<String, Long>();
 
     protected GoogleApiClient mGoogleApiClient;
     @Override
@@ -90,7 +94,7 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
                     .getMap();
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
-
+                mMap.setOnInfoWindowClickListener(this);
             }
         }
     }
@@ -127,12 +131,12 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
                 List<Event> events=eventOperation.get();
                 for(int i=0;i<events.size();i++){
                     myLoc = new LatLng(events.get(i).getLatitude(), events.get(i).getLongitude());
-                    mMap.addMarker(new MarkerOptions()
+                    Marker marker=mMap.addMarker(new MarkerOptions()
                             .title("Событие")
                             .snippet(events.get(i).getMessage())
                             .position(myLoc));
+                    mMarkers.put(marker.getId(),events.get(i).getId());
                 }
-
             }
         }catch(Exception e){
             e.printStackTrace();
@@ -151,13 +155,6 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        try{
-            Intent startIntent = new Intent(this, NewEventActivity.class);
-            startIntent.putExtra("", "");
-            startActivity(startIntent);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
     }
 
     @Override
@@ -165,7 +162,6 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
         try{
             Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
                     mGoogleApiClient);
-
             SimpleGeoCoords coords=new SimpleGeoCoords(mLastLocation.getLongitude(),mLastLocation.getLatitude(),mLastLocation.getAltitude());
             Intent startIntent = new Intent(this, NewEventActivity.class);
             startIntent.putExtra("location", coords);
@@ -175,5 +171,13 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
             e.printStackTrace();
         }
         return false;
+    }
+
+    @Override
+    public void onInfoWindowClick(Marker marker) {
+        Long id = mMarkers.get(marker.getId());
+        Intent startIntent = new Intent(this, EventDetailsActivity.class);
+        startIntent.putExtra("eventId", id);
+        startActivity(startIntent);
     }
 }
