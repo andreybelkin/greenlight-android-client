@@ -1,7 +1,6 @@
 package com.globalgrupp.greenlight.greenlightclient.controller;
 
 import android.content.Intent;
-import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -14,6 +13,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import com.globalgrupp.greenlight.greenlightclient.R;
+import com.globalgrupp.greenlight.greenlightclient.classes.Event;
+import com.globalgrupp.greenlight.greenlightclient.classes.GetEventParams;
+import com.globalgrupp.greenlight.greenlightclient.classes.GetEventsOperation;
 import com.globalgrupp.greenlight.greenlightclient.classes.SimpleGeoCoords;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -23,6 +25,8 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.util.List;
 
 public class MainActivity extends ActionBarActivity  implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,AdapterView.OnItemClickListener, MenuItem.OnMenuItemClickListener {
 
@@ -45,44 +49,7 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
                 .addApi(LocationServices.API)
                 .build();
         mGoogleApiClient.connect();
-        Location mLastLocation=null;
-        try{
-             mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
-                    mGoogleApiClient);
-            mMap.setMyLocationEnabled(true);
-            //mLastLocation=mMap.getMyLocation();
 
-
-            // Getting LocationManager object from System Service LOCATION_SERVICE
-            locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-
-            // Creating a criteria object to retrieve provider
-            Criteria criteria = new Criteria();
-
-            // Getting the name of the best provider
-            String provider = locationManager.getBestProvider(criteria, true);
-
-            // Getting Current Location
-            Location location = locationManager.getLastKnownLocation(provider);
-
-            if(location!=null){
-                // Getting latitude of the current location
-                double latitude = location.getLatitude();
-
-                // Getting longitude of the current location
-                double longitude = location.getLongitude();
-
-                // Creating a LatLng object for the current location
-                LatLng latLng = new LatLng(latitude, longitude);
-
-                LatLng myPosition = new LatLng(latitude, longitude);
-
-                mMap.addMarker(new MarkerOptions().position(myPosition).title("Start"));
-            }
-        }catch(SecurityException e){
-            int k=0;
-        }
-        int i=0;
 
     }
 
@@ -147,19 +114,29 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
                     mGoogleApiClient);
             if (mLastLocation != null) {
                 LatLng myLoc = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
-                mMap.addMarker(new MarkerOptions()
-                        .title("Me")
-                        .snippet("My location")
-                        .position(myLoc));
                 final CameraPosition cameraPosition = new CameraPosition.Builder()
                         .target(myLoc)      // Sets the center of the map to Mountain View
                         .zoom(13).build();              // Sets the zoom
 
+                GetEventsOperation eventOperation=new GetEventsOperation();
+                GetEventParams params=new GetEventParams();
+                params.setUrl("http://192.168.1.38:8080/event/getNearestEvents");
+                SimpleGeoCoords coords=new SimpleGeoCoords(mLastLocation.getLongitude(),mLastLocation.getLatitude(),mLastLocation.getAltitude());
+                params.setCurrentCoords(coords);
+                eventOperation.execute(params);
+                List<Event> events=eventOperation.get();
+                for(int i=0;i<events.size();i++){
+                    myLoc = new LatLng(events.get(i).getLatitude(), events.get(i).getLongitude());
+                    mMap.addMarker(new MarkerOptions()
+                            .title("Событие")
+                            .snippet(events.get(i).getMessage())
+                            .position(myLoc));
+                }
+
             }
-        }catch(SecurityException e){}
-
-
-
+        }catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
     @Override

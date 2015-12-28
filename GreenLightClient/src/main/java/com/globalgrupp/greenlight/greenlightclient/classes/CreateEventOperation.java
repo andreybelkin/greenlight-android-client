@@ -38,7 +38,7 @@ import java.net.URL;
             JSONObject msg=new JSONObject();
             msg.put("message",params[0].getMessage());
             msg.put("latitude",params[0].getLatitude());
-            msg.put("longtitude",params[0].getLongitude());
+            msg.put("longitude",params[0].getLongitude());
             msg.toString();
             Log.i("message",msg.toString());
             URL url = new URL(params[0].getURL());

@@ -6,18 +6,18 @@ import java.io.Serializable;
  * Created by п on 24.12.2015.
  */
 public class SimpleGeoCoords implements Serializable {
-    private double longtitude;
+    private double longitude;
 
     private double latitude;
 
     private double altitude;
 
     public double getLongtitude() {
-        return longtitude;
+        return longitude;
     }
 
-    public void setLongtitude(double longtitude) {
-        this.longtitude = longtitude;
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
     }
 
     public double getLatitude() {
@@ -36,8 +36,8 @@ public class SimpleGeoCoords implements Serializable {
         this.altitude = altitude;
     }
 
-    public SimpleGeoCoords(double longtitude, double latitude, double altitude) {
-        this.longtitude = longtitude;
+    public SimpleGeoCoords(double longitude, double latitude, double altitude) {
+        this.longitude = longitude;
         this.latitude = latitude;
         this.altitude = altitude;
     }
