@@ -1,5 +1,6 @@
-package com.globalgrupp.greenlight.greenlightclient;
+package com.globalgrupp.greenlight.greenlightclient.controller;
 
+import android.content.Intent;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
@@ -9,6 +10,10 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import com.globalgrupp.greenlight.greenlightclient.R;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
@@ -17,7 +22,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MainActivity extends ActionBarActivity  implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class MainActivity extends ActionBarActivity  implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,AdapterView.OnItemClickListener, MenuItem.OnMenuItemClickListener {
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
 
@@ -29,7 +34,8 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
         super.onCreate(savedInstanceState);
         setContentView( R.layout.activity_maps);
         Toolbar mActionBarToolbar = (Toolbar) findViewById(R.id.toolbar_actionbar);
-        //setSupportActionBar(mActionBarToolbar);
+        setSupportActionBar(mActionBarToolbar);
+        setActionBarEvents(mActionBarToolbar);
         setUpMapIfNeeded();
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -78,6 +84,10 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
 
     }
 
+    private void setActionBarEvents(Toolbar mActionBarToolbar) {
+
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -87,12 +97,14 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_activity_main, menu);
+        MenuItem editMenuItem = menu.findItem(R.id.action_new_event);
+        editMenuItem.setOnMenuItemClickListener(this);
         return true;
     }
 
     @Override
     protected void onStart() {
-
+        mGoogleApiClient.connect();
         super.onStart();
     }
 
@@ -101,22 +113,6 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
         mGoogleApiClient.disconnect();
         super.onStop();
     }
-
-    /**
-     * Sets up the map if it is possible to do so (i.e., the Google Play services APK is correctly
-     * installed) and the map has not already been instantiated.. This will ensure that we only ever
-     * call {@link #setUpMap()} once when {@link #mMap} is not null.
-     * <p/>
-     * If it isn't installed {@link SupportMapFragment} (and
-     * {@link com.google.android.gms.maps.MapView MapView}) will show a prompt for the user to
-     * install/update the Google Play services APK on their device.
-     * <p/>
-     * A user can return to this FragmentActivity after following the prompt and correctly
-     * installing/updating/enabling the Google Play services. Since the FragmentActivity may not
-     * have been completely destroyed during this process (it is likely that it would only be
-     * stopped or paused), {@link #onCreate(Bundle)} may not be called again so we should call this
-     * method in {@link #onResume()} to guarantee that it will be called.
-     */
     private void setUpMapIfNeeded() {
         // Do a null check to confirm that we have not already instantiated the map.
         if (mMap == null) {
@@ -125,37 +121,17 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
                     .getMap();
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
-                setUpMap();
+
             }
         }
-    }
-
-    /**
-     * This is where we can add markers or lines, add listeners or move the camera. In this case, we
-     * just add a marker near Africa.
-     * <p/>
-     * This should only be called once and when we are sure that {@link #mMap} is not null.
-     */
-    private void setUpMap() {
-        mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
-        LatLng sydney = new LatLng(-33.867, 151.206);
-
-
-        mMap.addMarker(new MarkerOptions()
-                .title("Sydney")
-                .snippet("The most populous city in Australia.")
-                .position(sydney));
-
     }
     public Location getLocation() {
         Location location=null;
         try {
 
-
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return location;
     }
     private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 1; // in Meters
@@ -189,6 +165,32 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
     }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        try{
+            Intent startIntent = new Intent(this, NewEventActivity.class);
+            startIntent.putExtra("", "");
+            startActivity(startIntent);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        try{
+            Intent startIntent = new Intent(this, NewEventActivity.class);
+            startIntent.putExtra("", "");
+            startActivity(startIntent);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+
 //
 //    protected LocationManager locationManager;
 //

@@ -10,26 +10,26 @@
         yourapp:actionViewClass="android.support.v7.widget.SearchView" />
 
     <item
-        android:id="@+id/action_edit"
-        android:title="@string/edit"
+        android:id="@+id/action_new_event"
+        android:title="@string/create_new_event"
         android:icon="@drawable/icon_toolbar_edit"
         yourapp:showAsAction="ifRoom" />
 
-    <item
-        android:id="@+id/action_micro"
-        android:title="@string/microphone"
-        android:icon="@drawable/icon_toolbar_micro"
-        yourapp:showAsAction="always" />
+    <!--<item-->
+        <!--android:id="@+id/action_micro"-->
+        <!--android:title="@string/microphone"-->
+        <!--android:icon="@drawable/icon_toolbar_micro"-->
+        <!--yourapp:showAsAction="always" />-->
 
-    <item
-        android:id="@+id/action_remove"
-        android:title="@string/remove"
-        android:icon="@drawable/icon_toolbar_remove"
-        yourapp:showAsAction="always" />
+    <!--<item-->
+        <!--android:id="@+id/action_remove"-->
+        <!--android:title="@string/remove"-->
+        <!--android:icon="@drawable/icon_toolbar_remove"-->
+        <!--yourapp:showAsAction="always" />-->
 
-    <item
-        android:id="@+id/action_sort"
-        android:title="@string/sort_ab"
-        android:icon="@drawable/icon_toolbal_sort"
-        yourapp:showAsAction="always" />
+    <!--<item-->
+        <!--android:id="@+id/action_sort"-->
+        <!--android:title="@string/sort_ab"-->
+        <!--android:icon="@drawable/icon_toolbal_sort"-->
+        <!--yourapp:showAsAction="always" />-->
 </menu>

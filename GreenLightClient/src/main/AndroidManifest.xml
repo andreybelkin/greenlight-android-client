@@ -26,14 +26,17 @@
             android:value="AIzaSyCR10-KvPG49uuKG7IkRiX0CnkrtZ5SlP0" />
 
         <activity
-            android:name=".MainActivity"
-            android:label="@string/title_activity_maps" >
+            android:name=".controller.MainActivity"
+            android:label="@string/title_activity_main" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+                android:name=".controller.NewEventActivity"
+                android:label="@string/create_new_event" />
     </application>
 
 </manifest>
