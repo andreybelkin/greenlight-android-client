@@ -14,7 +14,7 @@
                 android:layout_height="wrap_content" android:layout_weight="0.98">
             <EditText
                     android:layout_width="match_parent"
-                    android:layout_height="374dp"
+                    android:layout_height="209dp"
                     android:id="@+id/etEventText"/>
         </TableRow>
         <TableRow
@@ -22,20 +22,26 @@
                 android:layout_height="wrap_content" android:layout_gravity="center_horizontal"
         >
             <Button
-                    android:layout_width="125dp"
+                    style="?android:attr/buttonStyleSmall"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Фото"
-                    android:id="@+id/button"/>
+                    android:id="@+id/button"
+                    android:layout_weight="1"/>
             <Button
-                    android:layout_width="128dp"
+                    style="?android:attr/buttonStyleSmall"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Видео"
-                    android:id="@+id/button2"/>
+                    android:id="@+id/button2"
+                    android:layout_weight="1"/>
             <Button
-                    android:layout_width="match_parent"
+                    style="?android:attr/buttonStyleSmall"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Аудио"
-                    android:id="@+id/button3"/>
+                    android:id="@+id/button3"
+                    android:layout_weight="1"/>
         </TableRow>
         <TableRow
                 android:layout_width="match_parent"
@@ -45,7 +51,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Создать"
-                    android:id="@+id/btnCreateEvent"/>
+                    android:id="@+id/btnCreateEvent"
+                    android:layout_weight="1"/>
         </TableRow>
     </LinearLayout>
 </LinearLayout>

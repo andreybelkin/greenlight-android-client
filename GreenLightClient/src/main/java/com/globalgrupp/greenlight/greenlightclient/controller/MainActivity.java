@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import com.globalgrupp.greenlight.greenlightclient.R;
+import com.globalgrupp.greenlight.greenlightclient.classes.SimpleGeoCoords;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
@@ -52,7 +53,7 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
 
 
             // Getting LocationManager object from System Service LOCATION_SERVICE
-            LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+            locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
             // Creating a criteria object to retrieve provider
             Criteria criteria = new Criteria();
@@ -180,13 +181,17 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         try{
+            Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+                    mGoogleApiClient);
+
+            SimpleGeoCoords coords=new SimpleGeoCoords(mLastLocation.getLongitude(),mLastLocation.getLatitude(),mLastLocation.getAltitude());
             Intent startIntent = new Intent(this, NewEventActivity.class);
-            startIntent.putExtra("", "");
+            startIntent.putExtra("location", coords);
+            //startIntent.putExtra("addres",addres.get(0));
             startActivity(startIntent);
         }catch (Exception e){
             e.printStackTrace();
         }
-
         return false;
     }
 

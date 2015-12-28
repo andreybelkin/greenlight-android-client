@@ -1,5 +1,7 @@
 package com.globalgrupp.greenlight.greenlightclient.controller;
 
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBarActivity;
@@ -7,6 +9,10 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.AdapterView;
 import com.globalgrupp.greenlight.greenlightclient.R;
+import com.globalgrupp.greenlight.greenlightclient.classes.SimpleGeoCoords;
+
+import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by п on 28.12.2015.
@@ -15,6 +21,9 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
 
     private Toolbar mActionBarToolbar;
 
+    private SimpleGeoCoords eLocation;
+    private Address eAddres;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -22,6 +31,14 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
             setContentView(R.layout.createevent);
             //getIntent().hasExtra
             //getIntent().getSerializableExtra
+            if (getIntent().hasExtra("location")){
+                eLocation=(SimpleGeoCoords) getIntent().getExtras().getSerializable("location");
+            }
+
+            Geocoder gc=new Geocoder(this, Locale.getDefault());
+            List<Address> addres= gc.getFromLocation(eLocation.getLatitude(),eLocation.getLongtitude(),1);//по идее хватит и одного адреса
+            eAddres=addres.get(0);
+
             mActionBarToolbar = (Toolbar) findViewById(R.id.toolbar_actionbar);
             mActionBarToolbar.setNavigationIcon(R.drawable.icon_toolbal_arrow_white);
             mActionBarToolbar.setNavigationOnClickListener(new View.OnClickListener() {
