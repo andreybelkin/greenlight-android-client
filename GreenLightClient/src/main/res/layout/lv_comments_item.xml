@@ -54,20 +54,5 @@
 
     </RelativeLayout>
 
-    <LinearLayout
-        android:background="@color/white"
-        android:layout_width="78dp"
-        android:gravity="center_horizontal|center_vertical"
-        android:layout_height="78dp">
-
-        <ImageView
-            android:id="@+id/imgAddFavorite"
-            android:gravity="center_horizontal|center_vertical"
-            android:background="@color/white"
-            android:src="@drawable/icon_arrow_next"
-            android:padding="0dp"
-            android:layout_width="40dp"
-            android:layout_height="40dp" />
-    </LinearLayout>
 </LinearLayout>
 
