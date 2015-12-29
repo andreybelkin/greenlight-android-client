@@ -6,6 +6,8 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import com.globalgrupp.greenlight.greenlightclient.R;
@@ -17,10 +19,13 @@ import java.util.List;
 /**
  * Created by п on 28.12.2015.
  */
-public class EventDetailsActivity extends ActionBarActivity {
+public class EventDetailsActivity extends ActionBarActivity implements View.OnClickListener {
 
     private Toolbar mActionBarToolbar;
     private ListView lvComments;
+    private Button btnSendComment;
+    private Event currentEvent;
+    private EditText etComment;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -37,16 +42,17 @@ public class EventDetailsActivity extends ActionBarActivity {
         });
         setSupportActionBar(mActionBarToolbar);
 
+
         if (getIntent().hasExtra("eventId")){
 
             try{
-            GetEventParams params=new GetEventParams();
-            params.setURL("http://192.168.1.38:8080/event/getEvent");
-            Long id=(Long)getIntent().getExtras().getSerializable("eventId");
-            params.setEventId(id );
+                GetEventParams params=new GetEventParams();
+                params.setURL("http://192.168.1.38:8080/event/getEvent");
+                Long id=(Long)getIntent().getExtras().getSerializable("eventId");
+                params.setEventId(id );
 
                 List<Event> events=new GetEventsOperation().execute(params).get();
-                Event currentEvent=events.get(0);
+                currentEvent=events.get(0);
                 TextView eventMessageTV=(TextView)findViewById(R.id.eventMessage);
                 eventMessageTV.setText(currentEvent.getMessage());
                 lvComments=(ListView)findViewById(R.id.listViewComments);
@@ -69,10 +75,19 @@ public class EventDetailsActivity extends ActionBarActivity {
 
                 e.printStackTrace();
             }
-
-
         }
+        etComment=(EditText)findViewById(R.id.etComment);
+        btnSendComment=(Button) findViewById(R.id.btnSendComment);
+        btnSendComment.setOnClickListener(this);
 
 
+    }
+
+    @Override
+    public void onClick(View v) {
+        Comment sendData=new Comment();
+        sendData.setEvent(currentEvent);
+        sendData.setMessage(etComment.getText().toString());
+        new SaveCommentOperation().execute(sendData);
     }
 }
