@@ -9,6 +9,8 @@ public class GetEventParams {
 
     private SimpleGeoCoords currentCoords;
 
+    private Long eventId;
+
     public SimpleGeoCoords getCurrentCoords() {
         return currentCoords;
     }
@@ -17,11 +19,19 @@ public class GetEventParams {
         this.currentCoords = currentCoords;
     }
 
+    public Long getEventId() {
+        return eventId;
+    }
+
+    public void setEventId(Long eventId) {
+        this.eventId = eventId;
+    }
+
     public String getURL() {
         return URL;
     }
 
-    public void setUrl(String url) {
-        URL = url;
+    public void setURL(String URL) {
+        this.URL = URL;
     }
 }

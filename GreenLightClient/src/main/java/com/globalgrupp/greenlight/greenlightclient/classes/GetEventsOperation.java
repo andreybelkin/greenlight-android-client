@@ -36,14 +36,21 @@ public class GetEventsOperation extends AsyncTask<GetEventParams, Void, List<Eve
         List<Event> result=new ArrayList<Event>();
         try
         {
+            String urlString=params[0].getURL();
             // Defined URL  where to send data
             JSONObject msg=new JSONObject();
-            msg.put("longitude",params[0].getCurrentCoords().getLongtitude());
-            msg.put("latitude",params[0].getCurrentCoords().getLatitude());
-            msg.put("altitude",params[0].getCurrentCoords().getAltitude());
-            msg.toString();
-            Log.i("message",msg.toString());
-            URL url = new URL(params[0].getURL());
+            if (params[0].getCurrentCoords()!=null){
+                msg.put("longitude",params[0].getCurrentCoords().getLongtitude());
+                msg.put("latitude",params[0].getCurrentCoords().getLatitude());
+                msg.put("altitude",params[0].getCurrentCoords().getAltitude());
+            }
+            if (params[0].getEventId()!=null){
+                msg.put("eventId",params[0].getEventId());
+                urlString+="?eventId="+params[0].getEventId().toString();
+
+            }
+
+            URL url = new URL(urlString);
 
             // Send POST data request
 
@@ -92,6 +99,7 @@ public class GetEventsOperation extends AsyncTask<GetEventParams, Void, List<Eve
                 e.setLongitude(jsonObject.getDouble("longitude"));
                 e.setLatitude(jsonObject.getDouble("latitude"));
                 e.setMessage(jsonObject.getString("message"));
+                e.setId(jsonObject.getLong("id"));
                 //todo getComments
                 result.add(e);
             }
@@ -118,12 +126,10 @@ public class GetEventsOperation extends AsyncTask<GetEventParams, Void, List<Eve
 
     protected void onPreExecute() {
         try{
-            Log.i("pre execute service ","pre execute service ");
             // Set Request parameter
 
         } catch (Exception e) {
             // TODO Auto-generated catch block
-            Log.d(e.getMessage(),e.getMessage());
             e.printStackTrace();
         }
     }

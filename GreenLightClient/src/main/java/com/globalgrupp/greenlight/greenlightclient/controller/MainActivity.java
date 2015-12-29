@@ -122,13 +122,12 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
                         .target(myLoc)      // Sets the center of the map to Mountain View
                         .zoom(13).build();              // Sets the zoom
 
-                GetEventsOperation eventOperation=new GetEventsOperation();
+
                 GetEventParams params=new GetEventParams();
-                params.setUrl("http://192.168.1.38:8080/event/getNearestEvents");
+                params.setURL("http://192.168.1.38:8080/event/getNearestEvents");
                 SimpleGeoCoords coords=new SimpleGeoCoords(mLastLocation.getLongitude(),mLastLocation.getLatitude(),mLastLocation.getAltitude());
                 params.setCurrentCoords(coords);
-                eventOperation.execute(params);
-                List<Event> events=eventOperation.get();
+                List<Event> events=new GetEventsOperation().execute(params).get();
                 for(int i=0;i<events.size();i++){
                     myLoc = new LatLng(events.get(i).getLatitude(), events.get(i).getLongitude());
                     Marker marker=mMap.addMarker(new MarkerOptions()
