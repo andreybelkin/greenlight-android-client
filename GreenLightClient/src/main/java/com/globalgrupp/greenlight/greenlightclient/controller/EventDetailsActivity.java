@@ -5,12 +5,13 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ListView;
 import android.widget.TextView;
 import com.globalgrupp.greenlight.greenlightclient.R;
-import com.globalgrupp.greenlight.greenlightclient.classes.Event;
-import com.globalgrupp.greenlight.greenlightclient.classes.GetEventParams;
-import com.globalgrupp.greenlight.greenlightclient.classes.GetEventsOperation;
+import com.globalgrupp.greenlight.greenlightclient.classes.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -19,6 +20,7 @@ import java.util.List;
 public class EventDetailsActivity extends ActionBarActivity {
 
     private Toolbar mActionBarToolbar;
+    private ListView lvComments;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -47,7 +49,22 @@ public class EventDetailsActivity extends ActionBarActivity {
                 Event currentEvent=events.get(0);
                 TextView eventMessageTV=(TextView)findViewById(R.id.eventMessage);
                 eventMessageTV.setText(currentEvent.getMessage());
-                //todo comments
+                lvComments=(ListView)findViewById(R.id.listViewComments);
+                ArrayList<Comment> list = new ArrayList<Comment>(currentEvent.getComments());
+
+                CommentsAdapter commentsAdapter=new CommentsAdapter(this,list);
+                lvComments.setAdapter(commentsAdapter);
+                View listItem = commentsAdapter.getView(0, null, lvComments);
+                listItem.measure(0, 0);
+                float totalHeight = 0;
+                for (int i = 0; i < commentsAdapter.getCount(); i++) {
+                    totalHeight += listItem.getMeasuredHeight();
+                }
+                ViewGroup.LayoutParams layoutParams = lvComments.getLayoutParams();
+                layoutParams.height = (int) (totalHeight + (lvComments.getDividerHeight() * (lvComments.getCount() - 1)));
+                lvComments.setLayoutParams(layoutParams);
+                lvComments.requestLayout();
+
             }catch (Exception e) {
 
                 e.printStackTrace();

@@ -13,6 +13,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -100,6 +102,16 @@ public class GetEventsOperation extends AsyncTask<GetEventParams, Void, List<Eve
                 e.setLatitude(jsonObject.getDouble("latitude"));
                 e.setMessage(jsonObject.getString("message"));
                 e.setId(jsonObject.getLong("id"));
+                JSONArray jsonCommentsArray= jsonObject.getJSONArray("comments");
+                ArrayList<Comment> comments=new ArrayList<Comment>();
+                for (int k=0;k<jsonCommentsArray.length();k++){
+                    JSONObject comObject=jsonCommentsArray.getJSONObject(k);
+                    Comment com=new Comment();
+                    com.setMessage(comObject.getString("message"));
+                    com.setCreateDate(new Date(comObject.getLong("createDate")));
+                    comments.add(com);
+                }
+                e.setComments(new HashSet<Comment>(comments));
                 //todo getComments
                 result.add(e);
             }

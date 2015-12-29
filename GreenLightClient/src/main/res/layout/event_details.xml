@@ -5,23 +5,38 @@
               android:layout_height="match_parent">
 
     <include layout="@layout/toolbar" />
+    <TextView
+            android:layout_width="match_parent"
+            android:layout_height="128dp"
+            android:text="New Text"
+            android:id="@+id/eventMessage"/>
     <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="295dp"
             android:id="@+id/scrollView">
         <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
-            <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="125dp"
-                    android:text="New Text"
-                    android:id="@+id/textView"/>
             <ListView
                     android:layout_width="wrap_content"
-                    android:layout_height="390dp"
-                    android:id="@+id/listView"/>
+                    android:layout_height="263dp"
+                    android:id="@+id/listViewComments"/>
         </LinearLayout>
     </ScrollView>
+    <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:weightSum="1">
+        <EditText
+                android:layout_width="189dp"
+                android:layout_height="match_parent"
+                android:id="@+id/editText" android:layout_weight="0.99"/>
+        <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:text="New Button"
+                android:id="@+id/button4"/>
+    </LinearLayout>
 </LinearLayout>
