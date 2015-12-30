@@ -21,15 +21,26 @@
                         android:layout_height="209dp"
                         android:id="@+id/etEventText"/>
                 <LinearLayout
-                        android:orientation="vertical"
+                        android:orientation="horizontal"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent">
-                    <Button
-                            style="?android:attr/buttonStyleSmall"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Воспроизвести"
-                            android:id="@+id/btnPlayAudio"/>
+                    <TableRow
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" android:id="@+id/trAudioRow">
+                        <Button
+                                style="?android:attr/buttonStyleSmall"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Воспроизвести"
+                                android:id="@+id/btnPlayAudio"
+                                android:layout_weight="1"/>
+                        <ProgressBar
+                                style="?android:attr/progressBarStyleHorizontal"
+                                android:layout_width="118dp"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/pbAudio"
+                                android:layout_weight="1" android:layout_gravity="center_vertical"/>
+                    </TableRow>
                 </LinearLayout>
             </LinearLayout>
         </TableRow>

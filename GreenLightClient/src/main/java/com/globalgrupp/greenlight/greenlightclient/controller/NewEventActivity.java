@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import com.globalgrupp.greenlight.greenlightclient.R;
 import com.globalgrupp.greenlight.greenlightclient.classes.CreateEventOperation;
 import com.globalgrupp.greenlight.greenlightclient.classes.CreateEventParams;
@@ -22,6 +23,7 @@ import com.globalgrupp.greenlight.greenlightclient.classes.SimpleGeoCoords;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by п on 28.12.2015.
@@ -41,7 +43,7 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
 
     Button btnAudio;
     Button btnPlayAudio;
-
+    ProgressBar progress;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -70,7 +72,8 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
             mFileName = Environment.getExternalStorageDirectory().getAbsolutePath();
             mFileName += "/audiorecordtest.3gp";
             setEvents();
-            btnPlayAudio.setVisibility(View.INVISIBLE);
+            findViewById(R.id.trAudioRow).setVisibility(View.INVISIBLE);
+            progress=(ProgressBar) findViewById(R.id.pbAudio);
         }
         catch (Exception e){
             e.printStackTrace();
@@ -130,6 +133,7 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
             public void onClick(View v) {
                 onPlay(mStartPlaying);
                 if (mStartPlaying) {
+                    progress.setMax(mPlayer.getDuration());
                     btnPlayAudio.setText("Стоп");
                 } else {
                     btnPlayAudio.setText("Воспроизвести");
@@ -144,7 +148,7 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
             startRecording();
         } else {
             stopRecording();
-            btnPlayAudio.setVisibility(View.VISIBLE);
+            findViewById(R.id.trAudioRow).setVisibility(View.VISIBLE);
         }
     }
 
@@ -156,12 +160,48 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
         }
     }
 
+
+    private class MediaObserver implements Runnable {
+        private AtomicBoolean stop = new AtomicBoolean(false);
+
+        public void stop() {
+            stop.set(true);
+        }
+
+        @Override
+        public void run() {
+            try{
+                while (!stop.get()) {
+                    progress.setProgress(mPlayer.getCurrentPosition());
+                    Thread.sleep(200);
+                }
+            }catch (Exception e){
+                Log.e("",e.getMessage());
+            }
+
+        }
+    }
+    private MediaObserver observer = null;
+
     private void startPlaying() {
         mPlayer = new MediaPlayer();
         try {
             mPlayer.setDataSource(mFileName);
+            mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    observer.stop();
+                    progress.setProgress(mp.getCurrentPosition());
+                    btnPlayAudio.performClick();
+                }
+            });
+            observer = new MediaObserver();
             mPlayer.prepare();
             mPlayer.start();
+
+
+
+            new Thread(observer).start();
         } catch (IOException e) {
             Log.e(LOG_TAG, "prepare() failed");
         }
