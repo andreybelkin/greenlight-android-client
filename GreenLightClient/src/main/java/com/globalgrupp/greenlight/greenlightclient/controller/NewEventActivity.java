@@ -107,7 +107,7 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
             @Override
             public void onClick(View v) {
                 try{
-                    String serverURL = "http://192.168.1.38:8080/event/createEvent";//todo config
+                    String serverURL = "http://46.146.122.16:8081/event/createEvent";//todo config
                     // Use AsyncTask execute Method To Prevent ANR Problem
                     EditText et=(EditText) findViewById(R.id.etEventText);
                     CreateEventParams params=new CreateEventParams(serverURL,eLocation.getLongtitude(),eLocation.getLatitude(),et.getText().toString());

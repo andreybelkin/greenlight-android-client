@@ -11,21 +11,21 @@ import com.globalgrupp.greenlight.greenlightclient.R;
 import java.util.ArrayList;
 
 /**
- * Created by п on 29.12.2015.
+ * Created by п on 31.12.2015.
  */
-public class CommentsAdapter extends ArrayAdapter<Comment> {
+public class EventsAdapter  extends ArrayAdapter<Event> {
     private static class ViewHolder {
         TextView tvTitle;
         TextView tvDate;
     }
 
-    public  CommentsAdapter(Context context, ArrayList<Comment> commentItems){
-        super(context, R.layout.lv_drawer_item,commentItems);
+    public  EventsAdapter(Context context, ArrayList<Event> eventItems){
+        super(context, R.layout.lv_drawer_item,eventItems);
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        Comment commentsItem = getItem(position);
+        Event commentsItem = getItem(position);
         ViewHolder viewHolder;
         if (convertView == null) {
             viewHolder = new ViewHolder();

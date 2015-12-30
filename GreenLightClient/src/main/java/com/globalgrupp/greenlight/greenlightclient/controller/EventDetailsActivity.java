@@ -46,7 +46,7 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
 
             try{
                 GetEventParams params=new GetEventParams();
-                params.setURL("http://192.168.1.38:8080/event/getEvent");
+                params.setURL("http://46.146.122.16:8081/event/getEvent");
                 Long id=(Long)getIntent().getExtras().getSerializable("eventId");
                 params.setEventId(id );
 

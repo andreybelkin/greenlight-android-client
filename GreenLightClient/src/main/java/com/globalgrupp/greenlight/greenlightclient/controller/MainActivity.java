@@ -73,6 +73,8 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
         getMenuInflater().inflate(R.menu.menu_activity_main, menu);
         MenuItem editMenuItem = menu.findItem(R.id.action_new_event);
         editMenuItem.setOnMenuItemClickListener(this);
+        MenuItem eventListMenuItem=menu.findItem(R.id.action_event_list);
+        eventListMenuItem.setOnMenuItemClickListener(this);
         return true;
     }
 
@@ -120,12 +122,11 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
             if (mLastLocation != null) {
                 LatLng myLoc = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
 
-
                 CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(myLoc, 15);
                 mMap.animateCamera(cameraUpdate);
 
                 GetEventParams params=new GetEventParams();
-                params.setURL("http://192.168.1.38:8080/event/getNearestEvents");
+                params.setURL("http://46.146.122.16:8081/event/getNearestEvents");
                 SimpleGeoCoords coords=new SimpleGeoCoords(mLastLocation.getLongitude(),mLastLocation.getLatitude(),mLastLocation.getAltitude());
                 params.setCurrentCoords(coords);
                 List<Event> events=new GetEventsOperation().execute(params).get();
@@ -163,10 +164,19 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
             Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
                     mGoogleApiClient);
             SimpleGeoCoords coords=new SimpleGeoCoords(mLastLocation.getLongitude(),mLastLocation.getLatitude(),mLastLocation.getAltitude());
-            Intent startIntent = new Intent(this, NewEventActivity.class);
-            startIntent.putExtra("location", coords);
+            Intent startIntent;
+            if (item.getItemId()==R.id.action_new_event){
+                startIntent= new Intent(this, NewEventActivity.class);
+                startIntent.putExtra("location", coords);
+                startActivity(startIntent);
+            }else if(item.getItemId()==R.id.action_event_list){
+                startIntent= new Intent(this, EventListActivity.class);
+                startIntent.putExtra("location", coords);
+                startActivity(startIntent);
+            }
+
             //startIntent.putExtra("addres",addres.get(0));
-            startActivity(startIntent);
+
         }catch (Exception e){
             e.printStackTrace();
         }
