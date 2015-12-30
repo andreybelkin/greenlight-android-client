@@ -20,9 +20,10 @@ import com.globalgrupp.greenlight.greenlightclient.classes.SimpleGeoCoords;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -118,10 +119,10 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
                     mGoogleApiClient);
             if (mLastLocation != null) {
                 LatLng myLoc = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
-                final CameraPosition cameraPosition = new CameraPosition.Builder()
-                        .target(myLoc)      // Sets the center of the map to Mountain View
-                        .zoom(13).build();              // Sets the zoom
 
+
+                CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(myLoc, 15);
+                mMap.animateCamera(cameraUpdate);
 
                 GetEventParams params=new GetEventParams();
                 params.setURL("http://192.168.1.38:8080/event/getNearestEvents");
