@@ -3,7 +3,6 @@ package com.globalgrupp.greenlight.greenlightclient.classes;
 import android.os.AsyncTask;
 import android.util.Log;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -148,40 +147,5 @@ public class GetEventsOperation extends AsyncTask<GetEventParams, Void, List<Eve
 
     protected void onPostExecute(Void unused) {
 
-        if (Error != null) {
-
-        } else {
-
-
-            String OutputData = "";
-            JSONObject jsonResponse;
-
-            try {
-
-                /****** Creates a new JSONObject with name/value mappings from the JSON string. ********/
-                jsonResponse = new JSONObject(Content);
-
-                /***** Returns the value mapped by name if it exists and is a JSONArray. ***/
-                /*******  Returns null otherwise.  *******/
-                JSONArray jsonMainNode = jsonResponse.optJSONArray("Android");
-
-                /*********** Process each JSON Node ************/
-
-                int lengthJsonArr = jsonMainNode.length();
-
-                for(int i=0; i < lengthJsonArr; i++)
-                {
-                    /****** Get Object for each JSON node.***********/
-                    JSONObject jsonChildNode = jsonMainNode.getJSONObject(i);
-                    //todo result
-                    Log.i("getsome data service ","getsome data service ");
-                }
-            } catch (JSONException e) {
-                Log.i(e.getMessage(),e.getMessage());
-                e.printStackTrace();
-            }
-
-
-        }
     }
 }

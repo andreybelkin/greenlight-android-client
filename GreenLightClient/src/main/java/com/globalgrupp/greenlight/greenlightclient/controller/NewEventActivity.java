@@ -68,13 +68,16 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
 
             mActionBarToolbar = (Toolbar) findViewById(R.id.toolbar_actionbar);
             mActionBarToolbar.setNavigationIcon(R.drawable.icon_toolbal_arrow_white);
+
+
+            setSupportActionBar(mActionBarToolbar);
+
             mActionBarToolbar.setNavigationOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     onBackPressed();
                 }
             });
-            setSupportActionBar(mActionBarToolbar);
             mFileName = Environment.getExternalStorageDirectory().getAbsolutePath();
             mFileName += "/audiorecordtest.3gp";
             setEvents();
@@ -108,7 +111,8 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
                     // Use AsyncTask execute Method To Prevent ANR Problem
                     EditText et=(EditText) findViewById(R.id.etEventText);
                     CreateEventParams params=new CreateEventParams(serverURL,eLocation.getLongtitude(),eLocation.getLatitude(),et.getText().toString());
-                    new CreateEventOperation().execute(params);
+                    new CreateEventOperation().execute(params).get();
+
                 }catch (Exception e){
                     e.printStackTrace();
                 }
@@ -335,10 +339,6 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             try{
                 setPic();
-//                Bundle extras = data.getExtras();
-//                Bitmap imageBitmap = (Bitmap) extras.get("data");
-//                ImageView mImageView=(ImageView)findViewById(R.id.ivPhoto);
-//                mImageView.setImageBitmap(imageBitmap);
             }catch(Exception e){
                 Log.e("photoActivityResult",e.getMessage());
             }

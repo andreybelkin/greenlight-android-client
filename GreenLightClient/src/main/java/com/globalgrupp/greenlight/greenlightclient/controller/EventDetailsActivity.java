@@ -34,14 +34,13 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
 
         mActionBarToolbar = (Toolbar) findViewById(R.id.toolbar_actionbar);
         mActionBarToolbar.setNavigationIcon(R.drawable.icon_toolbal_arrow_white);
+        setSupportActionBar(mActionBarToolbar);
         mActionBarToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onBackPressed();
             }
         });
-        setSupportActionBar(mActionBarToolbar);
-
 
         if (getIntent().hasExtra("eventId")){
 
