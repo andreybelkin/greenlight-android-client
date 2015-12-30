@@ -21,7 +21,7 @@
                         android:layout_height="209dp"
                         android:id="@+id/etEventText"/>
                 <LinearLayout
-                        android:orientation="horizontal"
+                        android:orientation="vertical"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent">
                     <TableRow
@@ -41,6 +41,14 @@
                                 android:id="@+id/pbAudio"
                                 android:layout_weight="1" android:layout_gravity="center_vertical"/>
                     </TableRow>
+                    <TableRow
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent" android:id="@+id/trImageRow">
+                        <ImageView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/ivPhoto" android:minHeight="150dp" android:minWidth="150dp"/>
+                    </TableRow>
                 </LinearLayout>
             </LinearLayout>
         </TableRow>
@@ -53,7 +61,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Фото"
-                    android:id="@+id/button"
+                    android:id="@+id/btnPhoto"
                     android:layout_weight="1"/>
             <Button
                     style="?android:attr/buttonStyleSmall"
