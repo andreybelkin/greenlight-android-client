@@ -12,6 +12,16 @@ public class CreateEventParams implements Serializable {
     private double longitude;
     private double latitude;
 
+    private Long audioId;
+
+    public Long getAudioId() {
+        return audioId;
+    }
+
+    public void setAudioId(Long audioId) {
+        this.audioId = audioId;
+    }
+
     public String getMessage() {
         return message;
     }
@@ -51,5 +61,8 @@ public class CreateEventParams implements Serializable {
         this.longitude = longitude;
         this.latitude = latitude;
         this.message=message;
+    }
+
+    public CreateEventParams() {
     }
 }

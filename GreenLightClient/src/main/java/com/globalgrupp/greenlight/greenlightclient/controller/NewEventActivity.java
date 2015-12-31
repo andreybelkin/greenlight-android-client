@@ -21,6 +21,7 @@ import com.globalgrupp.greenlight.greenlightclient.R;
 import com.globalgrupp.greenlight.greenlightclient.classes.CreateEventOperation;
 import com.globalgrupp.greenlight.greenlightclient.classes.CreateEventParams;
 import com.globalgrupp.greenlight.greenlightclient.classes.SimpleGeoCoords;
+import com.globalgrupp.greenlight.greenlightclient.classes.UploadFileOperation;
 
 import java.io.File;
 import java.io.IOException;
@@ -107,10 +108,16 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
             @Override
             public void onClick(View v) {
                 try{
+
+
+                    CreateEventParams cep=new CreateEventParams();
+                    cep.setURL(mFileName);
+                    Long audioId=new UploadFileOperation().execute(cep).get();
                     String serverURL = "http://46.146.122.16:8081/event/createEvent";//todo config
                     // Use AsyncTask execute Method To Prevent ANR Problem
                     EditText et=(EditText) findViewById(R.id.etEventText);
                     CreateEventParams params=new CreateEventParams(serverURL,eLocation.getLongtitude(),eLocation.getLatitude(),et.getText().toString());
+                    params.setAudioId(audioId);
                     new CreateEventOperation().execute(params).get();
 
                 }catch (Exception e){

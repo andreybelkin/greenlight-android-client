@@ -27,6 +27,15 @@ public class Event {
     private double latitude;
 
     private double altitude;
+    private Long audioId;
+
+    public Long getAudioId() {
+        return audioId;
+    }
+
+    public void setAudioId(Long audioId) {
+        this.audioId = audioId;
+    }
 
     public double getAltitude() {
         return altitude;

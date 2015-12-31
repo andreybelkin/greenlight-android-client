@@ -4,6 +4,8 @@
     <string name="create_new_event">Новое событие</string>
     <string name="title_activity_main">GreenLight</string>
     <string name="microphone">Microphone</string>
+    <string name="event_list">Список событий</string>
+
     <string name="remove">Remove</string>
     <string name="checked">Checked</string>
     <string name="search_hint">Company name</string>

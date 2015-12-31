@@ -42,6 +42,9 @@
         <activity
                 android:name=".controller.EventDetailsActivity"
                 android:label="" />
+        <activity
+                android:name=".controller.EventListActivity"
+                android:label="Список событий" />
     </application>
 
 </manifest>

@@ -39,6 +39,7 @@ import java.net.URL;
             msg.put("message",params[0].getMessage());
             msg.put("latitude",params[0].getLatitude());
             msg.put("longitude",params[0].getLongitude());
+            msg.put("audioId",params[0].getAudioId());
             msg.toString();
             Log.i("message",msg.toString());
             URL url = new URL(params[0].getURL());

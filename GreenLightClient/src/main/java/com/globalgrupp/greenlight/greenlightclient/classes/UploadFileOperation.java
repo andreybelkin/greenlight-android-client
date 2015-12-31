@@ -1,0 +1,112 @@
+package com.globalgrupp.greenlight.greenlightclient.classes;
+
+import android.os.AsyncTask;
+import android.util.Log;
+
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+/**
+ * Created by п on 31.12.2015.
+ */
+public class UploadFileOperation extends AsyncTask<CreateEventParams, Void, Long> {
+    @Override
+    protected Long doInBackground(CreateEventParams... params) {
+
+        String attachmentName = "audio";
+        String attachmentFileName = "audio.3gp";
+        String crlf = "\r\n";
+        String twoHyphens = "--";
+        String boundary =  "*****";
+        /************ Make Post Call To Web Server ***********/
+        BufferedReader reader=null;
+        Log.i("doInBackground service ","doInBackground service ");
+        // Send data
+
+        try
+        {
+
+            String urlString="http://46.146.122.16:8081/utils/uploadFile";
+
+
+
+            URL url = new URL(urlString);
+
+            // Send POST data request
+
+            HttpURLConnection conn =(HttpURLConnection) url.openConnection();
+            conn.setDoOutput(true);
+            conn.setDoInput(true);
+            conn.setRequestMethod("PUT");
+            conn.setRequestProperty("User-Agent","Mozilla/5.0");
+            conn.setRequestProperty("Accept","*/*");
+            conn.setRequestProperty("Connection", "Keep-Alive");
+            conn.setRequestProperty("Cache-Control", "no-cache");
+            conn.setRequestProperty(
+                    "Content-Type", "multipart/form-data;boundary=" + boundary);
+
+            DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
+            wr.writeBytes(twoHyphens + boundary + crlf);
+            wr.writeBytes("Content-Disposition: form-data; name=\"" +
+                    attachmentName + "\";filename=\"" +
+                    attachmentFileName + "\"" + crlf);
+            wr.writeBytes(crlf);
+            File file=new File(params[0].getURL());
+            byte[] data = new byte[(int) file.length()];
+            try {
+                new FileInputStream(file).read(data);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            wr.write(data);
+            wr.writeBytes(crlf);
+            wr.writeBytes(twoHyphens + boundary +
+                    twoHyphens + crlf);
+            wr.flush();
+            wr.close();
+            // Get the server response
+            InputStream is; //todo conn.getResponseCode() for errors
+            try{
+
+                is= conn.getInputStream();
+            }
+            catch (Exception e){
+                e.printStackTrace();
+                is=conn.getErrorStream();
+            }
+
+            reader = new BufferedReader(new InputStreamReader(is));
+            StringBuilder sb = new StringBuilder();
+            String line = null;
+
+            // Read Server Response
+            while((line = reader.readLine()) != null)
+            {
+                // Append server response in string
+                sb.append(line);
+            }
+
+            Long result=new Long(sb.toString());
+            return result;
+        }
+        catch(Exception ex)
+        {
+            Log.d(ex.getMessage(),ex.getMessage());
+            ex.printStackTrace();
+        }
+        finally
+        {
+            try
+            {
+                reader.close();
+            }
+
+            catch(Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        return null;
+    }
+}
