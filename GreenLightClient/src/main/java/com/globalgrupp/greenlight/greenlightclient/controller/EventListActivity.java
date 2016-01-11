@@ -43,14 +43,14 @@ public class EventListActivity extends ActionBarActivity implements View.OnClick
                 onBackPressed();
             }
         });
+        SimpleGeoCoords eLocation=new SimpleGeoCoords(0,0,0);
+        if (getIntent().hasExtra("location")) {
 
-        if (getIntent().hasExtra("location")){
-
-            SimpleGeoCoords   eLocation=(SimpleGeoCoords) getIntent().getExtras().getSerializable("location");
-
+             eLocation = (SimpleGeoCoords) getIntent().getExtras().getSerializable("location");
+        }
             try{
                 GetEventParams params=new GetEventParams();
-                params.setURL("http://46.146.122.16:8081/event/getNearestEvents");
+                params.setURL("http://188.227.16.166:8080/event/getNearestEvents");
                 params.setCurrentCoords(eLocation);
 
                 List<Event> events=new GetEventsOperation().execute(params).get();
@@ -75,7 +75,7 @@ public class EventListActivity extends ActionBarActivity implements View.OnClick
 
                 e.printStackTrace();
             }
-        }
+
     }
 
     @Override

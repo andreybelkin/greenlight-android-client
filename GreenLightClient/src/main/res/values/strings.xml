@@ -2,7 +2,7 @@
     <string name="app_name">GreenLight</string>
     <string name="edit">Edit</string>
     <string name="create_new_event">Новое событие</string>
-    <string name="title_activity_main">GreenLight</string>
+    <string name="title_activity_main"></string>
     <string name="microphone">Microphone</string>
     <string name="event_list">Список событий</string>
 

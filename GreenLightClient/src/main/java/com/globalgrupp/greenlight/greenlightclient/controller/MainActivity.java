@@ -47,6 +47,8 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
         Toolbar mActionBarToolbar = (Toolbar) findViewById(R.id.toolbar_actionbar);
         setSupportActionBar(mActionBarToolbar);
         setActionBarEvents(mActionBarToolbar);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setIcon(R.drawable.ic_launcher);
         setUpMapIfNeeded();
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -126,7 +128,7 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
                 mMap.animateCamera(cameraUpdate);
 
                 GetEventParams params=new GetEventParams();
-                params.setURL("http://46.146.122.16:8081/event/getNearestEvents");
+                params.setURL("http://188.227.16.166:8080/event/getNearestEvents");
                 SimpleGeoCoords coords=new SimpleGeoCoords(mLastLocation.getLongitude(),mLastLocation.getLatitude(),mLastLocation.getAltitude());
                 params.setCurrentCoords(coords);
                 List<Event> events=new GetEventsOperation().execute(params).get();

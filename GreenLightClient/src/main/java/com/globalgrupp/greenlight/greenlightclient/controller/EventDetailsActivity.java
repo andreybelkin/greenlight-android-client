@@ -56,7 +56,7 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
 
             try{
                 GetEventParams params=new GetEventParams();
-                params.setURL("http://46.146.122.16:8081/event/getEvent");
+                params.setURL("http://188.227.16.166:8080/event/getEvent");
                 Long id=(Long)getIntent().getExtras().getSerializable("eventId");
                 params.setEventId(id );
 
@@ -82,7 +82,7 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                     lvComments.requestLayout();
                 }
                 if (currentEvent.getAudioId()!=null){
-                    audioFilePath=new FileDownloadTask().execute("http://46.146.122.16:8081/utils/downloadFile?id="+currentEvent.getAudioId().toString()).get();
+                    audioFilePath=new FileDownloadTask().execute("http://188.227.16.166:8080/utils/downloadFile?id="+currentEvent.getAudioId().toString()).get();
                 }
 
             }catch (Exception e) {
