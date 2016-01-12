@@ -14,6 +14,8 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
     <uses-feature android:name="android.hardware.camera"  android:required="false" />
 
     <application
@@ -28,7 +30,7 @@
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyDinxX3M7r156stdVeEy1b5c63v_7ukPaU" />
         <activity
-            android:name=".controller.MainActivity"
+            android:name=".controller.EventListActivity"
             android:label="@string/title_activity_main" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -42,8 +44,11 @@
                 android:name=".controller.EventDetailsActivity"
                 android:label="" />
         <activity
-                android:name=".controller.EventListActivity"
-                android:label="Список событий" />
+                android:name=".controller.MainActivity"
+                android:label="" />
+        <!--<activity-->
+                <!--android:name=".controller.EventListActivity"-->
+                <!--android:label="Список событий" />-->
     </application>
 
 </manifest>

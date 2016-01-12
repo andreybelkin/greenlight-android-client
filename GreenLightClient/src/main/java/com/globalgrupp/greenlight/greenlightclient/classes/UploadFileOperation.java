@@ -27,7 +27,7 @@ public class UploadFileOperation extends AsyncTask<CreateEventParams, Void, Long
         try
         {
 
-            String urlString="http://188.227.16.166:8080/utils/uploadFile";
+            String urlString="http://192.168.100.14:8080/utils/uploadFile";
 
 
 
@@ -47,11 +47,6 @@ public class UploadFileOperation extends AsyncTask<CreateEventParams, Void, Long
                     "Content-Type", "multipart/form-data;boundary=" + boundary);
 
             DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
-            wr.writeBytes(twoHyphens + boundary + crlf);
-            wr.writeBytes("Content-Disposition: form-data; name=\"" +
-                    attachmentName + "\";filename=\"" +
-                    attachmentFileName + "\"" + crlf);
-            wr.writeBytes(crlf);
             File file=new File(params[0].getURL());
             byte[] data = new byte[(int) file.length()];
             try {
@@ -60,9 +55,6 @@ public class UploadFileOperation extends AsyncTask<CreateEventParams, Void, Long
                 e.printStackTrace();
             }
             wr.write(data);
-            wr.writeBytes(crlf);
-            wr.writeBytes(twoHyphens + boundary +
-                    twoHyphens + crlf);
             wr.flush();
             wr.close();
             // Get the server response

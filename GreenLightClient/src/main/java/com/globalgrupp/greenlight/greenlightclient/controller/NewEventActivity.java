@@ -51,14 +51,14 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
     Button btnPlayAudio;
     ProgressBar progress;
     Button btnPhoto;
+    Button btnVideo;
+    String mCurrentVideoPath;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         try{
             setContentView(R.layout.createevent);
-            //getIntent().hasExtra
-            //getIntent().getSerializableExtra
             if (getIntent().hasExtra("location")){
                 eLocation=(SimpleGeoCoords) getIntent().getExtras().getSerializable("location");
             }
@@ -69,8 +69,6 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
 
             mActionBarToolbar = (Toolbar) findViewById(R.id.toolbar_actionbar);
             mActionBarToolbar.setNavigationIcon(R.drawable.icon_toolbal_arrow_white);
-
-
             setSupportActionBar(mActionBarToolbar);
 
             mActionBarToolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -79,8 +77,7 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
                     onBackPressed();
                 }
             });
-            mFileName = Environment.getExternalStorageDirectory().getAbsolutePath();
-            mFileName += "/audiorecordtest.3gp";
+
             setEvents();
             findViewById(R.id.trAudioRow).setVisibility(View.INVISIBLE);
             progress=(ProgressBar) findViewById(R.id.pbAudio);
@@ -108,18 +105,21 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
             @Override
             public void onClick(View v) {
                 try{
-
-
-                    CreateEventParams cep=new CreateEventParams();
-                    cep.setURL(mFileName);
-                    Long audioId=new UploadFileOperation().execute(cep).get();
-                    String serverURL = "http://188.227.16.166:8080/event/createEvent";//todo config
+                    Long audioId=new Long(0);
+                    if (mFileName!=null){
+                        CreateEventParams cep=new CreateEventParams();
+                        cep.setURL(mFileName);
+                        audioId=new UploadFileOperation().execute(cep).get();
+                    }
+                    String serverURL = "http://192.168.100.14:8080/event/createEvent";//todo config
                     // Use AsyncTask execute Method To Prevent ANR Problem
                     EditText et=(EditText) findViewById(R.id.etEventText);
                     CreateEventParams params=new CreateEventParams(serverURL,eLocation.getLongtitude(),eLocation.getLatitude(),et.getText().toString());
                     params.setAudioId(audioId);
-                    new CreateEventOperation().execute(params).get();
-
+                    Boolean res= new CreateEventOperation().execute(params).get();
+                    if (res){
+                        finish();
+                    }
                 }catch (Exception e){
                     e.printStackTrace();
                 }
@@ -164,6 +164,13 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
             @Override
             public void onClick(View v) {
                 dispatchTakePictureIntent();
+            }
+        });
+        btnVideo=(Button)findViewById(R.id.btnVideo);
+        btnVideo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dispatchTakeVideoIntent();
             }
         });
     }
@@ -223,8 +230,6 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
             mPlayer.prepare();
             mPlayer.start();
 
-
-
             new Thread(observer).start();
         } catch (IOException e) {
             Log.e(LOG_TAG, "prepare() failed");
@@ -236,6 +241,8 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
         mPlayer = null;
     }
     private void startRecording() {
+        mFileName = Environment.getExternalStorageDirectory().getAbsolutePath();
+        mFileName += "/audiorecordtest.3gp";
         mRecorder = new MediaRecorder();
         mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
@@ -271,19 +278,16 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
         }
     }
 
-    static final int REQUEST_TAKE_PHOTO = 1;
+
 
     private void dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-
-        // Ensure that there's a camera activity to handle the intent
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            // Create the File where the photo should go
+
             File photoFile = null;
             try {
                 photoFile = createImageFile();
             } catch (IOException ex) {
-                // Error occurred while creating the File
 
             }
             // Continue only if the File was successfully created
@@ -291,7 +295,24 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
                 //mCurrentPhotoPath=Uri.fromFile(photoFile).toString();
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
                         Uri.fromFile(photoFile));
-                startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+            }
+        }
+    }
+    private void dispatchTakeVideoIntent() {
+        Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+        if (takeVideoIntent.resolveActivity(getPackageManager()) != null) {
+            File photoFile = null;
+            try {
+                photoFile = createVideoFile();
+            } catch (IOException ex) {
+            }
+            if (photoFile != null) {
+                takeVideoIntent.putExtra(MediaStore.EXTRA_OUTPUT,
+                        Uri.fromFile(photoFile));
+                takeVideoIntent.putExtra(MediaStore.EXTRA_SHOW_ACTION_ICONS, false);
+                takeVideoIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
+                startActivityForResult(takeVideoIntent, REQUEST_VIDEO_CAPTURE);
             }
         }
     }
@@ -339,8 +360,25 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
         mCurrentPhotoPath = "file:" + image.getAbsolutePath();
         return image;
     }
+    private File createVideoFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "video_" + timeStamp + "_";
+        File storageDir = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".3gp",         /* suffix */
+                storageDir      /* directory */
+        );
+
+        // Save a file: path for use with ACTION_VIEW intents
+        mCurrentVideoPath = "file:" + image.getAbsolutePath();
+        return image;
+    }
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
+    static final int REQUEST_VIDEO_CAPTURE = 2;
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
@@ -349,6 +387,7 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
             }catch(Exception e){
                 Log.e("photoActivityResult",e.getMessage());
             }
+        }else if (requestCode == REQUEST_VIDEO_CAPTURE && resultCode == RESULT_OK){
 
         }
     }

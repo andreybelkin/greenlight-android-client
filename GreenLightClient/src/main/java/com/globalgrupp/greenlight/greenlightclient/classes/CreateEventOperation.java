@@ -17,7 +17,7 @@ import java.net.URL;
  * Created by п on 21.12.2015.
  */
     // Class with extends AsyncTask class
-    public class CreateEventOperation extends AsyncTask<CreateEventParams, Void, Void> {
+    public class CreateEventOperation extends AsyncTask<CreateEventParams, Void, Boolean> {
 
         // Required initialization
 
@@ -27,7 +27,7 @@ import java.net.URL;
         String data ="";
 
     @Override
-    protected Void doInBackground(CreateEventParams... params) {
+    protected Boolean doInBackground(CreateEventParams... params) {
         /************ Make Post Call To Web Server ***********/
         BufferedReader reader=null;
         Log.i("doInBackground service ","doInBackground service ");
@@ -85,12 +85,14 @@ import java.net.URL;
 
             // Append Server Response To Content String
             Content = sb.toString();
+            return true;
         }
         catch(Exception ex)
         {
             Error = ex.getMessage();
             Log.d(ex.getMessage(),ex.getMessage());
             ex.printStackTrace();
+            return false;
         }
         finally
         {
@@ -103,59 +105,9 @@ import java.net.URL;
                 ex.printStackTrace();
             }
         }
-        return null;
     }
 
-    protected void onPreExecute() {
-            try{
-                Log.i("pre execute service ","pre execute service ");
-                // Set Request parameter
 
-            } catch (Exception e) {
-                // TODO Auto-generated catch block
-                Log.d(e.getMessage(),e.getMessage());
-                e.printStackTrace();
-            }
-        }
-
-        protected void onPostExecute(Void unused) {
-
-            if (Error != null) {
-
-            } else {
-
-
-                String OutputData = "";
-                JSONObject jsonResponse;
-
-                try {
-
-                    /****** Creates a new JSONObject with name/value mappings from the JSON string. ********/
-                    jsonResponse = new JSONObject(Content);
-
-                    /***** Returns the value mapped by name if it exists and is a JSONArray. ***/
-                    /*******  Returns null otherwise.  *******/
-                    JSONArray jsonMainNode = jsonResponse.optJSONArray("Android");
-
-                    /*********** Process each JSON Node ************/
-
-                    int lengthJsonArr = jsonMainNode.length();
-
-                    for(int i=0; i < lengthJsonArr; i++)
-                    {
-                        /****** Get Object for each JSON node.***********/
-                        JSONObject jsonChildNode = jsonMainNode.getJSONObject(i);
-                        //todo result
-                        Log.i("getsome data service ","getsome data service ");
-                    }
-                } catch (JSONException e) {
-                    Log.i(e.getMessage(),e.getMessage());
-                    e.printStackTrace();
-                }
-
-
-            }
-        }
 
     }
 

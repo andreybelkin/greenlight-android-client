@@ -20,6 +20,11 @@
         android:title="@string/event_list"
         android:icon="@drawable/icon_menu"
         yourapp:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_map"
+        android:title="@string/map"
+        android:icon="@drawable/icon_menu"
+        yourapp:showAsAction="ifRoom" />
 
     <!--<item-->
         <!--android:id="@+id/action_remove"-->

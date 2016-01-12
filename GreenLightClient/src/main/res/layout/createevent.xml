@@ -68,7 +68,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Видео"
-                    android:id="@+id/button2"
+                    android:id="@+id/btnVideo"
                     android:layout_weight="1"/>
             <Button
                     style="?android:attr/buttonStyleSmall"

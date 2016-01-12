@@ -31,7 +31,7 @@ public class SaveCommentOperation extends AsyncTask<Comment,Void,Void> {
             msg.put("message",params[0].getMessage());
             msg.put("event", event);
             Log.i("message",msg.toString());
-            URL url = new URL("http://188.227.16.166:8080/event/addComment");
+            URL url = new URL("http://192.168.100.14:8080/event/addComment");
 
             // Send POST data request
 

@@ -10,6 +10,24 @@
             android:layout_height="128dp"
             android:text="New Text"
             android:id="@+id/eventMessage"/>
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/laBtnAudio">
+        <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:id="@+id/trAudioRow">
+            <Button
+                    style="?android:attr/buttonStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Воспроизвести аудио"
+                    android:id="@+id/btnPlayAudio"
+                    android:layout_weight="1"
+                    android:visibility="invisible"/>
+        </TableRow>
+    </LinearLayout>
     <ScrollView
             android:layout_width="match_parent"
             android:layout_height="273dp"

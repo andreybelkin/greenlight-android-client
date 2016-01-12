@@ -1,5 +1,6 @@
 package com.globalgrupp.greenlight.greenlightclient.controller;
 
+import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -16,10 +17,7 @@ import android.widget.TextView;
 import com.globalgrupp.greenlight.greenlightclient.R;
 import com.globalgrupp.greenlight.greenlightclient.classes.*;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -36,6 +34,10 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
     private Event currentEvent;
     private EditText etComment;
     private String audioFilePath;
+
+    private MediaPlayer mPlayer = null;
+    private Button btnPlayAudio;
+    boolean mStartPlaying = true;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -56,7 +58,7 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
 
             try{
                 GetEventParams params=new GetEventParams();
-                params.setURL("http://188.227.16.166:8080/event/getEvent");
+                params.setURL("http://192.168.100.14:8080/event/getEvent");
                 Long id=(Long)getIntent().getExtras().getSerializable("eventId");
                 params.setEventId(id );
 
@@ -81,20 +83,61 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                     lvComments.setLayoutParams(layoutParams);
                     lvComments.requestLayout();
                 }
-                if (currentEvent.getAudioId()!=null){
-                    audioFilePath=new FileDownloadTask().execute("http://188.227.16.166:8080/utils/downloadFile?id="+currentEvent.getAudioId().toString()).get();
+                if (currentEvent.getAudioId()!=null&&!currentEvent.getAudioId().equals(new Long(0)) ){
+//                    "http://192.168.100.14:8080/utils/downloadFile?id=
+                    audioFilePath=new FileDownloadTask().execute("http://192.168.100.14:8080/utils/getFiles/"+currentEvent.getAudioId().toString()).get();
+                    btnPlayAudio=(Button)findViewById(R.id.btnPlayAudio);
+                    btnPlayAudio.setVisibility(View.VISIBLE);
+                    btnPlayAudio.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            onPlay(mStartPlaying);
+                            if (mStartPlaying) {
+                                btnPlayAudio.setText("Стоп");
+                            } else {
+                                btnPlayAudio.setText("Воспроизвести аудио");
+                            }
+                            mStartPlaying = !mStartPlaying;
+                        }
+                    });
                 }
-
             }catch (Exception e) {
-
                 e.printStackTrace();
             }
         }
         etComment=(EditText)findViewById(R.id.etComment);
         btnSendComment=(Button) findViewById(R.id.btnSendComment);
         btnSendComment.setOnClickListener(this);
+    }
 
+    private void onPlay(boolean start) {
+        if (start) {
+            startPlaying();
+        } else {
+            stopPlaying();
+        }
+    }
+    private void startPlaying() {
+        mPlayer = new MediaPlayer();
+        try {
+            mPlayer.setDataSource(audioFilePath);
+            mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    btnPlayAudio.performClick();
+                }
+            });
+            mPlayer.prepare();
+            mPlayer.start();
 
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void stopPlaying() {
+        mPlayer.release();
+        mPlayer = null;
     }
 
     @Override
@@ -105,59 +148,46 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
         new SaveCommentOperation().execute(sendData);
     }
     private class FileDownloadTask extends AsyncTask<String,Void,String>{
-
         @Override
         protected String doInBackground(String... params) {
+            File file=null;
             try {
                 String DownloadUrl=params[0];
-                String fileName="audiotest.3gp";
+                String fileName="audiotest2.3gp";
                 String root = Environment.getExternalStorageDirectory().getAbsolutePath();
 
-                File dir = new File (root + "/xmls");
+                File dir = new File (root + "/gl");
                 if(dir.exists()==false) {
                     dir.mkdirs();
                 }
-
                 URL url = new URL(DownloadUrl); //you can write here any link
-                File file = new File(dir, fileName);
+                file = new File(dir, fileName);
 
                 long startTime = System.currentTimeMillis();
                 Log.d("DownloadManager", "download begining");
                 Log.d("DownloadManager", "download url:" + url);
                 Log.d("DownloadManager", "downloaded file name:" + fileName);
 
-           /* Open a connection to that URL. */
                 URLConnection ucon = url.openConnection();
-
-           /*
-            * Define InputStreams to read from the URLConnection.
-            */
                 InputStream is = ucon.getInputStream();
-                BufferedInputStream bis = new BufferedInputStream(is);
+                ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+                int nRead;
+                byte[] data = new byte[16384];
 
-           /*
-            * Read bytes to the Buffer until there is nothing more to read(-1).
-            */
-
-                byte[] data = new byte[(int) file.length()];
-                try {
-                    is.read(data);
-                } catch (Exception e) {
-                    e.printStackTrace();
+                while ((nRead = is.read(data, 0, data.length)) != -1) {
+                    buffer.write(data, 0, nRead);
                 }
+                buffer.flush();
 
-
-           /* Convert the Bytes read to a String. */
+                byte[] dataFile = buffer.toByteArray();
                 FileOutputStream fos = new FileOutputStream(file);
-                fos.write(data);
+                fos.write(dataFile);
                 fos.flush();
                 fos.close();
-                Log.d("DownloadManager", "download ready in" + ((System.currentTimeMillis() - startTime) / 1000) + " sec");
-
             } catch (Exception e) {
                 Log.d("DownloadManager", "Error: " + e);
             }
-            return getFilesDir().getAbsolutePath();
+            return file.toString();
         }
     }
 }
