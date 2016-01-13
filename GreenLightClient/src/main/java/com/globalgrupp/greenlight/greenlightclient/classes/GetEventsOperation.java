@@ -102,6 +102,10 @@ public class GetEventsOperation extends AsyncTask<GetEventParams, Void, List<Eve
                 e.setMessage(jsonObject.getString("message"));
                 e.setId(jsonObject.getLong("id"));
                 e.setAudioId(!jsonObject.isNull("audioId")?jsonObject.getLong("audioId"):null);
+                e.setPhotoId(!jsonObject.isNull("photoId")?jsonObject.getLong("photoId"):null);
+                e.setVideoId(!jsonObject.isNull("videoId")?jsonObject.getLong("videoId"):null);
+                e.setStreetName(!jsonObject.isNull("streetName")?jsonObject.getString("streetName"):null);
+                e.setCreateDate(new Date(jsonObject.getLong("createDate")));
                 JSONArray jsonCommentsArray= jsonObject.getJSONArray("comments");
                 ArrayList<Comment> comments=new ArrayList<Comment>();
                 for (int k=0;k<jsonCommentsArray.length();k++){

@@ -1,10 +1,12 @@
 package com.globalgrupp.greenlight.greenlightclient.controller;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Geocoder;
+import android.location.Location;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
@@ -70,7 +72,9 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
             mActionBarToolbar = (Toolbar) findViewById(R.id.toolbar_actionbar);
             mActionBarToolbar.setNavigationIcon(R.drawable.icon_toolbal_arrow_white);
             setSupportActionBar(mActionBarToolbar);
-
+            //getSupportActionBar().setTitle("");
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+            getSupportActionBar().setIcon(R.drawable.ic_launcher);
             mActionBarToolbar.setNavigationOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -111,11 +115,28 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
                         cep.setURL(mFileName);
                         audioId=new UploadFileOperation().execute(cep).get();
                     }
+                    Long photoId=new Long(0);
+                    if (mCurrentPhotoPath!=null){
+                        CreateEventParams cep=new CreateEventParams();
+                        cep.setURL(mCurrentPhotoPath);
+                        photoId=new UploadFileOperation().execute(cep).get();
+                    }
+                    Long videoId=new Long(0);
+                    if (mCurrentVideoPath!=null){
+                        CreateEventParams cep=new CreateEventParams();
+                        cep.setURL(mCurrentVideoPath);
+                        videoId=new UploadFileOperation().execute(cep).get();
+                    }
+
                     String serverURL = "http://192.168.100.14:8080/event/createEvent";//todo config
-                    // Use AsyncTask execute Method To Prevent ANR Problem
                     EditText et=(EditText) findViewById(R.id.etEventText);
+
+                    String street=eAddres.getThoroughfare();
                     CreateEventParams params=new CreateEventParams(serverURL,eLocation.getLongtitude(),eLocation.getLatitude(),et.getText().toString());
                     params.setAudioId(audioId);
+                    params.setPhotoId(photoId);
+                    params.setVideoId(videoId);
+                    params.setStreetName(street);
                     Boolean res= new CreateEventOperation().execute(params).get();
                     if (res){
                         finish();
@@ -174,6 +195,7 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
             }
         });
     }
+
     private void onRecord(boolean start) {
         if (start) {
             startRecording();
@@ -310,8 +332,8 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
             if (photoFile != null) {
                 takeVideoIntent.putExtra(MediaStore.EXTRA_OUTPUT,
                         Uri.fromFile(photoFile));
-                takeVideoIntent.putExtra(MediaStore.EXTRA_SHOW_ACTION_ICONS, false);
-                takeVideoIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
+//                takeVideoIntent.putExtra(MediaStore.EXTRA_SHOW_ACTION_ICONS, false);
+//                takeVideoIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
                 startActivityForResult(takeVideoIntent, REQUEST_VIDEO_CAPTURE);
             }
         }
@@ -357,7 +379,7 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
         );
 
         // Save a file: path for use with ACTION_VIEW intents
-        mCurrentPhotoPath = "file:" + image.getAbsolutePath();
+        mCurrentPhotoPath =  image.getAbsolutePath();//"file:" +
         return image;
     }
     private File createVideoFile() throws IOException {
@@ -371,9 +393,7 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
                 ".3gp",         /* suffix */
                 storageDir      /* directory */
         );
-
-        // Save a file: path for use with ACTION_VIEW intents
-        mCurrentVideoPath = "file:" + image.getAbsolutePath();
+        mCurrentVideoPath = image.getAbsolutePath();
         return image;
     }
 

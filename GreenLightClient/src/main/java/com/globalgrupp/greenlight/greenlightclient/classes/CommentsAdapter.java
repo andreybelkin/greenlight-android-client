@@ -34,6 +34,7 @@ public class CommentsAdapter extends ArrayAdapter<Comment> {
             viewHolder.tvTitle = (TextView) convertView.findViewById(R.id.tvNewsTitle);
             viewHolder.tvDate = (TextView) convertView.findViewById(R.id.tvNewsDate);
             convertView.setTag(viewHolder);
+
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }

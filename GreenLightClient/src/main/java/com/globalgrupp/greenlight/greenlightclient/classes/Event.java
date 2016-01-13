@@ -1,5 +1,6 @@
 package com.globalgrupp.greenlight.greenlightclient.classes;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -28,6 +29,44 @@ public class Event {
 
     private double altitude;
     private Long audioId;
+
+    private Long photoId;
+    private Long videoId;
+
+    private String streetName;
+    private Date createDate;
+
+    public Date getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
+    }
+
+    public String getStreetName() {
+        return streetName;
+    }
+
+    public void setStreetName(String streetName) {
+        this.streetName = streetName;
+    }
+
+    public Long getPhotoId() {
+        return photoId;
+    }
+
+    public void setPhotoId(Long photoId) {
+        this.photoId = photoId;
+    }
+
+    public Long getVideoId() {
+        return videoId;
+    }
+
+    public void setVideoId(Long videoId) {
+        this.videoId = videoId;
+    }
 
     public Long getAudioId() {
         return audioId;

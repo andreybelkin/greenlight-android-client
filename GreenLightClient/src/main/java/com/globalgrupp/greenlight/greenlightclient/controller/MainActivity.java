@@ -183,8 +183,6 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
                 startActivity(startIntent);
             }
 
-            //startIntent.putExtra("addres",addres.get(0));
-
         }catch (Exception e){
             e.printStackTrace();
         }

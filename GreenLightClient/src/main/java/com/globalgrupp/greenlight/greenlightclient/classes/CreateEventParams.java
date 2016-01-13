@@ -14,6 +14,36 @@ public class CreateEventParams implements Serializable {
 
     private Long audioId;
 
+    private Long photoId;
+
+    private Long videoId;
+
+    private String streetName;
+
+    public String getStreetName() {
+        return streetName;
+    }
+
+    public void setStreetName(String streetName) {
+        this.streetName = streetName;
+    }
+
+    public Long getPhotoId() {
+        return photoId;
+    }
+
+    public void setPhotoId(Long photoId) {
+        this.photoId = photoId;
+    }
+
+    public Long getVideoId() {
+        return videoId;
+    }
+
+    public void setVideoId(Long videoId) {
+        this.videoId = videoId;
+    }
+
     public Long getAudioId() {
         return audioId;
     }

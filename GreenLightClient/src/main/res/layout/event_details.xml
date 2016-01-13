@@ -5,11 +5,78 @@
               android:layout_height="fill_parent" android:weightSum="1">
 
     <include layout="@layout/toolbar" />
-    <TextView
+
+    <LinearLayout
+            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="128dp"
-            android:text="New Text"
-            android:id="@+id/eventMessage"/>
+            android:layout_height="169dp" android:weightSum="1">
+        <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/contentTopPanel">
+            <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                <LinearLayout
+                        android:orientation="vertical"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1">
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="?android:attr/textAppearanceSmall"
+                            android:text="23:15"
+                            android:id="@+id/tvEventCreateDate" android:textSize="@android:dimen/app_icon_size"/>
+                </LinearLayout>
+                <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1">
+                    <ImageButton
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/ibComment"
+                            android:src="@drawable/icon_comment"
+                            android:layout_weight="1"
+                            android:background="@null" android:layout_gravity="center"/>
+                    <ImageButton
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/imageButton2" android:src="@drawable/icon_share"
+                            android:layout_weight="1"
+                            android:background="@null" android:layout_gravity="center_vertical"/>
+                    <ImageButton
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/ibMap" android:src="@drawable/icon_marker_grey"
+                            android:layout_weight="1"
+                            android:background="@null" android:layout_gravity="center"/>
+                </LinearLayout>
+            </LinearLayout>
+        </TableRow>
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Комсомольский пр-т> Ленина"
+                android:id="@+id/tvStreetName" android:textColor="#111111"/>
+        <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/shape"
+                android:layout_margin="5px">
+            <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:text="New Text"
+                    android:id="@+id/eventMessage"
+                    android:layout_below="@+id/contentTopPanel"/>
+        </LinearLayout>
+    </LinearLayout>
     <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
@@ -27,6 +94,30 @@
                     android:layout_weight="1"
                     android:visibility="invisible"/>
         </TableRow>
+        <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:id="@+id/trVideoRow">
+            <Button
+                    style="?android:attr/buttonStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Воспроизвести видео"
+                    android:id="@+id/btnPlayVideo"
+                    android:layout_weight="1"
+                    android:visibility="invisible"/>
+        </TableRow>
+        <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:id="@+id/trPhotoRow">
+            <Button
+                    style="?android:attr/buttonStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Показать фото"
+                    android:id="@+id/btnShowPhoto"
+                    android:layout_weight="1"
+                    android:visibility="invisible"/>
+        </TableRow>
     </LinearLayout>
     <ScrollView
             android:layout_width="match_parent"
@@ -34,29 +125,29 @@
             android:id="@+id/scrollView" android:layout_weight="1.02">
         <LinearLayout
                 android:orientation="vertical"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent">
             <ListView
-                    android:layout_width="wrap_content"
+                    android:layout_width="fill_parent"
                     android:layout_height="263dp"
                     android:id="@+id/listViewComments"/>
         </LinearLayout>
     </ScrollView>
-    <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            >
-        <EditText
-                android:layout_width="242dp"
-                android:layout_height="wrap_content"
-                android:id="@+id/etComment"/>
-        <Button
-                style="?android:attr/buttonStyleSmall"
-                android:layout_toRightOf="@id/etComment"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="send"
-                android:id="@+id/btnSendComment"/>
-    </RelativeLayout>
+    <!--<RelativeLayout-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_alignParentBottom="true"-->
+            <!--&gt;-->
+        <!--<EditText-->
+                <!--android:layout_width="242dp"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:id="@+id/etComment"/>-->
+        <!--<Button-->
+                <!--style="?android:attr/buttonStyleSmall"-->
+                <!--android:layout_toRightOf="@id/etComment"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:text="send"-->
+                <!--android:id="@+id/btnSendComment"/>-->
+    <!--</RelativeLayout>-->
 </LinearLayout>
