@@ -19,6 +19,10 @@ import android.view.ViewGroup;
 import android.widget.*;
 import com.globalgrupp.greenlight.greenlightclient.R;
 import com.globalgrupp.greenlight.greenlightclient.classes.*;
+import com.vk.sdk.VKSdk;
+import com.vk.sdk.api.*;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.*;
 import java.net.URL;
@@ -41,7 +45,7 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
 
     private String audioFilePath;
     private MediaPlayer mPlayer = null;
-    private Button btnPlayAudio;
+    private ImageButton btnPlayAudio;
     boolean mStartPlaying = true;
 
     private String videoFilePath;
@@ -61,7 +65,6 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.event_details);
-
         mActionBarToolbar = (Toolbar) findViewById(R.id.toolbar_actionbar);
         mActionBarToolbar.setNavigationIcon(R.drawable.icon_toolbal_arrow_white);
         setSupportActionBar(mActionBarToolbar);
@@ -83,20 +86,23 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                 if (currentEvent.getAudioId()!=null&&!currentEvent.getAudioId().equals(new Long(0)) ){
 //                    "http://192.168.100.14:8080/utils/downloadFile?id=
                     audioFilePath=new FileDownloadTask().execute("http://192.168.100.14:8080/utils/getFile/"+currentEvent.getAudioId().toString(),"3gp").get();
-                    btnPlayAudio=(Button)findViewById(R.id.btnPlayAudio);
+                    btnPlayAudio=(ImageButton)findViewById(R.id.btnPlayAudio);
                     btnPlayAudio.setVisibility(View.VISIBLE);
                     btnPlayAudio.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
                             onPlay(mStartPlaying);
                             if (mStartPlaying) {
-                                btnPlayAudio.setText("Стоп");
+                                //todo set pause image
                             } else {
-                                btnPlayAudio.setText("Воспроизвести аудио");
+                                //todo set play image
                             }
                             mStartPlaying = !mStartPlaying;
                         }
                     });
+                }else {
+                    TableRow tr=(TableRow) findViewById(R.id.trAudioRow);
+                    tr.setLayoutParams(new TableRow.LayoutParams(tr.getWidth(),0));
                 }
                 if (currentEvent.getPhotoId()!=null&&!currentEvent.getPhotoId().equals(new Long(0))){
                     photoFilePath=new FileDownloadTask().execute("http://192.168.100.14:8080/utils/getFile/"+currentEvent.getPhotoId().toString(),"jpg").get();
@@ -111,6 +117,9 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                             startActivity(intent);
                         }
                     });
+                }else {
+                    TableRow tr=(TableRow) findViewById(R.id.trPhotoRow);
+                    tr.setLayoutParams(new TableRow.LayoutParams(tr.getWidth(),0));
                 }
                 if (currentEvent.getVideoId()!=null&&!currentEvent.getPhotoId().equals(new Long(0))){
                     videoFilePath=new FileDownloadTask().execute("http://192.168.100.14:8080/utils/getFile/"+currentEvent.getVideoId().toString(),"3gp").get();
@@ -124,6 +133,9 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                             startActivity(intent);
                         }
                     });
+                }else {
+                    TableRow tr=(TableRow) findViewById(R.id.trVideoRow);
+                    tr.setLayoutParams(new TableRow.LayoutParams(tr.getWidth(),0));
                 }
 
             }catch (Exception e) {
@@ -134,6 +146,8 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
         ibMap.setOnClickListener(this);
         ImageButton ibComment=(ImageButton)findViewById(R.id.ibComment);
         ibComment.setOnClickListener(this);
+        ImageButton ibShare=(ImageButton) findViewById(R.id.ibShare);
+        ibShare.setOnClickListener(this);
 
         //initCommentDialog();
 
@@ -261,6 +275,47 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
             startActivity(startIntent);
         } else if (v.getId()==R.id.ibComment){
             initCommentDialog();
+        } else if (v.getId()==R.id.ibShare){
+            VKRequest request = VKApi.users().get();
+            request.executeWithListener(new VKRequest.VKRequestListener() {
+                @Override
+                public void onComplete(VKResponse response) {
+                    try{
+
+                        Long userId=response.json.getJSONArray("response").getJSONObject(0).getLong("id");
+                        VKRequest postRequest = VKApi.wall().post(
+                                VKParameters.from(
+                                        VKApiConst.OWNER_ID, userId.toString(),
+                                        VKApiConst.MESSAGE, currentEvent.getMessage()
+                                )
+                        );
+                        postRequest.executeWithListener(new VKRequest.VKRequestListener() {
+                            @Override
+                            public void onComplete(VKResponse response) {
+                                super.onComplete(response);
+                            }
+
+                            @Override
+                            public void onError(VKError error) {
+                                super.onError(error);
+                            }
+                        });
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+
+                    //Do complete stuff
+                }
+                @Override
+                public void onError(VKError error) {
+                    //Do error stuff
+                }
+                @Override
+                public void attemptFailed(VKRequest request, int attemptNumber, int totalAttempts) {
+                    //I don't really believe in progress
+                }
+            });
+
         }
 
     }

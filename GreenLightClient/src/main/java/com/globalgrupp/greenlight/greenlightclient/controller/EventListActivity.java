@@ -23,6 +23,10 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.vk.sdk.VKAccessToken;
+import com.vk.sdk.VKCallback;
+import com.vk.sdk.VKSdk;
+import com.vk.sdk.api.VKError;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +39,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
 
     Toolbar mActionBarToolbar;
     ListView lvEvents;
+    String keyToken;
 
     protected GoogleApiClient mGoogleApiClient;
 
@@ -48,9 +53,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
         super.onCreate(savedInstanceState);
         try{
             setContentView(R.layout.event_list);
-
             mActionBarToolbar = (Toolbar) findViewById(R.id.toolbar_actionbar);
-
             //mActionBarToolbar.setNavigationIcon(R.drawable.icon_toolbal_arrow_white);
             setSupportActionBar(mActionBarToolbar);
             getSupportActionBar().setTitle("");
@@ -210,5 +213,23 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (!VKSdk.onActivityResult(requestCode, resultCode, data, new VKCallback<VKAccessToken>() {
+            @Override
+            public void onResult(VKAccessToken res) {
+            // Пользователь успешно авторизовался
+                keyToken=res.accessToken;
+            }
+            @Override
+            public void onError(VKError error) {
+            // Произошла ошибка авторизации (например, пользователь запретил авторизацию)
+                keyToken=error.errorMessage+error.errorReason;
+            }
+        }))
+        {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
     }
 }

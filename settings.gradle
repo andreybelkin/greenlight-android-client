@@ -1,1 +1,1 @@
-include ':GreenLightClient'
+include ':vksdk_library',':GreenLightClient'

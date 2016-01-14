@@ -4,6 +4,7 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent">
     <include layout="@layout/toolbar" />
+
     <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
@@ -12,82 +13,120 @@
         <TableRow
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:layout_weight="0.98">
-            <LinearLayout
-                    android:orientation="vertical"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-                <EditText
-                        android:layout_width="match_parent"
-                        android:layout_height="209dp"
-                        android:id="@+id/etEventText"/>
+            <ScrollView
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/scrollView2">
                 <LinearLayout
                         android:orientation="vertical"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent">
-                    <TableRow
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content">
+                    <EditText
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content" android:id="@+id/trAudioRow">
-                        <Button
-                                style="?android:attr/buttonStyleSmall"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Воспроизвести"
-                                android:id="@+id/btnPlayAudio"
-                                android:layout_weight="1"/>
-                        <ProgressBar
-                                style="?android:attr/progressBarStyleHorizontal"
-                                android:layout_width="118dp"
-                                android:layout_height="wrap_content"
-                                android:id="@+id/pbAudio"
-                                android:layout_weight="1" android:layout_gravity="center_vertical"/>
-                    </TableRow>
-                    <TableRow
+                            android:layout_height="209dp"
+                            android:id="@+id/etEventText"
+                            android:background="@drawable/shape"
+                            android:layout_marginRight="10dp"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginTop="10dp"
+                            android:layout_marginBottom="10dp"/>
+                    <LinearLayout
+                            android:orientation="vertical"
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent" android:id="@+id/trImageRow">
-                        <ImageView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:id="@+id/ivPhoto" android:minHeight="150dp" android:minWidth="150dp"/>
-                    </TableRow>
+                            android:layout_height="match_parent">
+                        <TableRow
+                                android:layout_width="match_parent"
+                                android:layout_height="62dp" android:id="@+id/trAudioRow"
+                                android:orientation="vertical">
+                            <ImageButton
+                                    style="?android:attr/buttonStyleSmall"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Воспроизвести"
+                                    android:id="@+id/btnPlayAudio"
+                                    android:layout_weight="1"
+                                    android:background="@null"
+                                    android:src="@drawable/icon_audio_play"/>
+                            <!--<ProgressBar-->
+                                    <!--style="?android:attr/progressBarStyleHorizontal"-->
+                                    <!--android:layout_width="118dp"-->
+                                    <!--android:layout_height="wrap_content"-->
+                                    <!--android:id="@+id/pbAudio"-->
+                                    <!--android:layout_weight="1" android:layout_gravity="center_vertical"/>-->
+                        </TableRow>
+                        <TableRow
+                                android:layout_width="match_parent"
+                                android:layout_height="123dp" android:id="@+id/trImageRow">
+                            <ImageView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="fill_parent"
+                                    android:id="@+id/ivPhoto"
+                                    android:layout_weight="1"/>
+                            <ImageView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="fill_parent"
+                                    android:id="@+id/imageView"
+                                    android:layout_weight="1"/>
+                        </TableRow>
+                        <TableRow
+                                android:layout_width="match_parent"
+                                android:layout_height="200dp"
+                                android:id="@+id/trVideoRow"
+                                android:background="@null">
+                            <VideoView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:id="@+id/videoView"
+                                    android:background="@null"/>
+                        </TableRow>
+                    </LinearLayout>
                 </LinearLayout>
-            </LinearLayout>
-        </TableRow>
-        <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" android:layout_gravity="center_horizontal"
-        >
-            <Button
-                    style="?android:attr/buttonStyleSmall"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Фото"
-                    android:id="@+id/btnPhoto"
-                    android:layout_weight="1"/>
-            <Button
-                    style="?android:attr/buttonStyleSmall"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Видео"
-                    android:id="@+id/btnVideo"
-                    android:layout_weight="1"/>
-            <Button
-                    style="?android:attr/buttonStyleSmall"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Аудио"
-                    android:id="@+id/btnAudio"
-                    android:layout_weight="1"/>
+            </ScrollView>
         </TableRow>
         <TableRow
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/toolbar_gradient"
+        >
+            <ImageButton
+                    style="?android:attr/buttonStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/btnPhoto"
+                    android:layout_weight="1"
+                    android:src="@drawable/icon_camera"
+                    android:background="@null"/>
+            <ImageButton
+                    style="?android:attr/buttonStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/btnVideo"
+                    android:layout_weight="1"
+                    android:src="@drawable/icon_video_camera"
+                    android:background="@null"/>
+            <ImageButton
+                    style="?android:attr/buttonStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/btnAudio"
+                    android:layout_weight="1"
+                    android:src="@drawable/icon_toolbar_micro"
+                    android:background="@null"
+                    />
+        </TableRow>
+        <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/toolbar_gradient"
         >
             <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Создать"
                     android:id="@+id/btnCreateEvent"
-                    android:layout_weight="1"/>
+                    android:layout_weight="1"
+                    android:background="@null"/>
         </TableRow>
     </LinearLayout>
 </LinearLayout>

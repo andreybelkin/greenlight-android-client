@@ -4,11 +4,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
+import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -17,6 +19,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.*;
 import com.globalgrupp.greenlight.greenlightclient.R;
@@ -49,11 +52,11 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
     private static String mFileName = null;
     private static final String LOG_TAG = "AudioRecordTest";
 
-    Button btnAudio;
-    Button btnPlayAudio;
+    ImageButton btnAudio;
+    ImageButton btnPlayAudio;
     ProgressBar progress;
-    Button btnPhoto;
-    Button btnVideo;
+    ImageButton btnPhoto;
+    ImageButton btnVideo;
     String mCurrentVideoPath;
 
     @Override
@@ -84,7 +87,9 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
 
             setEvents();
             findViewById(R.id.trAudioRow).setVisibility(View.INVISIBLE);
-            progress=(ProgressBar) findViewById(R.id.pbAudio);
+            TableRow trVideoRow=(TableRow)findViewById(R.id.trVideoRow);
+            trVideoRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.FILL_PARENT,0));
+
         }
         catch (Exception e){
             e.printStackTrace();
@@ -147,47 +152,49 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
             }
         });
 
-        btnAudio=(Button)findViewById(R.id.btnAudio);
-        btnAudio.setOnClickListener(new View.OnClickListener() {
+        btnAudio=(ImageButton)findViewById(R.id.btnAudio);
+        btnAudio.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public void onClick(View v) {
-                try{
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if(motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
                     onRecord(mStartRecording);
-                    if (mStartRecording) {
-                        btnAudio.setText("Стоп");
-                    } else {
-
-                        btnAudio.setText("Аудио");
-                    }
                     mStartRecording = !mStartRecording;
-                }catch (Exception e){
-                    Log.e("Audio error",e.getMessage());
+                } else if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                    onRecord(mStartRecording);
+                    mStartRecording = !mStartRecording;
                 }
+
+                return false;
             }
         });
-        btnPlayAudio=(Button)findViewById(R.id.btnPlayAudio);
+        btnPlayAudio=(ImageButton)findViewById(R.id.btnPlayAudio);
         btnPlayAudio.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onPlay(mStartPlaying);
-                if (mStartPlaying) {
-                    progress.setMax(mPlayer.getDuration());
-                    btnPlayAudio.setText("Стоп");
-                } else {
-                    btnPlayAudio.setText("Воспроизвести");
+                try{
+                    onPlay(mStartPlaying);
+                    if (mStartPlaying) {
+                        btnPlayAudio.setImageResource(R.drawable.icon_audio_play);//todo stopImage
+                    } else {
+                        btnPlayAudio.setImageResource(R.drawable.icon_audio_play);
+
+                    }
+                    mStartPlaying = !mStartPlaying;
+                }catch(Exception e){
+                    e.printStackTrace();
                 }
-                mStartPlaying = !mStartPlaying;
+
             }
         });
 
-        btnPhoto=(Button)findViewById(R.id.btnPhoto);
+        btnPhoto=(ImageButton)findViewById(R.id.btnPhoto);
         btnPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dispatchTakePictureIntent();
             }
         });
-        btnVideo=(Button)findViewById(R.id.btnVideo);
+        btnVideo=(ImageButton)findViewById(R.id.btnVideo);
         btnVideo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -245,7 +252,7 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
                 public void onCompletion(MediaPlayer mp) {
                     observer.stop();
                     progress.setProgress(mp.getCurrentPosition());
-                    btnPlayAudio.performClick();
+                    //btnPlayAudio.performClick();
                 }
             });
             observer = new MediaObserver();
@@ -259,8 +266,8 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
     }
 
     private void stopPlaying() {
-        mPlayer.release();
-        mPlayer = null;
+        mPlayer.stop();
+
     }
     private void startRecording() {
         mFileName = Environment.getExternalStorageDirectory().getAbsolutePath();
@@ -332,8 +339,6 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
             if (photoFile != null) {
                 takeVideoIntent.putExtra(MediaStore.EXTRA_OUTPUT,
                         Uri.fromFile(photoFile));
-//                takeVideoIntent.putExtra(MediaStore.EXTRA_SHOW_ACTION_ICONS, false);
-//                takeVideoIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
                 startActivityForResult(takeVideoIntent, REQUEST_VIDEO_CAPTURE);
             }
         }
@@ -408,7 +413,30 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
                 Log.e("photoActivityResult",e.getMessage());
             }
         }else if (requestCode == REQUEST_VIDEO_CAPTURE && resultCode == RESULT_OK){
-
+            try{
+                setVideo();
+            }catch (Exception e){
+                e.printStackTrace();
+            }
         }
+    }
+
+    private void setVideo(){
+        TableRow trVideoRow=(TableRow)findViewById(R.id.trVideoRow);
+        trVideoRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.FILL_PARENT,trVideoRow.getWidth()));
+        Bitmap thumbnail = ThumbnailUtils.createVideoThumbnail(mCurrentVideoPath,
+                MediaStore.Images.Thumbnails.MINI_KIND);
+        final VideoView video = (VideoView) findViewById(R.id.videoView);
+        BitmapDrawable bitmapDrawable = new BitmapDrawable(thumbnail);
+        //video.setBackgroundDrawable(bitmapDrawable);
+        video.setVideoPath(mCurrentVideoPath);
+        video.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                video.start();
+                return false;
+            }
+        });
+        //video.start();
     }
 }

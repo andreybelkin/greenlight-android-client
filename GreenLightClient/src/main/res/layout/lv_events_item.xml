@@ -6,23 +6,20 @@
     android:paddingLeft="0dp"
     android:paddingRight="0dp"
     tools:ignore="MissingPrefix"
-    android:orientation="horizontal" android:layout_weight="1"
-    android:background="@drawable/comment_border">
+    android:orientation="horizontal" android:layout_weight="1">
 
     <LinearLayout
             android:layout_marginRight="1dp"
             android:background="@null"
             android:layout_width="fill_parent"
             android:layout_weight="1"
-            android:layout_height="78dp"
-            android:orientation="vertical">
+            android:layout_height="78dp" android:orientation="vertical">
 
         <TableRow
                 android:layout_width="match_parent"
                 android:layout_height="25dp">
             <TextView
-                android:layout_below="@+id/imgCommentIcon"
-                android:id="@+id/tvNewsDate"
+                android:id="@+id/tvEventsDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
@@ -32,14 +29,25 @@
                 android:textColor="@color/symbol_black"
                 fontPath="fonts/Roboto-Regular.ttf"
             />
+            <TextView
+                    android:id="@+id/tvEventsStreet"
+                    android:layout_toRightOf="@+id/tvEventsDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:textSize="9sp"
+                    android:layout_marginLeft="7dp"
+                    android:layout_marginTop="3dp"
+                    android:textColor="@color/symbol_black"
+                    fontPath="fonts/Roboto-Regular.ttf"
+            />
         </TableRow>
 
         <TableRow
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
             <TextView
-                android:id="@+id/tvNewsTitle"
-                android:layout_toRightOf="@+id/imgCommentIcon"
+                android:id="@+id/tvEventsTitle"
                 android:layout_marginLeft="27dp"
                 android:layout_marginTop="7dp"
                 android:paddingRight="7dp"
@@ -51,7 +59,7 @@
                 android:textStyle="bold"
                 android:textColor="@color/symbol_black"
                 fontPath="fonts/Roboto-Regular.ttf"
-                android:text="Some news text" />
+                android:text="Some text" />
         </TableRow>
 
     </LinearLayout>

@@ -8,12 +8,15 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import com.globalgrupp.greenlight.greenlightclient.R;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 /**
  * Created by п on 29.12.2015.
  */
 public class CommentsAdapter extends ArrayAdapter<Comment> {
+    DateFormat df = new SimpleDateFormat("HH:mm");
     private static class ViewHolder {
         TextView tvTitle;
         TextView tvDate;
@@ -39,7 +42,7 @@ public class CommentsAdapter extends ArrayAdapter<Comment> {
             viewHolder = (ViewHolder) convertView.getTag();
         }
         viewHolder.tvTitle.setText(commentsItem.getMessage());
-        //viewHolder.tvDate.setText(commentsItem.getCreateDate().toString());
+        viewHolder.tvDate.setText(df.format(commentsItem.getCreateDate()));
 
         return convertView;
     }
