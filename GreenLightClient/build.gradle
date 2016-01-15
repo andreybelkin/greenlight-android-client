@@ -51,6 +51,8 @@ dependencies {
     compile 'com.vk:androidsdk:+'
     compile 'com.facebook.android:facebook-android-sdk:4.+'
     compile 'com.facebook.android:audience-network-sdk:4.+'
+    compile 'org.twitter4j:twitter4j-core:4.0.4'
+
 }
 
 

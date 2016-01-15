@@ -1,8 +1,9 @@
 package com.globalgrupp.greenlight.greenlightclient.controller;
 
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -17,12 +18,19 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.share.ShareApi;
+import com.facebook.share.Sharer;
+import com.facebook.share.model.SharePhoto;
+import com.facebook.share.model.SharePhotoContent;
 import com.globalgrupp.greenlight.greenlightclient.R;
 import com.globalgrupp.greenlight.greenlightclient.classes.*;
-import com.vk.sdk.VKSdk;
 import com.vk.sdk.api.*;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import twitter4j.Status;
+import twitter4j.Twitter;
+import twitter4j.TwitterFactory;
+import twitter4j.conf.ConfigurationBuilder;
 
 import java.io.*;
 import java.net.URL;
@@ -60,6 +68,8 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
 
     AlertDialog.Builder alertDialog;
 
+    private String TWITTER_CONSUMER_KEY="fWJW731tJv7Yk2ID2vBmIYLFR";
+    private String TWITTER_CONSUMER_SECRET="VsUjFxLpzSwWycOscn4Tti9BRyGaIvWJxTEQGI48SmDRHmuDFz";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -276,90 +286,106 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
         } else if (v.getId()==R.id.ibComment){
             initCommentDialog();
         } else if (v.getId()==R.id.ibShare){
-            VKRequest request = VKApi.users().get();
-            request.executeWithListener(new VKRequest.VKRequestListener() {
-                @Override
-                public void onComplete(VKResponse response) {
-                    try{
-
-                        Long userId=response.json.getJSONArray("response").getJSONObject(0).getLong("id");
-                        VKRequest postRequest = VKApi.wall().post(
-                                VKParameters.from(
-                                        VKApiConst.OWNER_ID, userId.toString(),
-                                        VKApiConst.MESSAGE, currentEvent.getMessage()
-                                )
-                        );
-                        postRequest.executeWithListener(new VKRequest.VKRequestListener() {
-                            @Override
-                            public void onComplete(VKResponse response) {
-                                super.onComplete(response);
-                            }
-
-                            @Override
-                            public void onError(VKError error) {
-                                super.onError(error);
-                            }
-                        });
-                    }catch (Exception e){
-                        e.printStackTrace();
+            if (AuthorizationType.VK==ApplicationSettings.getInstance().getAuthorizationType()){
+                VKRequest request = VKApi.users().get();
+                request.executeWithListener(new VKRequest.VKRequestListener() {
+                    @Override
+                    public void onComplete(VKResponse response) {
+                        try{
+                            Long userId=response.json.getJSONArray("response").getJSONObject(0).getLong("id");
+                            VKRequest postRequest = VKApi.wall().post(
+                                    VKParameters.from(
+                                            VKApiConst.OWNER_ID, userId.toString(),
+                                            VKApiConst.MESSAGE, currentEvent.getMessage()
+                                    )
+                            );
+                            postRequest.executeWithListener(new VKRequest.VKRequestListener() {
+                                @Override
+                                public void onComplete(VKResponse response) {
+                                    super.onComplete(response);
+                                    android.app.AlertDialog.Builder alertDialog=new android.app.AlertDialog.Builder(EventDetailsActivity.this);
+                                    alertDialog.setMessage("Событие опубликовано в вконтакте");
+                                    alertDialog.show();
+                                }
+                                @Override
+                                public void onError(VKError error) {
+                                    super.onError(error);
+                                }
+                            });
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }
                     }
+                    @Override
+                    public void onError(VKError error) {
+                    }
+                    @Override
+                    public void attemptFailed(VKRequest request, int attemptNumber, int totalAttempts) {
+                    }
+                });
+            } else if (ApplicationSettings.getInstance().getAuthorizationType()==AuthorizationType.FACEBOOK){
+                try{
+                    Bitmap bm = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.ic_launcher);
 
-                    //Do complete stuff
+                    SharePhoto photo=new SharePhoto.Builder().setBitmap(bm).build();
+                    SharePhotoContent photoContent=new SharePhotoContent.Builder().addPhoto(photo).build();
+                    ShareApi shareApi=new ShareApi(photoContent);
+                    shareApi.setMessage(currentEvent.getMessage());
+                    shareApi.share( new FacebookCallback<Sharer.Result>() {
+                        @Override
+                        public void onSuccess(Sharer.Result result) {
+                            int i=0;
+                            android.app.AlertDialog.Builder alertDialog=new android.app.AlertDialog.Builder(EventDetailsActivity.this);
+                            alertDialog.setMessage("Событие опубликовано в Facebook'е");
+                            alertDialog.show();
+                        }
+
+                        @Override
+                        public void onCancel() {
+                        }
+
+                        @Override
+                        public void onError(FacebookException e) {
+                            e.printStackTrace();
+                        }
+                    });
+                }catch (Exception e){
+                    e.printStackTrace();
                 }
-                @Override
-                public void onError(VKError error) {
-                    //Do error stuff
+
+            } else if (ApplicationSettings.getInstance().getAuthorizationType()==AuthorizationType.TWITTER){
+                try{
+                    // Update status
+                    twitter4j.Status response =
+                    new AsyncTask<String, Void, Status>() {
+                        @Override
+                        protected twitter4j.Status doInBackground(String... strings) {
+                            try{
+                                ConfigurationBuilder builder = new ConfigurationBuilder();
+                                builder.setOAuthConsumerKey(TWITTER_CONSUMER_KEY);
+                                builder.setOAuthConsumerSecret(TWITTER_CONSUMER_SECRET);
+                                Twitter twitter = new TwitterFactory(builder.build()).getInstance(ApplicationSettings.getInstance().getTwitterAccessToken());
+                                return twitter.updateStatus(strings[0]);
+                            }catch (Exception e){
+                                e.printStackTrace();
+                                return null;
+                            }
+
+                        }
+                    }.execute(currentEvent.getMessage()).get();
+                    if (response!=null){
+                        android.app.AlertDialog.Builder alertDialog=new android.app.AlertDialog.Builder(EventDetailsActivity.this);
+                        alertDialog.setMessage("Событие опубликовано в Twitter'е");
+                        alertDialog.show();
+                    }
+                }catch(Exception e){
+                    e.printStackTrace();
                 }
-                @Override
-                public void attemptFailed(VKRequest request, int attemptNumber, int totalAttempts) {
-                    //I don't really believe in progress
-                }
-            });
 
-        }
-
-    }
-    private class FileDownloadTask extends AsyncTask<String,Void,String>{
-        @Override
-        protected String doInBackground(String... params) {
-            File file=null;
-            try {
-                String DownloadUrl=params[0];
-                String fileName= UUID.randomUUID().toString()+"."+params[1];
-                String root = Environment.getExternalStorageDirectory().getAbsolutePath();
-
-                File dir = new File (root + "/gl");
-                if(dir.exists()==false) {
-                    dir.mkdirs();
-                }
-                URL url = new URL(DownloadUrl); //you can write here any link
-                file = new File(dir, fileName);
-
-                long startTime = System.currentTimeMillis();
-                Log.d("DownloadManager", "download begining");
-                Log.d("DownloadManager", "download url:" + url);
-                Log.d("DownloadManager", "downloaded file name:" + fileName);
-
-                URLConnection ucon = url.openConnection();
-                InputStream is = ucon.getInputStream();
-                ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-                int nRead;
-                byte[] data = new byte[16384];
-
-                while ((nRead = is.read(data, 0, data.length)) != -1) {
-                    buffer.write(data, 0, nRead);
-                }
-                buffer.flush();
-
-                byte[] dataFile = buffer.toByteArray();
-                FileOutputStream fos = new FileOutputStream(file);
-                fos.write(dataFile);
-                fos.flush();
-                fos.close();
-            } catch (Exception e) {
-                Log.d("DownloadManager", "Error: " + e);
             }
-            return file.toString();
+
         }
+
     }
+
 }

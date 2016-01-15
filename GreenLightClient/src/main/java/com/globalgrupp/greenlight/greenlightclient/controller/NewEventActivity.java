@@ -84,7 +84,9 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
                     onBackPressed();
                 }
             });
-
+            mFileName=null;
+            mCurrentPhotoPath=null;
+            mCurrentVideoPath=null;
             setEvents();
             findViewById(R.id.trAudioRow).setVisibility(View.INVISIBLE);
             TableRow trVideoRow=(TableRow)findViewById(R.id.trVideoRow);
@@ -250,16 +252,16 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
             mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
-                    observer.stop();
-                    progress.setProgress(mp.getCurrentPosition());
+                   // observer.stop();
+                    //progress.setProgress(mp.getCurrentPosition());
                     //btnPlayAudio.performClick();
                 }
             });
-            observer = new MediaObserver();
+            //observer = new MediaObserver();
             mPlayer.prepare();
             mPlayer.start();
 
-            new Thread(observer).start();
+            //new Thread(observer).start();
         } catch (IOException e) {
             Log.e(LOG_TAG, "prepare() failed");
         }
