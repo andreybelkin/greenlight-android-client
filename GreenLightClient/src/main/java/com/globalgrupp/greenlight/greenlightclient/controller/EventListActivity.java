@@ -19,30 +19,40 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Spinner;
 import com.globalgrupp.greenlight.greenlightclient.Application;
 import com.globalgrupp.greenlight.greenlightclient.R;
 import com.globalgrupp.greenlight.greenlightclient.classes.*;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.AutocompleteFilter;
+import com.google.android.gms.location.places.AutocompletePredictionBuffer;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.vk.sdk.VKAccessToken;
 import com.vk.sdk.VKCallback;
 import com.vk.sdk.VKSdk;
 import com.vk.sdk.api.VKError;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by п on 31.12.2015.
@@ -56,7 +66,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
     MediaPlayer mPlayer;
     private boolean isplayed=false;
 
-    protected GoogleApiClient mGoogleApiClient;
+//    protected GoogleApiClient mGoogleApiClient;
 
     @Override
     public void onClick(View v) {
@@ -80,15 +90,133 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                     onBackPressed();
                 }
             });
-            mGoogleApiClient = new GoogleApiClient.Builder(this)
-                    .addConnectionCallbacks(this)
-                    .addOnConnectionFailedListener(this)
-                    .addApi(LocationServices.API)
-                    .build();
-            mGoogleApiClient.connect();
-
+            if (ApplicationSettings.getInstance().getmGoogleApiClient()==null){
+                ApplicationSettings.getInstance().setmGoogleApiClient( new GoogleApiClient.Builder(this)
+                        .addConnectionCallbacks(this)
+                        .addOnConnectionFailedListener(this)
+                        .addApi(LocationServices.API)
+                        .addApi(Places.GEO_DATA_API)
+                        .build());
+                ApplicationSettings.getInstance().getmGoogleApiClient().connect();
+                ApplicationSettings.getInstance().startLocationTimer();
+            }
            //refreshEventList();
         }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public void initChannels(){
+        try{
+            String url="http://192.168.1.33:8080/channel/getBaseChannels";
+            //подгрузка каналов
+            List<Channel> channels= new AsyncTask<String, Void, List<Channel>>() {
+                @Override
+                protected List<Channel> doInBackground(String... params) {
+                    /************ Make Post Call To Web Server ***********/
+                    BufferedReader reader=null;
+                    Log.i("doInBackground service ","doInBackground service ");
+                    // Send data
+                    List<Channel> result=new ArrayList<Channel>();
+                    try
+                    {
+                        String urlString=params[0];
+                        // Defined URL  where to send data
+                        JSONObject msg=new JSONObject();
+                        URL url = new URL(urlString);
+
+                        // Send POST data request
+
+                        HttpURLConnection conn =(HttpURLConnection) url.openConnection();
+                        conn.setDoOutput(true);
+                        conn.setDoInput(true);
+                        conn.setRequestMethod("POST");
+                        conn.setRequestProperty("User-Agent","Mozilla/5.0");
+                        conn.setRequestProperty("Accept","*/*");
+                        conn.setRequestProperty("Content-Type","application/json");
+                        conn.setRequestProperty("charset", "utf-8");
+
+                        DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
+                        String str = msg.toString();
+                        byte[] data=str.getBytes("UTF-8");
+                        wr.write(data);
+                        wr.flush();
+                        wr.close();
+                        // Get the server response
+                        InputStream is; //todo conn.getResponseCode() for errors
+                        try{
+                            is= conn.getInputStream();
+                        }
+                        catch (Exception e){
+                            e.printStackTrace();
+                            is=conn.getErrorStream();
+                        }
+                        reader = new BufferedReader(new InputStreamReader(is));
+                        StringBuilder sb = new StringBuilder();
+                        String line = null;
+
+                        // Read Server Response
+                        while((line = reader.readLine()) != null)
+                        {
+                            // Append server response in string
+                            sb.append(line + "\n");
+                        }
+
+                        JSONArray jsonResponseArray=new JSONArray(sb.toString());
+                        for (int i=0;i<jsonResponseArray.length();i++){
+                            JSONObject jsonObject=jsonResponseArray.getJSONObject(i);
+                            Channel e=new Channel();
+                            e.setId(jsonObject.getLong("id"));
+                            e.setChannelName(jsonObject.getString("name"));
+
+                            result.add(e);
+                        }
+                    }
+                    catch(Exception ex)
+                    {
+                        Log.d(ex.getMessage(),ex.getMessage());
+                        ex.printStackTrace();
+                    }
+                    finally
+                    {
+                        try
+                        {
+                            reader.close();
+                        }
+
+                        catch(Exception ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                    return result;
+
+                }
+            }.execute(url).get();
+
+            ArrayAdapter<Channel> adapter = new ArrayAdapter<Channel>(this, android.R.layout.simple_spinner_item, channels );
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+            Spinner spinner = (Spinner) findViewById(R.id.spinnerChannel);
+            spinner.setAdapter(adapter);
+            // заголовок
+            spinner.setPrompt("Title");
+            // выделяем элемент
+            //spinner.setSelection(2);
+            // устанавливаем обработчик нажатия
+            spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view,
+                                           int position, long id) {
+                    Channel item = (Channel)parent.getItemAtPosition(position);
+                        refreshEventList(item.getId());
+
+
+                }
+                @Override
+                public void onNothingSelected(AdapterView<?> arg0) {
+                }
+            });
+        }catch (Exception e){
             e.printStackTrace();
         }
 
@@ -98,10 +226,11 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
     public void onResume()
     {  // After a pause OR at startup
         super.onResume();
-        refreshEventList();
+        refreshEventList(null);
+        initChannels();
     }
 
-    public void refreshEventList(){
+    public void refreshEventList(Long channelId){
 
         File cacheDir= getCacheDir();
         File oldEventsId=new File(cacheDir,"oldEventsId");
@@ -147,7 +276,12 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
         }
         try{
             GetEventParams params=new GetEventParams();
-            params.setURL("http://192.168.100.14:8080/event/getNearestEvents");
+            if (channelId!=null){
+                params.setURL("http://192.168.1.33:8080/event/getEventsByChannel/"+channelId.toString());
+            }else{
+                params.setURL("http://192.168.1.33:8080/event/getNearestEvents");
+            }
+
             params.setCurrentCoords(eLocation);
             List<Event> events=new GetEventsOperation().execute(params).get();
             lvEvents=(ListView)findViewById(R.id.listViewEvents);
@@ -198,7 +332,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                                 }else{
                                     File file=null;
                                     try {
-                                        String DownloadUrl="http://192.168.100.14:8080/utils/getFile/"+events.get(i).getAudioId().toString();
+                                        String DownloadUrl="http://192.168.1.33:8080/utils/getFile/"+events.get(i).getAudioId().toString();
                                         String fileName= "newEventAudio.3gp";
                                         String root = Environment.getExternalStorageDirectory().getAbsolutePath();
 
@@ -291,7 +425,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
     public boolean onMenuItemClick(MenuItem menuItem) {
         try{
             Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
-                    mGoogleApiClient);
+                    ApplicationSettings.getInstance().getmGoogleApiClient());
             SimpleGeoCoords coords=new SimpleGeoCoords(mLastLocation.getLongitude(),mLastLocation.getLatitude(),mLastLocation.getAltitude());
             Intent startIntent;
             if (menuItem.getItemId()==R.id.action_new_event){
@@ -316,8 +450,38 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         try{
-
-
+//
+//            LatLng l1=new LatLng(50,50);
+//            LatLng l2=new LatLng(60,60);
+//            LatLngBounds latLngBounds=new LatLngBounds(l1,l2);
+//            LatLngBounds BOUNDS_GREATER_SYDNEY = new LatLngBounds(
+//                    new LatLng(-34.041458, 150.790100), new LatLng(-33.682247, 151.383362));
+////                        LatLngBounds BOUNDS_GREATER_SYDNEY = new LatLngBounds(
+////                                new LatLng(0, 0), new LatLng(0, 0));
+//            List<Integer> filters = new ArrayList<Integer>();
+//            filters.add(Place.TYPE_ROUTE);
+//            AutocompleteFilter filter= AutocompleteFilter.create(filters);
+//            PendingResult<AutocompletePredictionBuffer> results =
+//                    Places.GeoDataApi.getAutocompletePredictions(mGoogleApiClient, "ленина",
+//                            latLngBounds,filter);
+//
+//            AutocompletePredictionBuffer autocompletePredictions =
+//            new AsyncTask<PendingResult<AutocompletePredictionBuffer>, Void, AutocompletePredictionBuffer>() {
+//                @Override
+//                protected AutocompletePredictionBuffer doInBackground(PendingResult<AutocompletePredictionBuffer>... voids) {
+//                    try{
+//                        AutocompletePredictionBuffer autocompletePredictions = voids[0]
+//                                .await(10, TimeUnit.SECONDS);
+//                        return autocompletePredictions;
+//                        //return null;
+//                    } catch (Exception e){
+//                        e.printStackTrace();
+//                        return null;
+//                    }
+//
+//                }
+//            }.execute(results).get();
+//            int i=autocompletePredictions.getCount();
         }catch(Exception e){
             e.printStackTrace();
         }

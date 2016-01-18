@@ -2,12 +2,20 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:yourapp="http://schemas.android.com/apk/res-auto">
 
-    <item
-        android:id="@+id/action_search"
-        android:title="@android:string/search_go"
-        android:icon="@drawable/icon_toolbar_search"
-        yourapp:showAsAction="always|collapseActionView"
-        yourapp:actionViewClass="android.support.v7.widget.SearchView" />
+    <!--<item-->
+        <!--android:id="@+id/action_search"-->
+        <!--android:title="@android:string/search_go"-->
+        <!--android:icon="@drawable/icon_toolbar_search"-->
+        <!--yourapp:showAsAction="always|collapseActionView"-->
+        <!--yourapp:actionViewClass="android.support.v7.widget.SearchView" />-->
+
+    <!--<item-->
+            <!--android:title="Канал"-->
+            <!--android:id="@+id/canalsMenu"-->
+            <!--yourapp:showAsAction="ifRoom"-->
+            <!--yourapp:actionViewClass="android.widget.Spinner"-->
+            <!--&gt;-->
+    <!--</item>-->
 
     <item
         android:id="@+id/action_new_event"

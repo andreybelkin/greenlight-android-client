@@ -94,8 +94,8 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                 refreshFields();
                 //todo асинхронная загрузка
                 if (currentEvent.getAudioId()!=null&&!currentEvent.getAudioId().equals(new Long(0)) ){
-//                    "http://192.168.100.14:8080/utils/downloadFile?id=
-                    audioFilePath=new FileDownloadTask().execute("http://192.168.100.14:8080/utils/getFile/"+currentEvent.getAudioId().toString(),"3gp").get();
+//                    "http://192.168.1.33:8080/utils/downloadFile?id=
+                    audioFilePath=new FileDownloadTask().execute("http://192.168.1.33:8080/utils/getFile/"+currentEvent.getAudioId().toString(),"3gp").get();
                     btnPlayAudio=(ImageButton)findViewById(R.id.btnPlayAudio);
                     btnPlayAudio.setVisibility(View.VISIBLE);
                     btnPlayAudio.setOnClickListener(new View.OnClickListener() {
@@ -115,7 +115,7 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                     tr.setLayoutParams(new TableRow.LayoutParams(tr.getWidth(),0));
                 }
                 if (currentEvent.getPhotoId()!=null&&!currentEvent.getPhotoId().equals(new Long(0))){
-                    photoFilePath=new FileDownloadTask().execute("http://192.168.100.14:8080/utils/getFile/"+currentEvent.getPhotoId().toString(),"jpg").get();
+                    photoFilePath=new FileDownloadTask().execute("http://192.168.1.33:8080/utils/getFile/"+currentEvent.getPhotoId().toString(),"jpg").get();
                     btnShowPhoto=(Button) findViewById(R.id.btnShowPhoto);
                     btnShowPhoto.setVisibility(View.VISIBLE);
                     btnShowPhoto.setOnClickListener(new View.OnClickListener() {
@@ -132,7 +132,7 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                     tr.setLayoutParams(new TableRow.LayoutParams(tr.getWidth(),0));
                 }
                 if (currentEvent.getVideoId()!=null&&!currentEvent.getPhotoId().equals(new Long(0))){
-                    videoFilePath=new FileDownloadTask().execute("http://192.168.100.14:8080/utils/getFile/"+currentEvent.getVideoId().toString(),"3gp").get();
+                    videoFilePath=new FileDownloadTask().execute("http://192.168.1.33:8080/utils/getFile/"+currentEvent.getVideoId().toString(),"3gp").get();
                     btnPlayVideo=(Button) findViewById(R.id.btnPlayVideo);
                     btnPlayVideo.setVisibility(View.VISIBLE);
                     btnPlayVideo.setOnClickListener(new View.OnClickListener() {
@@ -166,7 +166,7 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
     private void refreshFields(){
         try{
             GetEventParams params=new GetEventParams();
-            params.setURL("http://192.168.100.14:8080/event/getEvent");
+            params.setURL("http://192.168.1.33:8080/event/getEvent");
             Long id=(Long)getIntent().getExtras().getSerializable("eventId");
             params.setEventId(id );
 

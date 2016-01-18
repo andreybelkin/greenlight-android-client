@@ -73,14 +73,12 @@ public class GetEventsOperation extends AsyncTask<GetEventParams, Void, List<Eve
             // Get the server response
             InputStream is; //todo conn.getResponseCode() for errors
             try{
-
                 is= conn.getInputStream();
             }
             catch (Exception e){
                 e.printStackTrace();
                 is=conn.getErrorStream();
             }
-
             reader = new BufferedReader(new InputStreamReader(is));
             StringBuilder sb = new StringBuilder();
             String line = null;

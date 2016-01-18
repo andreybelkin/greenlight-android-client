@@ -23,10 +23,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.*;
 import com.globalgrupp.greenlight.greenlightclient.R;
-import com.globalgrupp.greenlight.greenlightclient.classes.CreateEventOperation;
-import com.globalgrupp.greenlight.greenlightclient.classes.CreateEventParams;
-import com.globalgrupp.greenlight.greenlightclient.classes.SimpleGeoCoords;
-import com.globalgrupp.greenlight.greenlightclient.classes.UploadFileOperation;
+import com.globalgrupp.greenlight.greenlightclient.classes.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -135,7 +132,9 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
                         videoId=new UploadFileOperation().execute(cep).get();
                     }
 
-                    String serverURL = "http://192.168.100.14:8080/event/createEvent";//todo config
+
+
+                    String serverURL = "http://192.168.1.33:8080/event/createEvent";//todo config
                     EditText et=(EditText) findViewById(R.id.etEventText);
 
                     String street=eAddres.getThoroughfare();
@@ -211,6 +210,17 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
         } else {
             stopRecording();
             findViewById(R.id.trAudioRow).setVisibility(View.VISIBLE);
+        }
+    }
+
+    public void findStartEndStreets(){
+        SimpleGeoCoords previousCooords= ApplicationSettings.getInstance().getPreviousCoord();
+        if (previousCooords.equals(eLocation)){
+            //nothing типа давно не двигался, нет направления
+
+        } else {
+            //todo есть направление
+
         }
     }
 

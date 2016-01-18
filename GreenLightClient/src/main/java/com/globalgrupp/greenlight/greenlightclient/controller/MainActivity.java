@@ -13,10 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import com.globalgrupp.greenlight.greenlightclient.R;
-import com.globalgrupp.greenlight.greenlightclient.classes.Event;
-import com.globalgrupp.greenlight.greenlightclient.classes.GetEventParams;
-import com.globalgrupp.greenlight.greenlightclient.classes.GetEventsOperation;
-import com.globalgrupp.greenlight.greenlightclient.classes.SimpleGeoCoords;
+import com.globalgrupp.greenlight.greenlightclient.classes.*;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
@@ -39,7 +36,7 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
 
     private HashMap<String, Long> mMarkers = new HashMap<String, Long>();
 
-    protected GoogleApiClient mGoogleApiClient;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,12 +49,7 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
         getSupportActionBar().setIcon(R.drawable.ic_launcher);
         setUpMapIfNeeded();
         mActionBarToolbar.setNavigationIcon(R.drawable.icon_toolbal_arrow_white);
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .build();
-        mGoogleApiClient.connect();
+
         mActionBarToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -88,13 +80,11 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
 
     @Override
     protected void onStart() {
-        mGoogleApiClient.connect();
         super.onStart();
     }
 
 
     protected void onStop() {
-        mGoogleApiClient.disconnect();
         super.onStop();
     }
     private void setUpMapIfNeeded() {
@@ -126,7 +116,7 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
     public void onConnected(@Nullable Bundle bundle) {
         try{
             Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
-                    mGoogleApiClient);
+                    ApplicationSettings.getInstance().getmGoogleApiClient());
             if (mLastLocation != null) {
                 LatLng myLoc = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
 
@@ -134,7 +124,7 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
                 mMap.animateCamera(cameraUpdate);
 
                 GetEventParams params=new GetEventParams();
-                params.setURL("http://192.168.100.14:8080/event/getNearestEvents");
+                params.setURL("http://192.168.1.33:8080/event/getNearestEvents");
                 SimpleGeoCoords coords=new SimpleGeoCoords(mLastLocation.getLongitude(),mLastLocation.getLatitude(),mLastLocation.getAltitude());
                 params.setCurrentCoords(coords);
                 List<Event> events=new GetEventsOperation().execute(params).get();
@@ -170,7 +160,7 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
     public boolean onMenuItemClick(MenuItem item) {
         try{
             Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
-                    mGoogleApiClient);
+                    ApplicationSettings.getInstance().getmGoogleApiClient());
             SimpleGeoCoords coords=new SimpleGeoCoords(mLastLocation.getLongitude(),mLastLocation.getLatitude(),mLastLocation.getAltitude());
             Intent startIntent;
             if (item.getItemId()==R.id.action_new_event){

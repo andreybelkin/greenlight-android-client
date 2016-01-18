@@ -5,4 +5,11 @@
                                    android:layout_width="match_parent"
                                    app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
                                    android:layout_height="?android:actionBarSize"
-                                   android:background="@drawable/toolbar_gradient"/>
+                                   android:background="@drawable/toolbar_gradient">
+    <Spinner
+            android:id="@+id/spinnerChannel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            />
+</android.support.v7.widget.Toolbar>

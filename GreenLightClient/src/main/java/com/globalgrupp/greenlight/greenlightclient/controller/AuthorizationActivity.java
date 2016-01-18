@@ -34,6 +34,8 @@ import com.facebook.share.model.SharePhotoContent;
 import com.globalgrupp.greenlight.greenlightclient.R;
 import com.globalgrupp.greenlight.greenlightclient.classes.ApplicationSettings;
 import com.globalgrupp.greenlight.greenlightclient.classes.AuthorizationType;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.location.places.Places;
 import com.vk.sdk.VKAccessToken;
 import com.vk.sdk.VKCallback;
 import com.vk.sdk.VKSdk;
@@ -108,15 +110,12 @@ public class AuthorizationActivity extends ActionBarActivity implements View.OnC
             getSupportActionBar().setDisplayShowHomeEnabled(true);
             getSupportActionBar().setIcon(R.drawable.ic_launcher);
 
-
             Button vkButton=(Button) findViewById(R.id.btnVKLogin);
             vkButton.setOnClickListener(this);
             Button btnFBLogin=(Button) findViewById(R.id.btnFBLogin);
             btnFBLogin.setOnClickListener(this);
             Button twitterButton=(Button) findViewById(R.id.btnTwitterLogin);
             twitterButton.setOnClickListener(this);
-
-
 
         }catch (Exception e){
             e.printStackTrace();
@@ -220,6 +219,8 @@ public class AuthorizationActivity extends ActionBarActivity implements View.OnC
                         // Пользователь успешно авторизовался
                         keytoken=res.accessToken;
                         ApplicationSettings.getInstance().setAuthorizationType(authorizationType);
+                        Intent intent= new Intent(getApplicationContext(), EventListActivity.class);
+                        startActivity(intent);
                     }
                     @Override
                     public void onError(VKError error) {
