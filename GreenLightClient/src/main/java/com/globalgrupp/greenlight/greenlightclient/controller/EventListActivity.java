@@ -63,8 +63,10 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
     Toolbar mActionBarToolbar;
     ListView lvEvents;
     String keyToken;
-    MediaPlayer mPlayer;
-    private boolean isplayed=false;
+    //MediaPlayer mPlayer;
+
+
+    private  AsyncTask<List<Event>, Void, Void> newEventAsyncTask;
 
 //    protected GoogleApiClient mGoogleApiClient;
 
@@ -100,6 +102,10 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                 ApplicationSettings.getInstance().getmGoogleApiClient().connect();
                 ApplicationSettings.getInstance().startLocationTimer();
             }
+            if (getIntent().hasExtra("regId")){
+                String regId = getIntent().getStringExtra("regId");
+            }
+
            //refreshEventList();
         }catch(Exception e){
             e.printStackTrace();
@@ -183,7 +189,6 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                         {
                             reader.close();
                         }
-
                         catch(Exception ex) {
                             ex.printStackTrace();
                         }
@@ -193,22 +198,38 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                 }
             }.execute(url).get();
 
-            ArrayAdapter<Channel> adapter = new ArrayAdapter<Channel>(this, android.R.layout.simple_spinner_item, channels );
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            ArrayAdapter<Channel> adapter = new ArrayAdapter<Channel>(this, R.layout.channel_spinner_item, channels );
+
+            adapter.setDropDownViewResource(R.layout.channel_spinner_dropdown_item);
 
             Spinner spinner = (Spinner) findViewById(R.id.spinnerChannel);
             spinner.setAdapter(adapter);
             // заголовок
             spinner.setPrompt("Title");
+
+            //spinner.setPopupBackgroundDrawable();
             // выделяем элемент
-            //spinner.setSelection(2);
+            channels.add(0,new Channel(new Long(0),"Все"));
+            for(int i=0;i<channels.size();i++){
+                if (channels.get(i).getId().equals(ApplicationSettings.getInstance().getChannelId())){
+                    spinner.setSelection(i);
+
+                }
+            }
             // устанавливаем обработчик нажатия
             spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view,
                                            int position, long id) {
                     Channel item = (Channel)parent.getItemAtPosition(position);
+                    ApplicationSettings.getInstance().setChannelId(item.getId());
+                    if (item.getId().equals(new Long(0))){
+                        refreshEventList(null);
+                    }else{
                         refreshEventList(item.getId());
+                    }
+
+
 
 
                 }
@@ -225,8 +246,9 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
     @Override
     public void onResume()
     {  // After a pause OR at startup
+        //refreshEventList(null);
         super.onResume();
-        refreshEventList(null);
+        //refreshEventList(null);
         initChannels();
     }
 
@@ -258,6 +280,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                     }
                 }
                 ApplicationSettings.getInstance().setOldEventsId(ll);
+//                ApplicationSettings.getInstance().setOldEventsId(new ArrayList<Long>());
             }catch (Exception e){
                 e.printStackTrace();
             }
@@ -283,12 +306,14 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
             }
 
             params.setCurrentCoords(eLocation);
-            List<Event> events=new GetEventsOperation().execute(params).get();
+            ArrayList<Event> events=(ArrayList<Event>)new GetEventsOperation().execute(params).get();
+            //events=new ArrayList<Event>(events.subList(0,1));
             lvEvents=(ListView)findViewById(R.id.listViewEvents);
             EventsAdapter commentsAdapter=new EventsAdapter(this,(ArrayList)events);
+
             lvEvents.setAdapter(commentsAdapter);
             View listItem = commentsAdapter.getView(0, null, lvEvents);
-            listItem.measure(0, 0);
+            listItem.measure(-1,0);
             float totalHeight = 0;
             for (int i = 0; i < commentsAdapter.getCount(); i++) {
                 totalHeight += listItem.getMeasuredHeight();
@@ -300,9 +325,12 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
             lvEvents.setOnItemClickListener(this);
 
 
-            new AsyncTask<List<Event>, Void, Void>() {
+            newEventAsyncTask =new AsyncTask<List<Event>, Void, Void>() {
+                private boolean isplayed=false;
+                MediaPlayer mPlayer;
                 @Override
                 protected Void doInBackground(List<Event>... lists) {
+
                     List<Event> events=lists[0];
                     List<Long> oldId=ApplicationSettings.getInstance().getOldEventsId();
                     for (int i=events.size()-1;i>=0;i--){
@@ -360,7 +388,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                                         fos.flush();
                                         fos.close();
                                         String audioPath=file.toString();
-                                        MediaPlayer mPlayer = new MediaPlayer();
+                                        mPlayer = new MediaPlayer();
 
                                         mPlayer.setDataSource(audioPath);
                                         mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
@@ -373,9 +401,16 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                                         isplayed=true;
                                         mPlayer.start();
 
-                                        while (isplayed){
-
+                                        while (isplayed && !isCancelled()){
+                                            if (isCancelled()) break;
                                         }
+                                        isplayed=false;
+                                        if (isCancelled()){
+                                            mPlayer.stop();
+                                            mPlayer.release();
+                                            break;
+                                        }
+
                                     } catch (Exception e) {
                                         e.printStackTrace();
                                     }
@@ -385,8 +420,29 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                     }
                     return null;
                 }
+
+                @Override
+                protected void onCancelled() {
+                    isplayed=false;
+                    super.onCancelled();
+                }
+
+                @Override
+                protected void onCancelled(Void aVoid) {
+                    isplayed=false;
+                    try{
+                        mPlayer.stop();
+                        mPlayer.release();
+                        mPlayer=null;
+                    }catch(Exception e){
+                        e.printStackTrace();
+                    }
+
+                    super.onCancelled(aVoid);
+                }
             }.execute(events);
 
+            int i=0;
 
         }catch (Exception e) {
             e.printStackTrace();
@@ -407,6 +463,15 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
         }
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (newEventAsyncTask!=null && !newEventAsyncTask.isCancelled())
+        {
+            newEventAsyncTask.cancel(true);
+            newEventAsyncTask=null;
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -424,6 +489,13 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
     @Override
     public boolean onMenuItemClick(MenuItem menuItem) {
         try{
+            if (newEventAsyncTask!=null && !newEventAsyncTask.isCancelled())
+            {
+//                newEventAsyncTask.cancel(true);
+                newEventAsyncTask.cancel(true);
+                newEventAsyncTask=null;
+            }
+
             Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
                     ApplicationSettings.getInstance().getmGoogleApiClient());
             SimpleGeoCoords coords=new SimpleGeoCoords(mLastLocation.getLongitude(),mLastLocation.getLatitude(),mLastLocation.getAltitude());
@@ -431,7 +503,8 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
             if (menuItem.getItemId()==R.id.action_new_event){
                 startIntent= new Intent(this, NewEventActivity.class);
                 startIntent.putExtra("location", coords);
-                startActivity(startIntent);
+                startActivityForResult(startIntent,1);
+                //startActivity(startIntent);
             }else if(menuItem.getItemId()==R.id.action_event_list){
                 startIntent= new Intent(this, EventListActivity.class);
                 startIntent.putExtra("location", coords);
@@ -498,20 +571,26 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
     }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (!VKSdk.onActivityResult(requestCode, resultCode, data, new VKCallback<VKAccessToken>() {
-            @Override
-            public void onResult(VKAccessToken res) {
-            // Пользователь успешно авторизовался
-                keyToken=res.accessToken;
+        if(ApplicationSettings.getInstance().getAuthorizationType()==AuthorizationType.VK){
+            if (!VKSdk.onActivityResult(requestCode, resultCode, data, new VKCallback<VKAccessToken>() {
+                @Override
+                public void onResult(VKAccessToken res) {
+                    // Пользователь успешно авторизовался
+                    keyToken=res.accessToken;
+                }
+                @Override
+                public void onError(VKError error) {
+                    // Произошла ошибка авторизации (например, пользователь запретил авторизацию)
+                    keyToken=error.errorMessage+error.errorReason;
+                }
+            })){
+
             }
-            @Override
-            public void onError(VKError error) {
-            // Произошла ошибка авторизации (например, пользователь запретил авторизацию)
-                keyToken=error.errorMessage+error.errorReason;
-            }
-        }))
-        {
-            super.onActivityResult(requestCode, resultCode, data);
         }
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode==1){
+            //refreshEventList(null);
+        }
+
     }
 }

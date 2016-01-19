@@ -17,6 +17,7 @@ import java.util.ArrayList;
  */
 public class EventsAdapter  extends ArrayAdapter<Event> {
     DateFormat df = new SimpleDateFormat("HH:mm");
+    LayoutInflater inflater;
     private static class ViewHolder {
         TextView tvTitle;
         TextView tvDate;
@@ -33,7 +34,7 @@ public class EventsAdapter  extends ArrayAdapter<Event> {
         ViewHolder viewHolder;
         if (convertView == null) {
             viewHolder = new ViewHolder();
-            LayoutInflater inflater = LayoutInflater.from(getContext());
+            if (inflater==null) inflater = LayoutInflater.from(getContext());
             convertView = inflater.inflate(R.layout.lv_events_item, parent, false);
             viewHolder.tvTitle = (TextView) convertView.findViewById(R.id.tvEventsTitle);
             viewHolder.tvDate = (TextView) convertView.findViewById(R.id.tvEventsDate);

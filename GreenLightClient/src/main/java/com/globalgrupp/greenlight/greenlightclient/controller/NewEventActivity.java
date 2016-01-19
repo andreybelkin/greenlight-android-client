@@ -152,7 +152,6 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
                 }
             }
         });
-
         btnAudio=(ImageButton)findViewById(R.id.btnAudio);
         btnAudio.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -184,7 +183,6 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
                 }catch(Exception e){
                     e.printStackTrace();
                 }
-
             }
         });
 

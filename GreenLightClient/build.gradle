@@ -7,6 +7,7 @@ buildscript {
     }
 }
 apply plugin: 'com.android.application'
+//apply plugin: 'com.google.gms.google-services'
 
 
 repositories {
@@ -46,8 +47,9 @@ dependencies {
     compile 'com.android.support:gridlayout-v7:23.+'
     //compile 'com.android.support:support-v4:23.+'
     compile 'com.google.android.gms:play-services:8.4.0'
-    compile 'com.google.android.gms:play-services-fitness:8.4.0'
+    //compile 'com.google.android.gms:play-services-fitness:8.4.0'
     compile 'com.google.android.gms:play-services-wearable:8.4.0'
+    compile 'com.google.android.gms:play-services-gcm:8.4.0'
     compile 'com.vk:androidsdk:+'
     compile 'com.facebook.android:facebook-android-sdk:4.+'
     compile 'com.facebook.android:audience-network-sdk:4.+'

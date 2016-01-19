@@ -17,6 +17,8 @@ import java.util.ArrayList;
  */
 public class CommentsAdapter extends ArrayAdapter<Comment> {
     DateFormat df = new SimpleDateFormat("HH:mm");
+    LayoutInflater inflater ;
+
     private static class ViewHolder {
         TextView tvTitle;
         TextView tvDate;
@@ -32,7 +34,9 @@ public class CommentsAdapter extends ArrayAdapter<Comment> {
         ViewHolder viewHolder;
         if (convertView == null) {
             viewHolder = new ViewHolder();
-            LayoutInflater inflater = LayoutInflater.from(getContext());
+            if (inflater==null){
+                inflater = LayoutInflater.from(getContext());
+            }
             convertView = inflater.inflate(R.layout.lv_comments_item, parent, false);
             viewHolder.tvTitle = (TextView) convertView.findViewById(R.id.tvNewsTitle);
             viewHolder.tvDate = (TextView) convertView.findViewById(R.id.tvNewsDate);

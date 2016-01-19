@@ -30,4 +30,9 @@ public class Channel {
     public String toString() {
         return channelName;
     }
+
+    public Channel(Long id, String channelName) {
+        this.id = id;
+        this.channelName = channelName;
+    }
 }

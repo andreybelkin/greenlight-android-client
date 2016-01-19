@@ -56,6 +56,33 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
                 onBackPressed();
             }
         });
+        try{
+            Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+                    ApplicationSettings.getInstance().getmGoogleApiClient());
+            if (mLastLocation != null) {
+                LatLng myLoc = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
+
+                CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(myLoc, 15);
+                mMap.animateCamera(cameraUpdate);
+
+                GetEventParams params=new GetEventParams();
+                params.setURL("http://192.168.1.33:8080/event/getNearestEvents");
+                SimpleGeoCoords coords=new SimpleGeoCoords(mLastLocation.getLongitude(),mLastLocation.getLatitude(),mLastLocation.getAltitude());
+                params.setCurrentCoords(coords);
+                List<Event> events=new GetEventsOperation().execute(params).get();
+                for(int i=0;i<events.size();i++){
+                    myLoc = new LatLng(events.get(i).getLatitude(), events.get(i).getLongitude());
+                    Marker marker=mMap.addMarker(new MarkerOptions()
+                            .title("Событие")
+                            .snippet(events.get(i).getMessage())
+                            .position(myLoc));
+                    mMarkers.put(marker.getId(),events.get(i).getId());
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 
     private void setActionBarEvents(Toolbar mActionBarToolbar) {
@@ -75,6 +102,8 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
         editMenuItem.setOnMenuItemClickListener(this);
         MenuItem eventListMenuItem=menu.findItem(R.id.action_event_list);
         eventListMenuItem.setOnMenuItemClickListener(this);
+        MenuItem mapMenuItem=menu.findItem(R.id.action_map);
+        mapMenuItem.setVisible(false);
         return true;
     }
 
@@ -115,28 +144,7 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         try{
-            Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
-                    ApplicationSettings.getInstance().getmGoogleApiClient());
-            if (mLastLocation != null) {
-                LatLng myLoc = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
 
-                CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(myLoc, 15);
-                mMap.animateCamera(cameraUpdate);
-
-                GetEventParams params=new GetEventParams();
-                params.setURL("http://192.168.1.33:8080/event/getNearestEvents");
-                SimpleGeoCoords coords=new SimpleGeoCoords(mLastLocation.getLongitude(),mLastLocation.getLatitude(),mLastLocation.getAltitude());
-                params.setCurrentCoords(coords);
-                List<Event> events=new GetEventsOperation().execute(params).get();
-                for(int i=0;i<events.size();i++){
-                    myLoc = new LatLng(events.get(i).getLatitude(), events.get(i).getLongitude());
-                    Marker marker=mMap.addMarker(new MarkerOptions()
-                            .title("Событие")
-                            .snippet(events.get(i).getMessage())
-                            .position(myLoc));
-                    mMarkers.put(marker.getId(),events.get(i).getId());
-                }
-            }
         }catch(Exception e){
             e.printStackTrace();
         }

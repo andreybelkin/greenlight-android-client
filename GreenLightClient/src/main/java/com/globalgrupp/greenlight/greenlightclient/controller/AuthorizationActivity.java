@@ -116,7 +116,8 @@ public class AuthorizationActivity extends ActionBarActivity implements View.OnC
             btnFBLogin.setOnClickListener(this);
             Button twitterButton=(Button) findViewById(R.id.btnTwitterLogin);
             twitterButton.setOnClickListener(this);
-
+            Button btnNotAuthorized=(Button) findViewById(R.id.btnNotAuthorized);
+            btnNotAuthorized.setOnClickListener(this);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -176,6 +177,9 @@ public class AuthorizationActivity extends ActionBarActivity implements View.OnC
                         activity.setProgress(p * 100);
                     }
                 });
+            } else if (view.getId()==R.id.btnNotAuthorized){
+                Intent intent= new Intent(getApplicationContext(), EventListActivity.class);
+                startActivity(intent);
             }
         }catch (Exception e){
             e.printStackTrace();

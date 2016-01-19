@@ -46,4 +46,6 @@
     <string name="send_email">Send Email</string>
     <integer name="com_vk_sdk_AppId">5226579</integer>
     <string name="facebook_app_id">1505046203136521</string>
+    <string name="server_gcm_api_key">AIzaSyAQMtP-p4i2oV-OlVteDv5sW_l50uxFMiI</string>
+    <string name="server_gcm_sender_id">364386966248</string>
 </resources>

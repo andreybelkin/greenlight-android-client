@@ -25,7 +25,7 @@
 
     <item
         android:id="@+id/action_event_list"
-        android:title="@string/event_list"
+        android:title="Лента"
         android:icon="@drawable/icon_menu"
         yourapp:showAsAction="ifRoom" />
     <item
