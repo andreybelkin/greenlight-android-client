@@ -83,7 +83,10 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
         mActionBarToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onBackPressed();
+                Intent intent = new Intent(getApplicationContext(), EventListActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+                //onBackPressed();
             }
         });
         //getSupportActionBar().setTitle("");
@@ -282,6 +285,8 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
     public void onClick(View v) {
         if (v.getId()==R.id.ibMap){
             Intent startIntent= new Intent(this, MainActivity.class);
+            SimpleGeoCoords geoCoords=new SimpleGeoCoords(currentEvent.getLongitude(),currentEvent.getLatitude(),currentEvent.getAltitude());
+            startIntent.putExtra("eventCoords",geoCoords);
             startActivity(startIntent);
         } else if (v.getId()==R.id.ibComment){
             initCommentDialog();

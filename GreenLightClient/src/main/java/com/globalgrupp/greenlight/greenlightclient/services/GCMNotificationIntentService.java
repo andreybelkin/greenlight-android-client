@@ -59,8 +59,8 @@ public class GCMNotificationIntentService extends IntentService {
                 Log.i(TAG, "Completed work @ " + SystemClock.elapsedRealtime());
 
                 //todo fields from push notification
-                sendNotification(": "
-                        + extras.get("message"),extras.getLong("eventId"));
+                sendNotification("Новое событие: "
+                        + extras.get("message"),new Long(extras.get("eventId").toString()));
                 Log.i(TAG, "Received: " + extras.toString());
             }
         }
@@ -74,14 +74,15 @@ public class GCMNotificationIntentService extends IntentService {
         Intent newEventIntent=new Intent(this, EventDetailsActivity.class);
         newEventIntent.putExtra("eventId", id);
 
+
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
-                newEventIntent, 0);
+                newEventIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(
                 this).setSmallIcon(R.drawable.ic_launcher)
                 .setContentTitle("Greenlight")
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(msg))
-                .setContentText(msg);
+                .setContentText(msg).setAutoCancel(true);
 
         mBuilder.setContentIntent(contentIntent);
         mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());

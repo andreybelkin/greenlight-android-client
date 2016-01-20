@@ -43,6 +43,7 @@ import java.net.URL;
             msg.put("videoId",params[0].getVideoId());
             msg.put("photoId",params[0].getPhotoId());
             msg.put("streetName",params[0].getStreetName());
+            msg.put("senderAppId",params[0].getSenderAppId());
             msg.toString();
             Log.i("message",msg.toString());
             URL url = new URL(params[0].getURL());

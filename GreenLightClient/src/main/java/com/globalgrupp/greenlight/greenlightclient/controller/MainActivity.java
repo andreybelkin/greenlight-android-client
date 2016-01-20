@@ -57,11 +57,15 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
             }
         });
         try{
+
             Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
                     ApplicationSettings.getInstance().getmGoogleApiClient());
             if (mLastLocation != null) {
                 LatLng myLoc = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
-
+                if (getIntent().hasExtra("eventCoords")){
+                    SimpleGeoCoords eventCoords=(SimpleGeoCoords) getIntent().getExtras().getSerializable("eventCoords");
+                    myLoc=new LatLng(eventCoords.getLatitude(),eventCoords.getLongtitude());
+                }
                 CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(myLoc, 15);
                 mMap.animateCamera(cameraUpdate);
 

@@ -34,6 +34,7 @@ import com.facebook.share.model.SharePhotoContent;
 import com.globalgrupp.greenlight.greenlightclient.R;
 import com.globalgrupp.greenlight.greenlightclient.classes.ApplicationSettings;
 import com.globalgrupp.greenlight.greenlightclient.classes.AuthorizationType;
+import com.globalgrupp.greenlight.greenlightclient.utils.GCMRegistrationHelper;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.location.places.Places;
 import com.vk.sdk.VKAccessToken;
@@ -118,6 +119,8 @@ public class AuthorizationActivity extends ActionBarActivity implements View.OnC
             twitterButton.setOnClickListener(this);
             Button btnNotAuthorized=(Button) findViewById(R.id.btnNotAuthorized);
             btnNotAuthorized.setOnClickListener(this);
+//            GCMRegistrationHelper helper=new GCMRegistrationHelper(getApplication());
+//            helper.registerGCM();
         }catch (Exception e){
             e.printStackTrace();
         }

@@ -41,7 +41,7 @@
         <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_id"/>
 <!--RegistrationGCMActivity    AuthorizationActivity-->
         <activity
-            android:name=".controller.RegistrationGCMActivity"
+            android:name=".controller.AuthorizationActivity"
             android:label="@string/title_activity_main" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -95,6 +95,12 @@
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
 
                 <category android:name="com.globalgrupp.greenlight.greenlightclient" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name=".services.GCMUpdateReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_REPLACED" />
+                <data android:scheme="package" android:path="com.globalgrupp.greenlight.greenlightclient"  />
             </intent-filter>
         </receiver>
         <service android:name="com.globalgrupp.greenlight.greenlightclient.services.GCMNotificationIntentService" />

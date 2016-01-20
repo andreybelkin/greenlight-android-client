@@ -2,8 +2,11 @@ package com.globalgrupp.greenlight.greenlightclient.controller;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
 import android.location.Address;
 import android.location.Geocoder;
@@ -21,9 +24,11 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.*;
 import com.globalgrupp.greenlight.greenlightclient.R;
 import com.globalgrupp.greenlight.greenlightclient.classes.*;
+import com.globalgrupp.greenlight.greenlightclient.utils.GCMRegistrationHelper;
 
 import java.io.File;
 import java.io.IOException;
@@ -78,9 +83,14 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
             mActionBarToolbar.setNavigationOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    onBackPressed();
+                    Intent intent = new Intent(getApplicationContext(), EventListActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                    //onBackPressed();
                 }
             });
+            progress=(ProgressBar)findViewById(R.id.pbAudio);
+            progress.getProgressDrawable().setColorFilter(Color.parseColor("#3FA43A"), PorterDuff.Mode.MULTIPLY);
             mFileName=null;
             mCurrentPhotoPath=null;
             mCurrentVideoPath=null;
@@ -88,7 +98,15 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
             findViewById(R.id.trAudioRow).setVisibility(View.INVISIBLE);
             TableRow trVideoRow=(TableRow)findViewById(R.id.trVideoRow);
             trVideoRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.FILL_PARENT,0));
+            ViewGroup.LayoutParams phLayoutParams= findViewById(R.id.trImageRow).getLayoutParams();
+            phLayoutParams.height=0;
+            findViewById(R.id.trImageRow).setLayoutParams(phLayoutParams);
+            ViewGroup.LayoutParams auLayoutParams= findViewById(R.id.trAudioRow).getLayoutParams();
+            auLayoutParams.height=0;
+            findViewById(R.id.trAudioRow).setLayoutParams(phLayoutParams);
 
+            TextView tvStreetName=(TextView)findViewById(R.id.streetName);
+            tvStreetName.setText(eAddres.getThoroughfare());
         }
         catch (Exception e){
             e.printStackTrace();
@@ -132,10 +150,10 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
                         videoId=new UploadFileOperation().execute(cep).get();
                     }
 
-
-
                     String serverURL = "http://192.168.1.33:8080/event/createEvent";//todo config
                     EditText et=(EditText) findViewById(R.id.etEventText);
+
+                    String registrationId =GCMRegistrationHelper.getRegistrationId(getApplicationContext());
 
                     String street=eAddres.getThoroughfare();
                     CreateEventParams params=new CreateEventParams(serverURL,eLocation.getLongtitude(),eLocation.getLatitude(),et.getText().toString());
@@ -143,6 +161,8 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
                     params.setPhotoId(photoId);
                     params.setVideoId(videoId);
                     params.setStreetName(street);
+                    params.setSenderAppId(registrationId);
+
                     Boolean res= new CreateEventOperation().execute(params).get();
                     if (res){
                         finish();
@@ -174,6 +194,7 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
                 try{
                     onPlay(mStartPlaying);
                     if (mStartPlaying) {
+                        progress.setMax(mPlayer.getDuration());
                         btnPlayAudio.setImageResource(R.drawable.icon_audio_play);//todo stopImage
                     } else {
                         btnPlayAudio.setImageResource(R.drawable.icon_audio_play);
@@ -207,6 +228,9 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
             startRecording();
         } else {
             stopRecording();
+            ViewGroup.LayoutParams layoutParams= findViewById(R.id.trAudioRow).getLayoutParams();
+            layoutParams.height=74;
+            findViewById(R.id.trAudioRow).setLayoutParams(layoutParams);
             findViewById(R.id.trAudioRow).setVisibility(View.VISIBLE);
         }
     }
@@ -260,23 +284,25 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
             mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
-                   // observer.stop();
-                    //progress.setProgress(mp.getCurrentPosition());
+                    observer.stop();
+                    progress.setProgress(mp.getCurrentPosition());
                     //btnPlayAudio.performClick();
                 }
             });
-            //observer = new MediaObserver();
+            observer = new MediaObserver();
             mPlayer.prepare();
             mPlayer.start();
 
-            //new Thread(observer).start();
+            new Thread(observer).start();
+
         } catch (IOException e) {
             Log.e(LOG_TAG, "prepare() failed");
         }
     }
 
     private void stopPlaying() {
-        mPlayer.stop();
+        mPlayer.release();
+        mPlayer = null;
 
     }
     private void startRecording() {
@@ -354,29 +380,39 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
         }
     }
     private void setPic() {
-        // Get the dimensions of the View
-        ImageView mImageView=(ImageView)findViewById(R.id.ivPhoto);
-        int targetW = mImageView.getWidth();
-        int targetH = mImageView.getHeight();
+        try {
+            ViewGroup.LayoutParams phLayoutParams = findViewById(R.id.trImageRow).getLayoutParams();
+            phLayoutParams.height = 123;
+            findViewById(R.id.trImageRow).setLayoutParams(phLayoutParams);
+            findViewById(R.id.trImageRow).setVisibility(View.VISIBLE);
+            // Get the dimensions of the View
+            ImageView mImageView = (ImageView) findViewById(R.id.ivPhoto);
+            int targetW = mImageView.getWidth();
+            int targetH = mImageView.getHeight();
 
-        // Get the dimensions of the bitmap
-        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-        bmOptions.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(mCurrentPhotoPath.replace("file:",""), bmOptions);
-        int photoW = bmOptions.outWidth;
-        int photoH = bmOptions.outHeight;
+            // Get the dimensions of the bitmap
+            BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+            bmOptions.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(mCurrentPhotoPath.replace("file:", ""), bmOptions);
+            int photoW = bmOptions.outWidth;
+            int photoH = bmOptions.outHeight;
 
-        // Determine how much to scale down the image
-        int scaleFactor = Math.min(photoW/targetW, photoH/targetH);
+            // Determine how much to scale down the image
+            int scaleFactor = Math.min(photoW / targetW, photoH / targetH);
 
-        // Decode the image file into a Bitmap sized to fill the View
-        bmOptions.inJustDecodeBounds = false;
-        bmOptions.inSampleSize = scaleFactor;
-        bmOptions.inPurgeable = true;
+            // Decode the image file into a Bitmap sized to fill the View
+            bmOptions.inJustDecodeBounds = false;
+            bmOptions.inSampleSize = scaleFactor;
+            bmOptions.inPurgeable = true;
 
-        Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath.replace("file:",""), bmOptions);
-        mImageView.setImageBitmap(bitmap);
-        findViewById(R.id.trImageRow).setVisibility(View.VISIBLE);
+            Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath.replace("file:", ""), bmOptions);
+            mImageView.setImageBitmap(bitmap);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+
     }
 
     String mCurrentPhotoPath;

@@ -63,7 +63,7 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="Комсомольский пр-т> Ленина"
-                android:id="@+id/tvStreetName" android:textColor="#111111"/>
+                android:id="@+id/tvStreetName" android:textColor="#111111" android:textSize="23dp"/>
         <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="match_parent"

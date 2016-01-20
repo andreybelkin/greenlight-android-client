@@ -102,9 +102,6 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                 ApplicationSettings.getInstance().getmGoogleApiClient().connect();
                 ApplicationSettings.getInstance().startLocationTimer();
             }
-            if (getIntent().hasExtra("regId")){
-                String regId = getIntent().getStringExtra("regId");
-            }
 
            //refreshEventList();
         }catch(Exception e){
@@ -228,10 +225,6 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                     }else{
                         refreshEventList(item.getId());
                     }
-
-
-
-
                 }
                 @Override
                 public void onNothingSelected(AdapterView<?> arg0) {
@@ -240,20 +233,15 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
         }catch (Exception e){
             e.printStackTrace();
         }
-
-
     }
     @Override
     public void onResume()
-    {  // After a pause OR at startup
-        //refreshEventList(null);
+    {
         super.onResume();
-        //refreshEventList(null);
         initChannels();
     }
 
     public void refreshEventList(Long channelId){
-
         File cacheDir= getCacheDir();
         File oldEventsId=new File(cacheDir,"oldEventsId");
         if (oldEventsId.exists()){
@@ -593,4 +581,14 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
         }
 
     }
+
+    @Override
+    public void onBackPressed() {
+        Intent startMain = new Intent(Intent.ACTION_MAIN);
+        startMain.addCategory(Intent.CATEGORY_HOME);
+        startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(startMain);
+        //super.onBackPressed();
+    }
+
 }

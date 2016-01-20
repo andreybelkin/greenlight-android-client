@@ -8,35 +8,52 @@
     <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" android:layout_gravity="center_vertical" android:weightSum="1"
+            android:layout_height="fill_parent"
             android:layout_below="@+id/toolbar_actionbar">
         <TableRow
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" android:layout_weight="0.98">
+                android:layout_height="wrap_content" android:layout_weight="1">
             <ScrollView
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/scrollView2">
                 <LinearLayout
                         android:orientation="vertical"
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content">
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="10dp">
+                    <TableRow
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent">
+                        <DigitalClock
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/digitalClock" android:textSize="@android:dimen/app_icon_size"
+                                android:textIsSelectable="false"/>
+                    </TableRow>
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="New Text"
+                            android:id="@+id/streetName" android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:textColor="#111111" android:textSize="23sp" android:textIsSelectable="false"/>
                     <EditText
                             android:layout_width="match_parent"
-                            android:layout_height="209dp"
+                            android:layout_height="134dp"
                             android:id="@+id/etEventText"
                             android:background="@drawable/shape"
                             android:layout_marginRight="10dp"
-                            android:layout_marginLeft="10dp"
                             android:layout_marginTop="10dp"
-                            android:layout_marginBottom="10dp"/>
+                            android:layout_marginBottom="10dp"
+                            android:gravity="top"
+                    />
                     <LinearLayout
                             android:orientation="vertical"
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent">
+                            android:layout_height="wrap_content">
                         <TableRow
                                 android:layout_width="match_parent"
-                                android:layout_height="62dp" android:id="@+id/trAudioRow"
+                                android:layout_height="wrap_content" android:id="@+id/trAudioRow"
                                 android:orientation="vertical">
                             <ImageButton
                                     style="?android:attr/buttonStyleSmall"
@@ -44,33 +61,56 @@
                                     android:layout_height="wrap_content"
                                     android:text="Воспроизвести"
                                     android:id="@+id/btnPlayAudio"
-                                    android:layout_weight="1"
                                     android:background="@null"
                                     android:src="@drawable/icon_audio_play"/>
                             <!--<ProgressBar-->
-                                    <!--style="?android:attr/progressBarStyleHorizontal"-->
-                                    <!--android:layout_width="118dp"-->
+                                    <!--android:layout_width="fill_parent"-->
                                     <!--android:layout_height="wrap_content"-->
-                                    <!--android:id="@+id/pbAudio"-->
-                                    <!--android:layout_weight="1" android:layout_gravity="center_vertical"/>-->
+                                    <!--android:id="@+id/pbAudio" android:indeterminate="false"/>-->
+                            <ProgressBar
+                                    style="?android:attr/progressBarStyleHorizontal"
+                                    android:layout_width="fill_parent"
+                                    android:layout_height="wrap_content"
+                                    android:id="@+id/pbAudio"
+                                    android:layout_gravity="center_vertical" android:layout_marginRight="12dp"/>
                         </TableRow>
                         <TableRow
                                 android:layout_width="match_parent"
-                                android:layout_height="123dp" android:id="@+id/trImageRow">
-                            <ImageView
-                                    android:layout_width="wrap_content"
+                                android:layout_height="200dp" android:id="@+id/trImageRow">
+                            <HorizontalScrollView
+                                    android:layout_width="fill_parent"
                                     android:layout_height="fill_parent"
-                                    android:id="@+id/ivPhoto"
-                                    android:layout_weight="1"/>
-                            <ImageView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="fill_parent"
-                                    android:id="@+id/imageView"
-                                    android:layout_weight="1"/>
+                                    android:id="@+id/horizontalScrollView">
+                                <LinearLayout
+                                        android:orientation="horizontal"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="fill_parent">
+                                    <ImageView
+                                            android:layout_width="150dp"
+                                            android:layout_height="fill_parent"
+                                            android:id="@+id/ivPhoto"
+                                            android:layout_weight="1" android:background="#3a4d4f"/>
+                                    <ImageView
+                                            android:layout_width="150dp"
+                                            android:layout_height="fill_parent"
+                                            android:id="@+id/imageView"
+                                            android:layout_weight="1" android:background="#3a4d4f"/>
+                                    <ImageView
+                                            android:layout_width="150dp"
+                                            android:layout_height="fill_parent"
+                                            android:id="@+id/ivPhoto1"
+                                            android:layout_weight="1"/>
+                                    <ImageView
+                                            android:layout_width="150dp"
+                                            android:layout_height="fill_parent"
+                                            android:id="@+id/ivPhoto2"
+                                            android:layout_weight="1"/>
+                                </LinearLayout>
+                            </HorizontalScrollView>
                         </TableRow>
                         <TableRow
                                 android:layout_width="match_parent"
-                                android:layout_height="200dp"
+                                android:layout_height="1dp"
                                 android:id="@+id/trVideoRow"
                                 android:background="@null">
                             <VideoView
@@ -87,7 +127,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:background="@drawable/toolbar_gradient"
+                android:background="#3FA43A"
         >
             <ImageButton
                     style="?android:attr/buttonStyleSmall"
@@ -118,7 +158,8 @@
         <TableRow
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/toolbar_gradient"
+                android:background="#3FA43A"
+                android:layout_alignParentBottom="true"
         >
             <Button
                     android:layout_width="wrap_content"

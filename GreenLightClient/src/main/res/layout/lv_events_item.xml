@@ -23,19 +23,19 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                android:textSize="9sp"
+                android:textSize="14sp"
                 android:layout_marginLeft="7dp"
                 android:layout_marginTop="3dp"
                 android:textColor="@color/symbol_black"
                 fontPath="fonts/Roboto-Regular.ttf"
-            />
+                android:textIsSelectable="false"/>
             <TextView
                     android:id="@+id/tvEventsStreet"
                     android:layout_toRightOf="@+id/tvEventsDate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
-                    android:textSize="9sp"
+                    android:textSize="14sp"
                     android:layout_marginLeft="7dp"
                     android:layout_marginTop="3dp"
                     android:textColor="@color/symbol_black"

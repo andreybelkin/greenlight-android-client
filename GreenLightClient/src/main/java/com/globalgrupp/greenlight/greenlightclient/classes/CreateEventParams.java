@@ -86,6 +86,16 @@ public class CreateEventParams implements Serializable {
         this.latitude = latitude;
     }
 
+    private String senderAppId;
+
+    public String getSenderAppId() {
+        return senderAppId;
+    }
+
+    public void setSenderAppId(String senderAppId) {
+        this.senderAppId = senderAppId;
+    }
+
     public CreateEventParams(String URL, double longitude, double latitude, String message) {
         this.URL = URL;
         this.longitude = longitude;
