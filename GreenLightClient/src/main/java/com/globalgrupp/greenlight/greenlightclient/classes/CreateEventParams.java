@@ -1,6 +1,7 @@
 package com.globalgrupp.greenlight.greenlightclient.classes;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Created by п on 21.12.2015.
@@ -19,6 +20,16 @@ public class CreateEventParams implements Serializable {
     private Long videoId;
 
     private String streetName;
+
+    private List<Long> photoIds;
+
+    public List<Long> getPhotoIds() {
+        return photoIds;
+    }
+
+    public void setPhotoIds(List<Long> photoIds) {
+        this.photoIds = photoIds;
+    }
 
     public String getStreetName() {
         return streetName;

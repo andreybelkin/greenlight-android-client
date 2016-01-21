@@ -33,6 +33,11 @@
         android:title="@string/map"
         android:icon="@drawable/icon_menu"
         yourapp:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_logout"
+        android:title="Выход"
+        android:icon="@drawable/logout"
+        yourapp:showAsAction="ifRoom" />
 
     <!--<item-->
         <!--android:id="@+id/action_remove"-->

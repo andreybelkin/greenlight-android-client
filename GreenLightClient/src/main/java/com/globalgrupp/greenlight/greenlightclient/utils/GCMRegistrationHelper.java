@@ -63,6 +63,7 @@ public class GCMRegistrationHelper {
         int currentVersion = getAppVersion(context);
         if (registeredVersion != currentVersion) {
             Log.i(TAG, "App version changed.");
+            //GCMRegistrationHelper
             GCMRegistrationHelper.registerInBackground(context);
             return "";
         }

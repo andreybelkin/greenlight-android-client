@@ -63,6 +63,8 @@ public class GetEventsOperation extends AsyncTask<GetEventParams, Void, List<Eve
             conn.setRequestProperty("Accept","*/*");
             conn.setRequestProperty("Content-Type","application/json");
             conn.setRequestProperty("charset", "utf-8");
+            conn.setConnectTimeout(20000);
+            conn.setReadTimeout(20000);
 
             DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
             String str = msg.toString();
@@ -104,6 +106,13 @@ public class GetEventsOperation extends AsyncTask<GetEventParams, Void, List<Eve
                 e.setVideoId(!jsonObject.isNull("videoId")?jsonObject.getLong("videoId"):null);
                 e.setStreetName(!jsonObject.isNull("streetName")?jsonObject.getString("streetName"):null);
                 e.setCreateDate(new Date(jsonObject.getLong("createDate")));
+                List<Long> photoIds=new ArrayList<Long>();
+                JSONArray photoArray=jsonObject.getJSONArray("photoIds");
+                for (int k=0;k<photoArray.length(); k++){
+                    Long photoId=photoArray.getLong(k);
+                    photoIds.add(photoId);
+                }
+                e.setPhotoIds(photoIds);
                 JSONArray jsonCommentsArray= jsonObject.getJSONArray("comments");
                 ArrayList<Comment> comments=new ArrayList<Comment>();
                 for (int k=0;k<jsonCommentsArray.length();k++){
@@ -114,7 +123,6 @@ public class GetEventsOperation extends AsyncTask<GetEventParams, Void, List<Eve
                     comments.add(com);
                 }
                 e.setComments(new HashSet<Comment>(comments));
-                //todo getComments
                 result.add(e);
             }
         }

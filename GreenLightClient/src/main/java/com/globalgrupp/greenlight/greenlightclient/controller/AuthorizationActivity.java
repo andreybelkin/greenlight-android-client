@@ -77,6 +77,11 @@ public class AuthorizationActivity extends ActionBarActivity implements View.OnC
 
     private int ll_buttons_height;
 
+    @Override
+    public void onBackPressed() {
+        finish();
+        //super.onBackPressed();
+    }
 
     CallbackManager callbackManager;
     @Override
@@ -181,6 +186,8 @@ public class AuthorizationActivity extends ActionBarActivity implements View.OnC
                     }
                 });
             } else if (view.getId()==R.id.btnNotAuthorized){
+                authorizationType=AuthorizationType.NONE;
+                ApplicationSettings.getInstance().setAuthorizationType(AuthorizationType.NONE);
                 Intent intent= new Intent(getApplicationContext(), EventListActivity.class);
                 startActivity(intent);
             }

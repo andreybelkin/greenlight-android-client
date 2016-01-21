@@ -72,7 +72,8 @@
                                     android:layout_width="fill_parent"
                                     android:layout_height="wrap_content"
                                     android:id="@+id/pbAudio"
-                                    android:layout_gravity="center_vertical" android:layout_marginRight="12dp"/>
+                                    android:layout_gravity="center_vertical" android:layout_marginRight="10dp"
+                                    android:layout_marginLeft="5dp"/>
                         </TableRow>
                         <TableRow
                                 android:layout_width="match_parent"
@@ -84,40 +85,39 @@
                                 <LinearLayout
                                         android:orientation="horizontal"
                                         android:layout_width="wrap_content"
-                                        android:layout_height="fill_parent">
-                                    <ImageView
-                                            android:layout_width="150dp"
-                                            android:layout_height="fill_parent"
-                                            android:id="@+id/ivPhoto"
-                                            android:layout_weight="1" android:background="#3a4d4f"/>
-                                    <ImageView
-                                            android:layout_width="150dp"
-                                            android:layout_height="fill_parent"
-                                            android:id="@+id/imageView"
-                                            android:layout_weight="1" android:background="#3a4d4f"/>
-                                    <ImageView
-                                            android:layout_width="150dp"
-                                            android:layout_height="fill_parent"
-                                            android:id="@+id/ivPhoto1"
-                                            android:layout_weight="1"/>
-                                    <ImageView
-                                            android:layout_width="150dp"
-                                            android:layout_height="fill_parent"
-                                            android:id="@+id/ivPhoto2"
-                                            android:layout_weight="1"/>
+                                        android:layout_height="fill_parent"
+                                        android:id="@+id/llImages"
+                                        android:layout_marginBottom="10dp">
+                                    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                                    android:orientation="vertical"
+                                                    android:layout_width="fill_parent"
+                                                    android:layout_height="fill_parent">
+
+                                        <ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+                                                   android:id="@+id/ivForVideo"
+                                                   android:layout_width="wrap_content"
+                                                   android:layout_height="wrap_content"
+                                        />
+                                        <ImageButton android:id="@+id/btnVideoPlay"
+                                                     android:layout_width="wrap_content"
+                                                     android:layout_height="wrap_content"
+                                                     android:background="@null"
+                                                     android:layout_centerInParent="true"
+                                                    />
+                                    </RelativeLayout>
+
+                                    <!--<ImageView-->
+                                            <!--android:layout_width="150dp"-->
+                                            <!--android:layout_height="fill_parent"-->
+                                            <!--android:id="@+id/ivPhoto"-->
+                                            <!--android:layout_weight="1" android:background="#3a4d4f"/>-->
+                                    <!--<ImageView-->
+                                            <!--android:layout_width="150dp"-->
+                                            <!--android:layout_height="fill_parent"-->
+                                            <!--android:id="@+id/imageView"-->
+                                            <!--android:layout_weight="1" android:background="#3a4d4f"/>-->
                                 </LinearLayout>
                             </HorizontalScrollView>
-                        </TableRow>
-                        <TableRow
-                                android:layout_width="match_parent"
-                                android:layout_height="1dp"
-                                android:id="@+id/trVideoRow"
-                                android:background="@null">
-                            <VideoView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:id="@+id/videoView"
-                                    android:background="@null"/>
                         </TableRow>
                     </LinearLayout>
                 </LinearLayout>
@@ -167,7 +167,7 @@
                     android:text="Создать"
                     android:id="@+id/btnCreateEvent"
                     android:layout_weight="1"
-                    android:background="@null"/>
+                    android:background="@null" android:textColor="#f9f9ff"/>
         </TableRow>
     </LinearLayout>
 </LinearLayout>

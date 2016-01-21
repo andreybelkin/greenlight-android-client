@@ -6,5 +6,6 @@ package com.globalgrupp.greenlight.greenlightclient.classes;
 public enum AuthorizationType {
     VK,
     FACEBOOK,
-    TWITTER
+    TWITTER,
+    NONE
 }

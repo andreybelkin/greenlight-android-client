@@ -5,10 +5,12 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
+import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AlertDialog;
@@ -40,6 +42,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by п on 28.12.2015.
@@ -55,12 +58,11 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
     private MediaPlayer mPlayer = null;
     private ImageButton btnPlayAudio;
     boolean mStartPlaying = true;
+    ProgressBar progress;
 
     private String videoFilePath;
     private Button btnPlayVideo;
 
-
-    private String photoFilePath;
     private Button btnShowPhoto;
 
     private TextView tvEventDate;
@@ -89,7 +91,19 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                 //onBackPressed();
             }
         });
-        //getSupportActionBar().setTitle("");
+        TableRow tr=(TableRow) findViewById(R.id.trImageRow);
+        ViewGroup.LayoutParams llParams= tr.getLayoutParams();
+        llParams.height=0;
+        tr.setLayoutParams(llParams);
+
+        TableRow trAudiorow=(TableRow) findViewById(R.id.trAudioRow);
+        ViewGroup.LayoutParams llAudioparams=trAudiorow.getLayoutParams();
+        llAudioparams.height=0;
+        trAudiorow.setLayoutParams(llAudioparams);
+        if (ApplicationSettings.getInstance().getAuthorizationType()==AuthorizationType.NONE){
+            ImageButton ibShare=(ImageButton)findViewById(R.id.ibShare);
+            ibShare.setVisibility(View.INVISIBLE);
+        }
 
         if (getIntent().hasExtra("eventId")){
 
@@ -98,14 +112,21 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                 //todo асинхронная загрузка
                 if (currentEvent.getAudioId()!=null&&!currentEvent.getAudioId().equals(new Long(0)) ){
 //                    "http://192.168.1.33:8080/utils/downloadFile?id=
+
                     audioFilePath=new FileDownloadTask().execute("http://192.168.1.33:8080/utils/getFile/"+currentEvent.getAudioId().toString(),"3gp").get();
+                    trAudiorow=(TableRow) findViewById(R.id.trAudioRow);
+                    llAudioparams=trAudiorow.getLayoutParams();
+                    llAudioparams.height=ViewGroup.LayoutParams.WRAP_CONTENT;
+                    trAudiorow.setLayoutParams(llAudioparams);
                     btnPlayAudio=(ImageButton)findViewById(R.id.btnPlayAudio);
+                    progress=(ProgressBar)findViewById(R.id.pbAudio);
                     btnPlayAudio.setVisibility(View.VISIBLE);
                     btnPlayAudio.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
                             onPlay(mStartPlaying);
                             if (mStartPlaying) {
+                                progress.setMax(mPlayer.getDuration());
                                 //todo set pause image
                             } else {
                                 //todo set play image
@@ -113,42 +134,71 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                             mStartPlaying = !mStartPlaying;
                         }
                     });
-                }else {
-                    TableRow tr=(TableRow) findViewById(R.id.trAudioRow);
-                    tr.setLayoutParams(new TableRow.LayoutParams(tr.getWidth(),0));
                 }
-                if (currentEvent.getPhotoId()!=null&&!currentEvent.getPhotoId().equals(new Long(0))){
-                    photoFilePath=new FileDownloadTask().execute("http://192.168.1.33:8080/utils/getFile/"+currentEvent.getPhotoId().toString(),"jpg").get();
-                    btnShowPhoto=(Button) findViewById(R.id.btnShowPhoto);
-                    btnShowPhoto.setVisibility(View.VISIBLE);
-                    btnShowPhoto.setOnClickListener(new View.OnClickListener() {
+
+                if (currentEvent.getPhotoIds()!=null&&currentEvent.getPhotoIds().size()>0){
+                    List<Long> photoIds=currentEvent.getPhotoIds();
+                    for (int i=0;i<photoIds.size();i++){
+                        final String photoFilePath=new FileDownloadTask().execute("http://192.168.1.33:8080/utils/getFile/"+photoIds.get(i),"jpg").get();
+
+                        ViewGroup.LayoutParams phLayoutParams = findViewById(R.id.trImageRow).getLayoutParams();
+                        phLayoutParams.height =150;
+                        findViewById(R.id.trImageRow).setLayoutParams(phLayoutParams);
+                        findViewById(R.id.trImageRow).setVisibility(View.VISIBLE);
+                        LinearLayout llImages=(LinearLayout)findViewById(R.id.llImages);
+                        ImageView ivNew=new ImageView(getApplicationContext());
+                        LinearLayout.LayoutParams layoutParams=new LinearLayout.LayoutParams(150,150);
+                        ivNew.setLayoutParams(layoutParams);
+                        //ivNew.setBackgroundColor(Color.parseColor("#D8D8DA"));
+                        ivNew.setPadding(5,5,5,5);
+                        llImages.addView(ivNew);
+                        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+                        Bitmap bitmap = BitmapFactory.decodeFile(photoFilePath.replace("file:", ""), bmOptions);
+                        Bitmap bmPhoto= Bitmap.createScaledBitmap(bitmap, 150, 150, true);
+                        ivNew.setImageBitmap(bmPhoto);
+                        ivNew.setClickable(true);
+                        final String path=photoFilePath;
+                        ivNew.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                Intent intent = new Intent();
+                                intent.setAction(Intent.ACTION_VIEW);
+                                intent.setDataAndType(Uri.parse("file://"+path), "image/*");
+                                startActivity(intent);
+                            }
+                        });
+                    }
+
+                }else {
+
+                }
+                if (currentEvent.getVideoId()!=null&&!currentEvent.getVideoId().equals(new Long(0))){
+                    videoFilePath=new FileDownloadTask().execute("http://192.168.1.33:8080/utils/getFile/"+currentEvent.getVideoId().toString(),"3gp").get();
+
+                    ViewGroup.LayoutParams phLayoutParams = findViewById(R.id.trImageRow).getLayoutParams();
+                    phLayoutParams.height = 150;
+                    findViewById(R.id.trImageRow).setLayoutParams(phLayoutParams);
+                    findViewById(R.id.trImageRow).setVisibility(View.VISIBLE);
+                    Bitmap thumbnail = ThumbnailUtils.createVideoThumbnail(videoFilePath,
+                            MediaStore.Images.Thumbnails.MINI_KIND);
+                    Bitmap bmPhoto= Bitmap.createScaledBitmap(thumbnail, 150, 150, true);
+                    ImageView ivVideoPreview=(ImageView) findViewById(R.id.ivForVideo);
+                    ivVideoPreview.setPadding(0,5,0,0);
+                    //ivVideoPreview.setBackgroundColor(Color.parseColor("#D8D8DA"));
+                    ivVideoPreview.setImageBitmap(bmPhoto);
+                    ImageButton btnPlayVideo=(ImageButton)findViewById(R.id.btnVideoPlay);
+                    btnPlayVideo.setImageResource(R.drawable.icon_play_white);
+                    final String path=videoFilePath;
+                    btnPlayVideo.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
                             Intent intent = new Intent();
                             intent.setAction(Intent.ACTION_VIEW);
-                            intent.setDataAndType(Uri.parse("file://"+photoFilePath), "image/*");
+                            intent.setDataAndType(Uri.parse("file://"+path), "video/*");
                             startActivity(intent);
                         }
                     });
-                }else {
-                    TableRow tr=(TableRow) findViewById(R.id.trPhotoRow);
-                    tr.setLayoutParams(new TableRow.LayoutParams(tr.getWidth(),0));
-                }
-                if (currentEvent.getVideoId()!=null&&!currentEvent.getPhotoId().equals(new Long(0))){
-                    videoFilePath=new FileDownloadTask().execute("http://192.168.1.33:8080/utils/getFile/"+currentEvent.getVideoId().toString(),"3gp").get();
-                    btnPlayVideo=(Button) findViewById(R.id.btnPlayVideo);
-                    btnPlayVideo.setVisibility(View.VISIBLE);
-                    btnPlayVideo.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(videoFilePath));
-                            intent.setDataAndType(Uri.parse(videoFilePath), "video/*");
-                            startActivity(intent);
-                        }
-                    });
-                }else {
-                    TableRow tr=(TableRow) findViewById(R.id.trVideoRow);
-                    tr.setLayoutParams(new TableRow.LayoutParams(tr.getWidth(),0));
+
                 }
 
             }catch (Exception e) {
@@ -258,6 +308,28 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
             stopPlaying();
         }
     }
+
+    private class MediaObserver implements Runnable {
+        private AtomicBoolean stop = new AtomicBoolean(false);
+
+        public void stop() {
+            stop.set(true);
+        }
+
+        @Override
+        public void run() {
+            try{
+                while (!stop.get()) {
+                    progress.setProgress(mPlayer.getCurrentPosition());
+                    Thread.sleep(200);
+                }
+            }catch (Exception e){
+                Log.e("",e.getMessage());
+            }
+
+        }
+    }
+    private MediaObserver observer = null;
     private void startPlaying() {
         mPlayer = new MediaPlayer();
         try {
@@ -265,12 +337,21 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
             mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
-                    btnPlayAudio.performClick();
+                    try{
+                        observer.stop();
+                        progress.setProgress(mp.getCurrentPosition());
+                    }catch(Exception e){
+                        e.printStackTrace();
+                    }
+
+                    //btnPlayAudio.performClick();
                 }
             });
+            observer = new MediaObserver();
             mPlayer.prepare();
             mPlayer.start();
 
+            new Thread(observer).start();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -292,100 +373,142 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
             initCommentDialog();
         } else if (v.getId()==R.id.ibShare){
             if (AuthorizationType.VK==ApplicationSettings.getInstance().getAuthorizationType()){
-                VKRequest request = VKApi.users().get();
-                request.executeWithListener(new VKRequest.VKRequestListener() {
-                    @Override
-                    public void onComplete(VKResponse response) {
-                        try{
-                            Long userId=response.json.getJSONArray("response").getJSONObject(0).getLong("id");
-                            VKRequest postRequest = VKApi.wall().post(
-                                    VKParameters.from(
-                                            VKApiConst.OWNER_ID, userId.toString(),
-                                            VKApiConst.MESSAGE, currentEvent.getMessage()
-                                    )
-                            );
-                            postRequest.executeWithListener(new VKRequest.VKRequestListener() {
-                                @Override
-                                public void onComplete(VKResponse response) {
-                                    super.onComplete(response);
-                                    android.app.AlertDialog.Builder alertDialog=new android.app.AlertDialog.Builder(EventDetailsActivity.this);
-                                    alertDialog.setMessage("Событие опубликовано в вконтакте");
-                                    alertDialog.show();
-                                }
-                                @Override
-                                public void onError(VKError error) {
-                                    super.onError(error);
-                                }
-                            });
-                        }catch (Exception e){
-                            e.printStackTrace();
-                        }
-                    }
-                    @Override
-                    public void onError(VKError error) {
-                    }
-                    @Override
-                    public void attemptFailed(VKRequest request, int attemptNumber, int totalAttempts) {
-                    }
-                });
-            } else if (ApplicationSettings.getInstance().getAuthorizationType()==AuthorizationType.FACEBOOK){
-                try{
-                    Bitmap bm = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.ic_launcher);
 
-                    SharePhoto photo=new SharePhoto.Builder().setBitmap(bm).build();
-                    SharePhotoContent photoContent=new SharePhotoContent.Builder().addPhoto(photo).build();
-                    ShareApi shareApi=new ShareApi(photoContent);
-                    shareApi.setMessage(currentEvent.getMessage());
-                    shareApi.share( new FacebookCallback<Sharer.Result>() {
-                        @Override
-                        public void onSuccess(Sharer.Result result) {
-                            int i=0;
-                            android.app.AlertDialog.Builder alertDialog=new android.app.AlertDialog.Builder(EventDetailsActivity.this);
-                            alertDialog.setMessage("Событие опубликовано в Facebook'е");
-                            alertDialog.show();
-                        }
-
-                        @Override
-                        public void onCancel() {
-                        }
-
-                        @Override
-                        public void onError(FacebookException e) {
-                            e.printStackTrace();
-                        }
-                    });
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-
-            } else if (ApplicationSettings.getInstance().getAuthorizationType()==AuthorizationType.TWITTER){
-                try{
-                    // Update status
-                    twitter4j.Status response =
-                    new AsyncTask<String, Void, Status>() {
-                        @Override
-                        protected twitter4j.Status doInBackground(String... strings) {
-                            try{
-                                ConfigurationBuilder builder = new ConfigurationBuilder();
-                                builder.setOAuthConsumerKey(TWITTER_CONSUMER_KEY);
-                                builder.setOAuthConsumerSecret(TWITTER_CONSUMER_SECRET);
-                                Twitter twitter = new TwitterFactory(builder.build()).getInstance(ApplicationSettings.getInstance().getTwitterAccessToken());
-                                return twitter.updateStatus(strings[0]);
-                            }catch (Exception e){
-                                e.printStackTrace();
-                                return null;
+                new AlertDialog.Builder(this)
+//                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setTitle("Поделиться")
+                        .setMessage("Вы уверены что хотите поделиться событием в вконтакте?")
+                        .setPositiveButton("Да", new DialogInterface.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                VKRequest request = VKApi.users().get();
+                                request.executeWithListener(new VKRequest.VKRequestListener() {
+                                    @Override
+                                    public void onComplete(VKResponse response) {
+                                        try{
+                                            Long userId=response.json.getJSONArray("response").getJSONObject(0).getLong("id");
+                                            VKRequest postRequest = VKApi.wall().post(
+                                                    VKParameters.from(
+                                                            VKApiConst.OWNER_ID, userId.toString(),
+                                                            VKApiConst.MESSAGE, currentEvent.getMessage()
+                                                    )
+                                            );
+                                            postRequest.executeWithListener(new VKRequest.VKRequestListener() {
+                                                @Override
+                                                public void onComplete(VKResponse response) {
+                                                    super.onComplete(response);
+                                                    Toast toast = Toast.makeText(getApplicationContext(),
+                                                            "Событие опубликовано в вконтакте", Toast.LENGTH_SHORT);
+                                                    toast.show();
+                                                }
+                                                @Override
+                                                public void onError(VKError error) {
+                                                    super.onError(error);
+                                                }
+                                            });
+                                        }catch (Exception e){
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                    @Override
+                                    public void onError(VKError error) {
+                                    }
+                                    @Override
+                                    public void attemptFailed(VKRequest request, int attemptNumber, int totalAttempts) {
+                                    }
+                                });
                             }
 
-                        }
-                    }.execute(currentEvent.getMessage()).get();
-                    if (response!=null){
-                        android.app.AlertDialog.Builder alertDialog=new android.app.AlertDialog.Builder(EventDetailsActivity.this);
-                        alertDialog.setMessage("Событие опубликовано в Twitter'е");
-                        alertDialog.show();
-                    }
-                }catch(Exception e){
-                    e.printStackTrace();
-                }
+                        })
+                        .setNegativeButton("Нет", null)
+                        .show();
+
+
+            } else if (ApplicationSettings.getInstance().getAuthorizationType()==AuthorizationType.FACEBOOK){
+                new AlertDialog.Builder(this)
+//                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setTitle("Поделиться")
+                        .setMessage("Вы уверены что хотите поделиться событием в Facebook'е?")
+                        .setPositiveButton("Да", new DialogInterface.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                try{
+                                    Bitmap bm = BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.ic_launcher);
+
+                                    SharePhoto photo=new SharePhoto.Builder().setBitmap(bm).build();
+                                    SharePhotoContent photoContent=new SharePhotoContent.Builder().addPhoto(photo).build();
+                                    ShareApi shareApi=new ShareApi(photoContent);
+                                    shareApi.setMessage(currentEvent.getMessage());
+                                    shareApi.share( new FacebookCallback<Sharer.Result>() {
+                                        @Override
+                                        public void onSuccess(Sharer.Result result) {
+                                            Toast toast = Toast.makeText(getApplicationContext(),
+                                                    "Событие опубликовано в Facebook'е", Toast.LENGTH_SHORT);
+                                            toast.show();
+                                        }
+
+                                        @Override
+                                        public void onCancel() {
+                                        }
+
+                                        @Override
+                                        public void onError(FacebookException e) {
+                                            e.printStackTrace();
+                                        }
+                                    });
+                                }catch (Exception e){
+                                    e.printStackTrace();
+                                }
+                            }
+
+                        })
+                        .setNegativeButton("Нет", null)
+                        .show();
+
+
+            } else if (ApplicationSettings.getInstance().getAuthorizationType()==AuthorizationType.TWITTER){
+                new AlertDialog.Builder(this)
+//                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setTitle("Поделиться")
+                        .setMessage("Вы уверены что хотите поделиться событием в Twitter'е?")
+                        .setPositiveButton("Да", new DialogInterface.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                try{
+                                    // Update status
+                                    twitter4j.Status response =
+                                            new AsyncTask<String, Void, Status>() {
+                                                @Override
+                                                protected twitter4j.Status doInBackground(String... strings) {
+                                                    try{
+                                                        ConfigurationBuilder builder = new ConfigurationBuilder();
+                                                        builder.setOAuthConsumerKey(TWITTER_CONSUMER_KEY);
+                                                        builder.setOAuthConsumerSecret(TWITTER_CONSUMER_SECRET);
+                                                        Twitter twitter = new TwitterFactory(builder.build()).getInstance(ApplicationSettings.getInstance().getTwitterAccessToken());
+                                                        return twitter.updateStatus(strings[0]);
+                                                    }catch (Exception e){
+                                                        e.printStackTrace();
+                                                        return null;
+                                                    }
+
+                                                }
+                                            }.execute(currentEvent.getMessage()).get();
+                                    if (response!=null){
+                                        Toast toast = Toast.makeText(getApplicationContext(),
+                                                "Событие опубликовано в Twitter'е", Toast.LENGTH_SHORT);
+                                        toast.show();
+                                    }
+                                }catch(Exception e){
+                                    e.printStackTrace();
+                                }
+                            }
+
+                        })
+                        .setNegativeButton("Нет", null)
+                        .show();
 
             }
 

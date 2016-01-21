@@ -471,6 +471,8 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
         eventListMenuItem.setVisible(false);
         MenuItem mapItem=menu.findItem(R.id.action_map);
         mapItem.setOnMenuItemClickListener(this);
+        MenuItem logoutItem=menu.findItem(R.id.action_logout);
+        logoutItem.setOnMenuItemClickListener(this);
         return true;
     }
 
@@ -492,7 +494,6 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                 startIntent= new Intent(this, NewEventActivity.class);
                 startIntent.putExtra("location", coords);
                 startActivityForResult(startIntent,1);
-                //startActivity(startIntent);
             }else if(menuItem.getItemId()==R.id.action_event_list){
                 startIntent= new Intent(this, EventListActivity.class);
                 startIntent.putExtra("location", coords);
@@ -500,6 +501,9 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
             } else if (menuItem.getItemId()==R.id.action_map){
                 startIntent= new Intent(this, MainActivity.class);
                 startIntent.putExtra("location", coords);
+                startActivity(startIntent);
+            } else if (menuItem.getItemId()==R.id.action_logout) {
+                startIntent=new Intent(this,AuthorizationActivity.class);
                 startActivity(startIntent);
             }
         }catch (Exception e){

@@ -44,6 +44,8 @@ import java.net.URL;
             msg.put("photoId",params[0].getPhotoId());
             msg.put("streetName",params[0].getStreetName());
             msg.put("senderAppId",params[0].getSenderAppId());
+            JSONArray array=new JSONArray(params[0].getPhotoIds());
+            msg.put("photoIds",array);
             msg.toString();
             Log.i("message",msg.toString());
             URL url = new URL(params[0].getURL());
@@ -58,7 +60,8 @@ import java.net.URL;
             conn.setRequestProperty("Accept","*/*");
             conn.setRequestProperty("Content-Type","application/json");
             conn.setRequestProperty("charset", "utf-8");
-
+            conn.setConnectTimeout(20000);
+            conn.setReadTimeout(20000);
             DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
             String str = msg.toString();
             byte[] data=str.getBytes("UTF-8");
@@ -74,6 +77,8 @@ import java.net.URL;
             catch (Exception e){
                 e.printStackTrace();
                 is=conn.getErrorStream();
+                return false;
+
             }
 
             reader = new BufferedReader(new InputStreamReader(is));

@@ -2,6 +2,7 @@ package com.globalgrupp.greenlight.greenlightclient.classes;
 
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 
@@ -35,6 +36,16 @@ public class Event {
 
     private String streetName;
     private Date createDate;
+
+    private List<Long> photoIds;
+
+    public List<Long> getPhotoIds() {
+        return photoIds;
+    }
+
+    public void setPhotoIds(List<Long> photoIds) {
+        this.photoIds = photoIds;
+    }
 
     public Date getCreateDate() {
         return createDate;
