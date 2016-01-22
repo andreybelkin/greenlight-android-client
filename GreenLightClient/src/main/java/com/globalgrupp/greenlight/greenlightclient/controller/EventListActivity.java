@@ -18,10 +18,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.Spinner;
+import android.widget.*;
 import com.globalgrupp.greenlight.greenlightclient.Application;
 import com.globalgrupp.greenlight.greenlightclient.R;
 import com.globalgrupp.greenlight.greenlightclient.classes.*;
@@ -103,6 +100,8 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                 ApplicationSettings.getInstance().startLocationTimer();
             }
 
+
+
            //refreshEventList();
         }catch(Exception e){
             e.printStackTrace();
@@ -111,7 +110,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
 
     public void initChannels(){
         try{
-            String url="http://192.168.1.33:8080/channel/getBaseChannels";
+            String url="http://188.227.16.166:8080/channel/getBaseChannels";
             //подгрузка каналов
             List<Channel> channels= new AsyncTask<String, Void, List<Channel>>() {
                 @Override
@@ -288,9 +287,9 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
         try{
             GetEventParams params=new GetEventParams();
             if (channelId!=null){
-                params.setURL("http://192.168.1.33:8080/event/getEventsByChannel/"+channelId.toString());
+                params.setURL("http://188.227.16.166:8080/event/getEventsByChannel/"+channelId.toString());
             }else{
-                params.setURL("http://192.168.1.33:8080/event/getNearestEvents");
+                params.setURL("http://188.227.16.166:8080/event/getNearestEvents");
             }
 
             params.setCurrentCoords(eLocation);
@@ -348,7 +347,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                                 }else{
                                     File file=null;
                                     try {
-                                        String DownloadUrl="http://192.168.1.33:8080/utils/getFile/"+events.get(i).getAudioId().toString();
+                                        String DownloadUrl="http://188.227.16.166:8080/utils/getFile/"+events.get(i).getAudioId().toString();
                                         String fileName= "newEventAudio.3gp";
                                         String root = Environment.getExternalStorageDirectory().getAbsolutePath();
 
@@ -464,8 +463,14 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_activity_main, menu);
-        MenuItem editMenuItem = menu.findItem(R.id.action_new_event);
-        editMenuItem.setOnMenuItemClickListener(this);
+        if (ApplicationSettings.getInstance().getAuthorizationType()!=AuthorizationType.NONE){
+            MenuItem editMenuItem = menu.findItem(R.id.action_new_event);
+            editMenuItem.setOnMenuItemClickListener(this);
+        }else {
+            MenuItem editMenuItem = menu.findItem(R.id.action_new_event);
+            editMenuItem.setVisible(false);
+        }
+
         MenuItem eventListMenuItem=menu.findItem(R.id.action_event_list);
         eventListMenuItem.setOnMenuItemClickListener(this);
         eventListMenuItem.setVisible(false);

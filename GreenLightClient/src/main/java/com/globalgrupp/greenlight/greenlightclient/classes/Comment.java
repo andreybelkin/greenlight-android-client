@@ -1,6 +1,7 @@
 package com.globalgrupp.greenlight.greenlightclient.classes;
 
 import java.util.Date;
+import java.util.List;
 
 
 public class Comment {
@@ -13,6 +14,36 @@ public class Comment {
     private String message;
 
     private Date createDate;
+
+    private Long audioId;
+
+    private Long videoId;
+
+    public Long getAudioId() {
+        return audioId;
+    }
+
+    public void setAudioId(Long audioId) {
+        this.audioId = audioId;
+    }
+
+    public List<Long> getPhotoIds() {
+        return photoIds;
+    }
+
+    public void setPhotoIds(List<Long> photoIds) {
+        this.photoIds = photoIds;
+    }
+
+    public Long getVideoId() {
+        return videoId;
+    }
+
+    public void setVideoId(Long videoId) {
+        this.videoId = videoId;
+    }
+
+    private List<Long> photoIds;
 
     public Date getCreateDate() {
         return createDate;

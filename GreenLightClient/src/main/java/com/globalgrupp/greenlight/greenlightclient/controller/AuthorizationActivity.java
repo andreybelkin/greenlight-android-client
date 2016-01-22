@@ -124,6 +124,7 @@ public class AuthorizationActivity extends ActionBarActivity implements View.OnC
             twitterButton.setOnClickListener(this);
             Button btnNotAuthorized=(Button) findViewById(R.id.btnNotAuthorized);
             btnNotAuthorized.setOnClickListener(this);
+            findViewById(R.id.ivDropDown).setVisibility(View.INVISIBLE);
 //            GCMRegistrationHelper helper=new GCMRegistrationHelper(getApplication());
 //            helper.registerGCM();
         }catch (Exception e){

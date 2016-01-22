@@ -110,6 +110,7 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
 
             TextView tvStreetName=(TextView)findViewById(R.id.streetName);
             tvStreetName.setText(eAddres.getThoroughfare());
+            findViewById(R.id.ivDropDown).setVisibility(View.INVISIBLE);
         }
         catch (Exception e){
             e.printStackTrace();
@@ -158,7 +159,7 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
                         videoId=new UploadFileOperation().execute(cep).get();
                     }
 
-                    String serverURL = "http://192.168.1.33:8080/event/createEvent";//todo config
+                    String serverURL = "http://188.227.16.166:8080/event/createEvent";//todo config
                     EditText et=(EditText) findViewById(R.id.etEventText);
 
                     String registrationId =GCMRegistrationHelper.getRegistrationId(getApplicationContext());
@@ -193,10 +194,10 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 if(motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-                    onRecord(mStartRecording);
+                    onRecord(true);
                     mStartRecording = !mStartRecording;
                 } else if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
-                    onRecord(mStartRecording);
+                    onRecord(false);
                     mStartRecording = !mStartRecording;
                 }
 

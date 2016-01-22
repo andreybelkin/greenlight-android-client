@@ -70,7 +70,7 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
                 mMap.animateCamera(cameraUpdate);
 
                 GetEventParams params=new GetEventParams();
-                params.setURL("http://192.168.1.33:8080/event/getNearestEvents");
+                params.setURL("http://188.227.16.166:8080/event/getNearestEvents");
                 SimpleGeoCoords coords=new SimpleGeoCoords(mLastLocation.getLongitude(),mLastLocation.getLatitude(),mLastLocation.getAltitude());
                 params.setCurrentCoords(coords);
                 List<Event> events=new GetEventsOperation().execute(params).get();
@@ -102,8 +102,13 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_activity_main, menu);
-        MenuItem editMenuItem = menu.findItem(R.id.action_new_event);
-        editMenuItem.setOnMenuItemClickListener(this);
+        if (ApplicationSettings.getInstance().getAuthorizationType()!=AuthorizationType.NONE){
+            MenuItem editMenuItem = menu.findItem(R.id.action_new_event);
+            editMenuItem.setOnMenuItemClickListener(this);
+        }else {
+            MenuItem editMenuItem = menu.findItem(R.id.action_new_event);
+            editMenuItem.setVisible(false);
+        }
         MenuItem eventListMenuItem=menu.findItem(R.id.action_event_list);
         eventListMenuItem.setOnMenuItemClickListener(this);
         MenuItem mapMenuItem=menu.findItem(R.id.action_map);

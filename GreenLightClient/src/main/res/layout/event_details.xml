@@ -6,156 +6,144 @@
 
     <include layout="@layout/toolbar" />
 
-    <LinearLayout
-            android:orientation="vertical"
+    <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" android:weightSum="1"
-            android:layout_marginLeft="10dp">
-        <TableRow
+            android:layout_height="fill_parent"
+            android:id="@+id/scrollView" android:layout_weight="1">
+        <LinearLayout
+                android:orientation="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/contentTopPanel">
+                android:layout_height="match_parent">
             <LinearLayout
-                    android:orientation="horizontal"
+                    android:orientation="vertical"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content" android:weightSum="1"
+                    android:layout_marginLeft="10dp">
+                <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/contentTopPanel">
+                    <LinearLayout
+                            android:orientation="horizontal"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+                        <LinearLayout
+                                android:orientation="vertical"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1">
+                            <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textAppearance="?android:attr/textAppearanceSmall"
+                                    android:text="23:15"
+                                    android:id="@+id/tvEventCreateDate" android:textSize="@android:dimen/app_icon_size"/>
+                        </LinearLayout>
+                        <LinearLayout
+                                android:orientation="horizontal"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1">
+                            <ImageButton
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:id="@+id/ibComment"
+                                    android:src="@drawable/icon_comment"
+                                    android:layout_weight="1"
+                                    android:background="@null" android:layout_gravity="center"/>
+                            <ImageButton
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:id="@+id/ibShare" android:src="@drawable/icon_share"
+                                    android:layout_weight="1"
+                                    android:background="@null" android:layout_gravity="center_vertical"/>
+                            <ImageButton
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:id="@+id/ibMap" android:src="@drawable/icon_marker_green"
+                                    android:layout_weight="1"
+                                    android:background="@null" android:layout_gravity="center"/>
+                        </LinearLayout>
+                    </LinearLayout>
+                </TableRow>
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:text="Комсомольский пр-т> Ленина"
+                        android:id="@+id/tvStreetName" android:textColor="#111111" android:textSize="23dp"/>
                 <LinearLayout
                         android:orientation="vertical"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_weight="1">
+                        android:background="@drawable/shape"
+                        android:layout_margin="5px" android:layout_marginRight="5dp">
                     <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceSmall"
-                            android:text="23:15"
-                            android:id="@+id/tvEventCreateDate" android:textSize="@android:dimen/app_icon_size"/>
+                            android:layout_width="match_parent"
+                            android:layout_height="60dp"
+                            android:text="New Text"
+                            android:id="@+id/eventMessage"
+                            android:layout_below="@+id/contentTopPanel"/>
                 </LinearLayout>
                 <LinearLayout
-                        android:orientation="horizontal"
+                        android:orientation="vertical"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1">
-                    <ImageButton
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:id="@+id/ibComment"
-                            android:src="@drawable/icon_comment"
-                            android:layout_weight="1"
-                            android:background="@null" android:layout_gravity="center"/>
-                    <ImageButton
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:id="@+id/ibShare" android:src="@drawable/icon_share"
-                            android:layout_weight="1"
-                            android:background="@null" android:layout_gravity="center_vertical"/>
-                    <ImageButton
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:id="@+id/ibMap" android:src="@drawable/icon_marker_green"
-                            android:layout_weight="1"
-                            android:background="@null" android:layout_gravity="center"/>
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/eventMessage"
+                        android:id="@+id/laBtnAudio">
+                    <TableRow
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" android:id="@+id/trAudioRow" android:layout_marginTop="5dp">
+                        <ImageButton
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/btnPlayAudio"
+                                android:src="@drawable/icon_audio_play"
+                                android:background="@null"/>
+                        <ProgressBar
+                                style="?android:attr/progressBarStyleHorizontal"
+                                android:layout_width="fill_parent"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/pbAudio" android:layout_gravity="center_vertical"
+                                android:layout_marginRight="10dp" android:layout_marginLeft="5dp"/>
+                    </TableRow>
+                    <TableRow
+                            android:layout_width="match_parent"
+                            android:layout_height="150dp" android:id="@+id/trImageRow" android:orientation="vertical">
+                        <HorizontalScrollView android:layout_width="fill_parent"
+                                              android:layout_height="fill_parent"
+                                              android:id="@+id/horizontalScrollView2">
+                            <LinearLayout android:orientation="horizontal"
+                                          android:layout_width="wrap_content"
+                                          android:layout_height="fill_parent"
+                                          android:id="@+id/llImages"
+                                          android:layout_marginBottom="10dp">
+                                <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                                android:orientation="vertical" android:layout_width="fill_parent"
+                                                android:layout_height="fill_parent">
+                                    <ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+                                               android:id="@+id/ivForVideo" android:layout_width="wrap_content"
+                                               android:layout_height="wrap_content"/>
+                                    <ImageButton android:id="@+id/btnVideoPlay" android:layout_width="wrap_content"
+                                                 android:layout_height="wrap_content" android:background="@null"
+                                                 android:layout_centerInParent="true"/>
+                                </RelativeLayout>
+                            </LinearLayout>
+                        </HorizontalScrollView>
+                    </TableRow>
                 </LinearLayout>
             </LinearLayout>
-        </TableRow>
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Комсомольский пр-т> Ленина"
-                android:id="@+id/tvStreetName" android:textColor="#111111" android:textSize="23dp"/>
-        <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/shape"
-                android:layout_margin="5px" android:layout_marginRight="5dp">
-            <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:text="New Text"
-                    android:id="@+id/eventMessage"
-                    android:layout_below="@+id/contentTopPanel"/>
-        </LinearLayout>
-        <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/eventMessage"
-                android:id="@+id/laBtnAudio">
-            <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" android:id="@+id/trAudioRow" android:layout_marginTop="5dp">
-                <ImageButton
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/btnPlayAudio"
-                        android:src="@drawable/icon_audio_play"
-                        android:background="@null"/>
-                <ProgressBar
-                        style="?android:attr/progressBarStyleHorizontal"
+            <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="17dp"
+                    android:layout_marginRight="5dp" android:id="@+id/llComments">
+                <ListView
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
-                        android:id="@+id/pbAudio" android:layout_gravity="center_vertical"
-                        android:layout_marginRight="10dp" android:layout_marginLeft="5dp"/>
-            </TableRow>
-            <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="150dp" android:id="@+id/trImageRow" android:orientation="vertical">
-                <HorizontalScrollView android:layout_width="fill_parent"
-                                      android:layout_height="fill_parent"
-                                      android:id="@+id/horizontalScrollView2">
-                    <LinearLayout android:orientation="horizontal"
-                                  android:layout_width="wrap_content"
-                                  android:layout_height="fill_parent"
-                                  android:id="@+id/llImages"
-                                  android:layout_marginBottom="10dp">
-                        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                                        android:orientation="vertical" android:layout_width="fill_parent"
-                                        android:layout_height="fill_parent">
-                            <ImageView xmlns:android="http://schemas.android.com/apk/res/android"
-                                       android:id="@+id/ivForVideo" android:layout_width="wrap_content"
-                                       android:layout_height="wrap_content"/>
-                            <ImageButton android:id="@+id/btnVideoPlay" android:layout_width="wrap_content"
-                                         android:layout_height="wrap_content" android:background="@null"
-                                         android:layout_centerInParent="true"/>
-                        </RelativeLayout>
-                    </LinearLayout>
-                </HorizontalScrollView>
-            </TableRow>
-        </LinearLayout>
-    </LinearLayout>
-    <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="273dp"
-            android:id="@+id/scrollView" android:layout_weight="1.02">
-        <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="17dp"
-                android:layout_marginRight="5dp">
-            <ListView
-                    android:layout_width="fill_parent"
-                    android:layout_height="263dp"
-                    android:id="@+id/listViewComments"/>
+                        android:id="@+id/listViewComments" android:focusable="false"/>
+            </LinearLayout>
         </LinearLayout>
     </ScrollView>
-    <!--<RelativeLayout-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_alignParentBottom="true"-->
-            <!--&gt;-->
-        <!--<EditText-->
-                <!--android:layout_width="242dp"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:id="@+id/etComment"/>-->
-        <!--<Button-->
-                <!--style="?android:attr/buttonStyleSmall"-->
-                <!--android:layout_toRightOf="@id/etComment"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:text="send"-->
-                <!--android:id="@+id/btnSendComment"/>-->
-    <!--</RelativeLayout>-->
 </LinearLayout>

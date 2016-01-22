@@ -46,7 +46,6 @@ import java.net.URL;
             msg.put("senderAppId",params[0].getSenderAppId());
             JSONArray array=new JSONArray(params[0].getPhotoIds());
             msg.put("photoIds",array);
-            msg.toString();
             Log.i("message",msg.toString());
             URL url = new URL(params[0].getURL());
 

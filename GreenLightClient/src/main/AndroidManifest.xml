@@ -60,7 +60,8 @@
             android:label="@string/create_new_event" />
         <activity
                 android:name=".controller.EventDetailsActivity"
-                android:label="" />
+                android:label=""
+                android:windowSoftInputMode="adjustPan"/>
         <activity
                 android:name=".controller.MainActivity"
                 android:label="" />

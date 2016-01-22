@@ -118,8 +118,18 @@ public class GetEventsOperation extends AsyncTask<GetEventParams, Void, List<Eve
                 for (int k=0;k<jsonCommentsArray.length();k++){
                     JSONObject comObject=jsonCommentsArray.getJSONObject(k);
                     Comment com=new Comment();
+                    com.setId(comObject.getLong("id"));
                     com.setMessage(comObject.getString("message"));
                     com.setCreateDate(new Date(comObject.getLong("createDate")));
+                    com.setAudioId(!comObject.isNull("audioId")?comObject.getLong("audioId"):null);
+                    com.setVideoId(!comObject.isNull("videoId")?comObject.getLong("videoId"):null);
+                    List<Long> commentPhotoIds=new ArrayList<Long>();
+                    JSONArray commentPhotoArray=comObject.getJSONArray("photoIds");
+                    for (int z=0;z<commentPhotoArray.length(); z++){
+                        Long photoId=commentPhotoArray.getLong(z);
+                        commentPhotoIds.add(photoId);
+                    }
+                    com.setPhotoIds(commentPhotoIds);
                     comments.add(com);
                 }
                 e.setComments(new HashSet<Comment>(comments));
@@ -138,7 +148,6 @@ public class GetEventsOperation extends AsyncTask<GetEventParams, Void, List<Eve
             {
                 reader.close();
             }
-
             catch(Exception ex) {
                 ex.printStackTrace();
             }
