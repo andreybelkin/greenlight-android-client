@@ -13,7 +13,7 @@
             android:background="@null"
             android:layout_width="fill_parent"
             android:layout_weight="1"
-            android:layout_height="78dp" android:orientation="vertical">
+            android:layout_height="wrap_content" android:orientation="vertical">
 
         <TableRow
                 android:layout_width="match_parent"
@@ -45,7 +45,7 @@
 
         <TableRow
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="wrap_content">
             <TextView
                 android:id="@+id/tvEventsTitle"
                 android:layout_marginLeft="27dp"
@@ -60,6 +60,26 @@
                 android:textColor="@color/symbol_black"
                 fontPath="fonts/Roboto-Regular.ttf"
                 android:text="Some text" />
+        </TableRow>
+        <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="29dp">
+            <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="fill_parent"
+                    android:id="@+id/ivHasAudio"
+                    android:layout_weight="1" android:background="#18ff19"/>
+            <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="fill_parent"
+                    android:id="@+id/ivHasPhoto"
+                    android:layout_weight="1" android:background="#ff0f06"/>
+            <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="fill_parent"
+                    android:id="@+id/ivHasVideo"
+                    android:layout_weight="1" android:background="#0207ff"/>
+
         </TableRow>
 
     </LinearLayout>

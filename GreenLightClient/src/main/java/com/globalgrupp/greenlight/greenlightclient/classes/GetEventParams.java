@@ -34,4 +34,14 @@ public class GetEventParams {
     public void setURL(String URL) {
         this.URL = URL;
     }
+
+    private Long radius;
+
+    public Long getRadius() {
+        return radius;
+    }
+
+    public void setRadius(Long radius) {
+        this.radius = radius;
+    }
 }

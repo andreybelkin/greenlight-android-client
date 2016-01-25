@@ -1,6 +1,6 @@
 package com.globalgrupp.greenlight.greenlightclient.controller;
 
-import android.content.Intent;
+import android.content.*;
 import android.location.Location;
 import android.media.MediaPlayer;
 import android.media.Ringtone;
@@ -99,9 +99,6 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                 ApplicationSettings.getInstance().getmGoogleApiClient().connect();
                 ApplicationSettings.getInstance().startLocationTimer();
             }
-
-
-
            //refreshEventList();
         }catch(Exception e){
             e.printStackTrace();
@@ -110,7 +107,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
 
     public void initChannels(){
         try{
-            String url="http://188.227.16.166:8080/channel/getBaseChannels";
+            String url="http://192.168.1.33:8080/channel/getBaseChannels";
             //подгрузка каналов
             List<Channel> channels= new AsyncTask<String, Void, List<Channel>>() {
                 @Override
@@ -237,7 +234,14 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
     public void onResume()
     {
         super.onResume();
+        getApplicationContext().registerReceiver(mMessageReceiver, new IntentFilter("unique_name"));
         initChannels();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        getApplicationContext().unregisterReceiver(mMessageReceiver);
     }
 
     public void refreshEventList(Long channelId){
@@ -280,19 +284,29 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
             }
         }
         //ApplicationSettings.getInstance().setOldEventsId(new ArrayList<Long>());
-        SimpleGeoCoords eLocation=new SimpleGeoCoords(0,0,0);
+        SimpleGeoCoords eLocation=null;
         if (getIntent().hasExtra("location")) {
             eLocation = (SimpleGeoCoords) getIntent().getExtras().getSerializable("location");
         }
         try{
             GetEventParams params=new GetEventParams();
             if (channelId!=null){
-                params.setURL("http://188.227.16.166:8080/event/getEventsByChannel/"+channelId.toString());
+                params.setURL("http://192.168.1.33:8080/event/getEventsByChannel/"+channelId.toString());
             }else{
-                params.setURL("http://188.227.16.166:8080/event/getNearestEvents");
+                params.setURL("http://192.168.1.33:8080/event/getNearestEvents");
             }
 
+            if (eLocation==null){
+                Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+                        ApplicationSettings.getInstance().getmGoogleApiClient());
+                if (mLastLocation==null) return;
+                eLocation=new SimpleGeoCoords(mLastLocation.getLongitude(),mLastLocation.getLatitude(),mLastLocation.getAltitude());
+            }
             params.setCurrentCoords(eLocation);
+            SharedPreferences prefs=getApplicationContext().getSharedPreferences(
+                    EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);
+            params.setRadius(new Long(prefs.getLong("event_radius",10)));
+
             ArrayList<Event> events=(ArrayList<Event>)new GetEventsOperation().execute(params).get();
             //events=new ArrayList<Event>(events.subList(0,1));
             lvEvents=(ListView)findViewById(R.id.listViewEvents);
@@ -307,6 +321,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
             }
             ViewGroup.LayoutParams layoutParams = lvEvents.getLayoutParams();
             layoutParams.height = (int) (totalHeight + (lvEvents.getDividerHeight() * (lvEvents.getCount() - 1)));
+            //layoutParams.height= ViewGroup.LayoutParams.WRAP_CONTENT;
             lvEvents.setLayoutParams(layoutParams);
             lvEvents.requestLayout();
             lvEvents.setOnItemClickListener(this);
@@ -347,7 +362,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                                 }else{
                                     File file=null;
                                     try {
-                                        String DownloadUrl="http://188.227.16.166:8080/utils/getFile/"+events.get(i).getAudioId().toString();
+                                        String DownloadUrl="http://192.168.1.33:8080/utils/getFile/"+events.get(i).getAudioId().toString();
                                         String fileName= "newEventAudio.3gp";
                                         String root = Environment.getExternalStorageDirectory().getAbsolutePath();
 
@@ -478,6 +493,9 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
         mapItem.setOnMenuItemClickListener(this);
         MenuItem logoutItem=menu.findItem(R.id.action_logout);
         logoutItem.setOnMenuItemClickListener(this);
+        MenuItem settingItem=menu.findItem(R.id.action_settings);
+        settingItem.setOnMenuItemClickListener(this);
+
         return true;
     }
 
@@ -510,6 +528,9 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
             } else if (menuItem.getItemId()==R.id.action_logout) {
                 startIntent=new Intent(this,AuthorizationActivity.class);
                 startActivity(startIntent);
+            } else if (menuItem.getItemId()==R.id.action_settings){
+                startIntent=new Intent(this,SettingsActivity.class);
+                startActivity(startIntent);
             }
         }catch (Exception e){
             e.printStackTrace();
@@ -520,38 +541,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         try{
-//
-//            LatLng l1=new LatLng(50,50);
-//            LatLng l2=new LatLng(60,60);
-//            LatLngBounds latLngBounds=new LatLngBounds(l1,l2);
-//            LatLngBounds BOUNDS_GREATER_SYDNEY = new LatLngBounds(
-//                    new LatLng(-34.041458, 150.790100), new LatLng(-33.682247, 151.383362));
-////                        LatLngBounds BOUNDS_GREATER_SYDNEY = new LatLngBounds(
-////                                new LatLng(0, 0), new LatLng(0, 0));
-//            List<Integer> filters = new ArrayList<Integer>();
-//            filters.add(Place.TYPE_ROUTE);
-//            AutocompleteFilter filter= AutocompleteFilter.create(filters);
-//            PendingResult<AutocompletePredictionBuffer> results =
-//                    Places.GeoDataApi.getAutocompletePredictions(mGoogleApiClient, "ленина",
-//                            latLngBounds,filter);
-//
-//            AutocompletePredictionBuffer autocompletePredictions =
-//            new AsyncTask<PendingResult<AutocompletePredictionBuffer>, Void, AutocompletePredictionBuffer>() {
-//                @Override
-//                protected AutocompletePredictionBuffer doInBackground(PendingResult<AutocompletePredictionBuffer>... voids) {
-//                    try{
-//                        AutocompletePredictionBuffer autocompletePredictions = voids[0]
-//                                .await(10, TimeUnit.SECONDS);
-//                        return autocompletePredictions;
-//                        //return null;
-//                    } catch (Exception e){
-//                        e.printStackTrace();
-//                        return null;
-//                    }
-//
-//                }
-//            }.execute(results).get();
-//            int i=autocompletePredictions.getCount();
+            initChannels();
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -600,4 +590,15 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
         //super.onBackPressed();
     }
 
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            // Extract data included in the Intent
+            String message = intent.getStringExtra("message");
+            //todo апдейт списка при получении нового сообщения
+            //do other stuff here
+        }
+    };
 }
+

@@ -68,6 +68,9 @@
         <activity
                 android:name=".controller.EventListActivity"
                 android:label="" />
+        <activity
+                android:name=".controller.SettingsActivity"
+                android:label="Настройки" />
         <activity android:name="com.vk.sdk.VKServiceActivity" android:label="ServiceActivity" android:theme="@style/VK.Transparent" />
         <activity android:name="com.facebook.FacebookActivity"
                   android:configChanges=

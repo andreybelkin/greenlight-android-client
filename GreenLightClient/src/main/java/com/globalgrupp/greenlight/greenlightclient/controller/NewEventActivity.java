@@ -3,10 +3,7 @@ package com.globalgrupp.greenlight.greenlightclient.controller;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
+import android.graphics.*;
 import android.graphics.drawable.BitmapDrawable;
 import android.location.Address;
 import android.location.Geocoder;
@@ -25,6 +22,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import com.globalgrupp.greenlight.greenlightclient.R;
 import com.globalgrupp.greenlight.greenlightclient.classes.*;
@@ -111,11 +109,53 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
             TextView tvStreetName=(TextView)findViewById(R.id.streetName);
             tvStreetName.setText(eAddres.getThoroughfare());
             findViewById(R.id.ivDropDown).setVisibility(View.INVISIBLE);
+
         }
         catch (Exception e){
             e.printStackTrace();
         }
     }
+
+    protected Rect getLocationOnScreen(EditText mEditText) {
+        Rect mRect = new Rect();
+        int[] location = new int[2];
+
+        mEditText.getLocationOnScreen(location);
+
+        mRect.left = location[0];
+        mRect.top = location[1];
+        mRect.right = location[0] + mEditText.getWidth();
+        mRect.bottom = location[1] + mEditText.getHeight();
+
+        return mRect;
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+
+        boolean handleReturn = super.dispatchTouchEvent(ev);
+
+        View view = getCurrentFocus();
+
+        int x = (int) ev.getX();
+        int y = (int) ev.getY();
+
+        if(view instanceof EditText){
+            //View innerView = getCurrentFocus();
+            EditText innerView=(EditText)findViewById(R.id.etEventText);
+            if (ev.getAction() == MotionEvent.ACTION_UP &&
+                    !getLocationOnScreen(innerView).contains(x, y)) {
+
+                InputMethodManager input = (InputMethodManager)
+                        getSystemService(Context.INPUT_METHOD_SERVICE);
+                input.hideSoftInputFromWindow(getWindow().getCurrentFocus()
+                        .getWindowToken(), 0);
+            }
+        }
+
+        return handleReturn;
+    }
+
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -129,64 +169,74 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
 
     boolean mStartRecording = true;
     boolean mStartPlaying = true;
+    public void sendEvent(){
+        try{
+            Long audioId=new Long(0);
+            if (mFileName!=null){
+                CreateEventParams cep=new CreateEventParams();
+                cep.setURL(mFileName);
+                audioId=new UploadFileOperation().execute(cep).get();
+            }
+
+            List<Long> photoIds=new ArrayList<Long>();
+            if (photoPathList.size()>0){
+                for (int i=0;i<photoPathList.size();i++){
+                    CreateEventParams cep=new CreateEventParams();
+                    cep.setURL(photoPathList.get(i));
+                    Long phId=new UploadFileOperation().execute(cep).get();
+                    photoIds.add(phId);
+                }
+            }
+            Long videoId=new Long(0);
+            if (mCurrentVideoPath!=null){
+                CreateEventParams cep=new CreateEventParams();
+                cep.setURL(mCurrentVideoPath);
+                videoId=new UploadFileOperation().execute(cep).get();
+            }
+
+            String serverURL = "http://192.168.1.33:8080/event/createEvent";//todo config
+            EditText et=(EditText) findViewById(R.id.etEventText);
+
+            String registrationId =GCMRegistrationHelper.getRegistrationId(getApplicationContext());
+
+            String street=eAddres.getThoroughfare();
+            CreateEventParams params=new CreateEventParams(serverURL,eLocation.getLongtitude(),eLocation.getLatitude(),et.getText().toString());
+            params.setAudioId(audioId);
+
+            params.setVideoId(videoId);
+            params.setStreetName(street);
+            params.setSenderAppId(registrationId);
+            params.setPhotoIds(photoIds);
+
+            Boolean res= new CreateEventOperation().execute(params).get();
+            if (res){
+                finish();
+            } else{
+                Toast toast = Toast.makeText(getApplicationContext(),
+                        "Проблемы с соединением.\n Повторите попытку позже.", Toast.LENGTH_LONG);
+                toast.show();
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            Toast toast = Toast.makeText(getApplicationContext(),
+                    "Проблемы с соединением.\n Повторите попытку позже.", Toast.LENGTH_LONG);
+            toast.show();
+        }
+    }
+
     public void setEvents(){
-        final Button createEventButton= (Button) findViewById(R.id.btnCreateEvent);
+        Button createEventButton= (Button) findViewById(R.id.btnCreateEvent);
         createEventButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try{
-
-                    Long audioId=new Long(0);
-                    if (mFileName!=null){
-                        CreateEventParams cep=new CreateEventParams();
-                        cep.setURL(mFileName);
-                        audioId=new UploadFileOperation().execute(cep).get();
-                    }
-
-                    List<Long> photoIds=new ArrayList<Long>();
-                    if (photoPathList.size()>0){
-                        for (int i=0;i<photoPathList.size();i++){
-                            CreateEventParams cep=new CreateEventParams();
-                            cep.setURL(photoPathList.get(i));
-                            Long phId=new UploadFileOperation().execute(cep).get();
-                            photoIds.add(phId);
-                        }
-                    }
-                    Long videoId=new Long(0);
-                    if (mCurrentVideoPath!=null){
-                        CreateEventParams cep=new CreateEventParams();
-                        cep.setURL(mCurrentVideoPath);
-                        videoId=new UploadFileOperation().execute(cep).get();
-                    }
-
-                    String serverURL = "http://188.227.16.166:8080/event/createEvent";//todo config
-                    EditText et=(EditText) findViewById(R.id.etEventText);
-
-                    String registrationId =GCMRegistrationHelper.getRegistrationId(getApplicationContext());
-
-                    String street=eAddres.getThoroughfare();
-                    CreateEventParams params=new CreateEventParams(serverURL,eLocation.getLongtitude(),eLocation.getLatitude(),et.getText().toString());
-                    params.setAudioId(audioId);
-
-                    params.setVideoId(videoId);
-                    params.setStreetName(street);
-                    params.setSenderAppId(registrationId);
-                    params.setPhotoIds(photoIds);
-
-                    Boolean res= new CreateEventOperation().execute(params).get();
-                    if (res){
-                        finish();
-                    } else{
-                        Toast toast = Toast.makeText(getApplicationContext(),
-                                "Проблемы с соединением.\n Повторите попытку позже.", Toast.LENGTH_LONG);
-                        toast.show();
-                    }
-                }catch (Exception e){
-                    e.printStackTrace();
-                    Toast toast = Toast.makeText(getApplicationContext(),
-                            "Проблемы с соединением.\n Повторите попытку позже.", Toast.LENGTH_LONG);
-                    toast.show();
-                }
+                sendEvent();
+            }
+        });
+        Button createEventButtonTop=(Button)findViewById(R.id.btnCreateEventTop);
+        createEventButtonTop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sendEvent();
             }
         });
         btnAudio=(ImageButton)findViewById(R.id.btnAudio);
@@ -252,6 +302,9 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
         }
     }
 
+
+
+
     public void findStartEndStreets(){
         SimpleGeoCoords previousCooords= ApplicationSettings.getInstance().getPreviousCoord();
         if (previousCooords.equals(eLocation)){
@@ -283,8 +336,12 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
         public void run() {
             try{
                 while (!stop.get()) {
-                    progress.setProgress(mPlayer.getCurrentPosition());
-                    Thread.sleep(200);
+                    try{
+                        progress.setProgress(mPlayer.getCurrentPosition());
+                        Thread.sleep(200);
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
                 }
             }catch (Exception e){
                 Log.e("",e.getMessage());
@@ -301,8 +358,13 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
             mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
-                    observer.stop();
-                    progress.setProgress(mp.getCurrentPosition());
+                    try{
+                        observer.stop();
+                        progress.setProgress(mp.getCurrentPosition());
+                    }catch(Exception e){
+                        e.printStackTrace();
+                    }
+
                     //btnPlayAudio.performClick();
                 }
             });

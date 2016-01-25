@@ -46,6 +46,15 @@ public class EventsAdapter  extends ArrayAdapter<Event> {
         viewHolder.tvTitle.setText(commentsItem.getMessage());
         viewHolder.tvDate.setText(df.format(commentsItem.getCreateDate()));
         viewHolder.tvStreetName.setText(commentsItem.getStreetName());
+        if (commentsItem.getAudioId()==null||commentsItem.getAudioId().equals(new Long(0))){
+            convertView.findViewById(R.id.ivHasAudio).setVisibility(View.INVISIBLE);
+        }
+        if (commentsItem.getPhotoIds()==null||commentsItem.getPhotoIds().size()>0){
+            convertView.findViewById(R.id.ivHasPhoto).setVisibility(View.INVISIBLE);
+        }
+        if (commentsItem.getVideoId()==null||commentsItem.getVideoId().equals(new Long(0))){
+            convertView.findViewById(R.id.ivHasVideo).setVisibility(View.INVISIBLE);
+        }
         return convertView;
     }
 }

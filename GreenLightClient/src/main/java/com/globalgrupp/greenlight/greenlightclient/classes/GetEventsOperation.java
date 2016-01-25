@@ -44,6 +44,7 @@ public class GetEventsOperation extends AsyncTask<GetEventParams, Void, List<Eve
                 msg.put("longitude",params[0].getCurrentCoords().getLongtitude());
                 msg.put("latitude",params[0].getCurrentCoords().getLatitude());
                 msg.put("altitude",params[0].getCurrentCoords().getAltitude());
+                msg.put("radius",params[0].getRadius());
             }
             if (params[0].getEventId()!=null){
                 msg.put("eventId",params[0].getEventId());
@@ -132,7 +133,7 @@ public class GetEventsOperation extends AsyncTask<GetEventParams, Void, List<Eve
                     com.setPhotoIds(commentPhotoIds);
                     comments.add(com);
                 }
-                e.setComments(new HashSet<Comment>(comments));
+                e.setComments(comments);
                 result.add(e);
             }
         }

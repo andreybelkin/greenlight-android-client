@@ -34,10 +34,16 @@
         android:icon="@drawable/icon_menu"
         yourapp:showAsAction="ifRoom" />
     <item
+            android:id="@+id/action_settings"
+            android:title="Настройки"
+            android:icon="@drawable/ic_setting_dark"
+            yourapp:showAsAction="ifRoom" />
+    <item
         android:id="@+id/action_logout"
         android:title="Выход"
         android:icon="@drawable/logout"
         yourapp:showAsAction="ifRoom" />
+
 
     <!--<item-->
         <!--android:id="@+id/action_remove"-->

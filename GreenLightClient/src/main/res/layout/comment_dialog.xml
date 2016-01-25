@@ -18,11 +18,16 @@
                 <TableRow
                         android:layout_width="match_parent"
                         android:layout_height="match_parent">
-                    <DigitalClock
+                    <com.globalgrupp.greenlight.greenlightclient.classes.CustomDigitalClock
+                            android:id="@+id/fragment_clock_digital"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:id="@+id/digitalClock" android:textSize="@android:dimen/app_icon_size"
-                            android:textIsSelectable="false"/>
+                            android:text="DigitalClock" android:textSize="30sp"/>
+                    <!--<DigitalClock-->
+                            <!--android:layout_width="wrap_content"-->
+                            <!--android:layout_height="wrap_content"-->
+                            <!--android:id="@+id/digitalClock" android:textSize="@android:dimen/app_icon_size"-->
+                            <!--android:textIsSelectable="false"/>-->
                 </TableRow>
                 <EditText
                         android:layout_width="match_parent"

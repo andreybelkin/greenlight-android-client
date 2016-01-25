@@ -64,6 +64,7 @@ public class GCMNotificationIntentService extends IntentService {
                 Log.i(TAG, "Received: " + extras.toString());
             }
         }
+
         GcmBroadcastReceiver.completeWakefulIntent(intent);
     }
 
@@ -87,5 +88,15 @@ public class GCMNotificationIntentService extends IntentService {
         mBuilder.setContentIntent(contentIntent);
         mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
         Log.d(TAG, "Notification sent successfully.");
+
+        Intent intent = new Intent("unique_name");
+
+        //put whatever data you want to send, if any
+        intent.putExtra("message", "ololol");
+
+        //send broadcast
+        sendBroadcast(intent);
+
     }
+
 }

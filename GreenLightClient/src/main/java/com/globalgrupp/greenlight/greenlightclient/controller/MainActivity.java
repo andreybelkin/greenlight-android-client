@@ -1,6 +1,8 @@
 package com.globalgrupp.greenlight.greenlightclient.controller;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -70,7 +72,16 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
                 mMap.animateCamera(cameraUpdate);
 
                 GetEventParams params=new GetEventParams();
-                params.setURL("http://188.227.16.166:8080/event/getNearestEvents");
+                //params.setURL("http://192.168.1.33:8080/event/getNearestEvents");
+                Long channelId= ApplicationSettings.getInstance().getChannelId();
+                if (channelId!=null && !channelId.equals(new Long(0))){
+                    params.setURL("http://192.168.1.33:8080/event/getEventsByChannel/"+channelId.toString());
+                }else{
+                    params.setURL("http://192.168.1.33:8080/event/getNearestEvents");
+                }
+                SharedPreferences prefs=getApplicationContext().getSharedPreferences(
+                        EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);
+                params.setRadius(new Long(prefs.getLong("event_radius",10)));
                 SimpleGeoCoords coords=new SimpleGeoCoords(mLastLocation.getLongitude(),mLastLocation.getLatitude(),mLastLocation.getAltitude());
                 params.setCurrentCoords(coords);
                 List<Event> events=new GetEventsOperation().execute(params).get();

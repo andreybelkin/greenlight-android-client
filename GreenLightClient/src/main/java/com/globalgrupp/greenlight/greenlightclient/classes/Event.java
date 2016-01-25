@@ -1,10 +1,6 @@
 package com.globalgrupp.greenlight.greenlightclient.classes;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
+import java.util.*;
 
 
 public class Event {
@@ -14,15 +10,15 @@ public class Event {
 
     private String message;
 
-    public Set<Comment> getComments() {
+    public List<Comment> getComments() {
         return comments;
     }
 
-    public void setComments(Set<Comment> comments) {
+    public void setComments(List<Comment> comments) {
         this.comments = comments;
     }
 
-    private Set<Comment> comments=new HashSet<Comment>(0);
+    private List<Comment> comments=new ArrayList<Comment>();
 
     private double longitude;
 

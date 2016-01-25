@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:descendantFocusability="beforeDescendants"
+              android:focusableInTouchMode="true">
+    <include layout="@layout/toolbar" />
+    <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+        <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="77dp">
+            <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:text="Радиус событий"
+                    android:id="@+id/textView"
+                    android:layout_weight="1" android:layout_gravity="center_vertical"
+                    android:gravity="center_vertical"/>
+            <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+                <EditText
+                        android:layout_width="fill_parent"
+                        android:layout_height="20sp"
+                        android:inputType="number"
+                        android:ems="10"
+                        android:id="@+id/etRadius"
+                        android:layout_weight="1"
+                        android:gravity="bottom" android:layout_marginBottom="20sp" android:layout_gravity="bottom"/>
+            </LinearLayout>
+        </TableRow>
+    </LinearLayout>
+</LinearLayout>

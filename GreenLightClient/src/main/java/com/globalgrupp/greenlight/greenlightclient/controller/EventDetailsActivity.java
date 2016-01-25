@@ -62,7 +62,6 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
     private MediaPlayer mPlayer = null;
     private ImageButton btnPlayAudio;
     boolean mStartPlaying = true;
-    ProgressBar progress;
 
     private String videoFilePath;
     private Button btnPlayVideo;
@@ -77,7 +76,7 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
     private String TWITTER_CONSUMER_KEY="fWJW731tJv7Yk2ID2vBmIYLFR";
     private String TWITTER_CONSUMER_SECRET="VsUjFxLpzSwWycOscn4Tti9BRyGaIvWJxTEQGI48SmDRHmuDFz";
 
-    private ProgressBar progressCommentAudio;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -144,20 +143,20 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                 refreshFields();
                 //todo асинхронная загрузка
                 if (currentEvent.getAudioId()!=null&&!currentEvent.getAudioId().equals(new Long(0)) ){
-//                    "http://188.227.16.166:8080/utils/downloadFile?id=
+//                    "http://192.168.1.33:8080/utils/downloadFile?id=
 
-                    audioFilePath=new FileDownloadTask().execute("http://188.227.16.166:8080/utils/getFile/"+currentEvent.getAudioId().toString(),"3gp").get();
+                    audioFilePath=new FileDownloadTask().execute("http://192.168.1.33:8080/utils/getFile/"+currentEvent.getAudioId().toString(),"3gp").get();
                     trAudiorow=(TableRow) findViewById(R.id.trAudioRow);
                     llAudioparams=trAudiorow.getLayoutParams();
                     llAudioparams.height=ViewGroup.LayoutParams.WRAP_CONTENT;
                     trAudiorow.setLayoutParams(llAudioparams);
                     btnPlayAudio=(ImageButton)findViewById(R.id.btnPlayAudio);
-                    progress=(ProgressBar)findViewById(R.id.pbAudio);
+                    final ProgressBar progress=(ProgressBar)findViewById(R.id.pbAudio);
                     btnPlayAudio.setVisibility(View.VISIBLE);
                     btnPlayAudio.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            onPlay(mStartPlaying,true);
+                            onPlay(mStartPlaying,audioFilePath,progress);
                             if (mStartPlaying) {
                                 progress.setMax(mPlayer.getDuration());
                                 //todo set pause image
@@ -172,7 +171,7 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                 if (currentEvent.getPhotoIds()!=null&&currentEvent.getPhotoIds().size()>0){
                     List<Long> photoIds=currentEvent.getPhotoIds();
                     for (int i=0;i<photoIds.size();i++){
-                        final String photoFilePath=new FileDownloadTask().execute("http://188.227.16.166:8080/utils/getFile/"+photoIds.get(i),"jpg").get();
+                        final String photoFilePath=new FileDownloadTask().execute("http://192.168.1.33:8080/utils/getFile/"+photoIds.get(i),"jpg").get();
 
                         ViewGroup.LayoutParams phLayoutParams = findViewById(R.id.trImageRow).getLayoutParams();
                         phLayoutParams.height =150;
@@ -206,7 +205,7 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
 
                 }
                 if (currentEvent.getVideoId()!=null&&!currentEvent.getVideoId().equals(new Long(0))){
-                    videoFilePath=new FileDownloadTask().execute("http://188.227.16.166:8080/utils/getFile/"+currentEvent.getVideoId().toString(),"3gp").get();
+                    videoFilePath=new FileDownloadTask().execute("http://192.168.1.33:8080/utils/getFile/"+currentEvent.getVideoId().toString(),"3gp").get();
 
                     ViewGroup.LayoutParams phLayoutParams = findViewById(R.id.trImageRow).getLayoutParams();
                     phLayoutParams.height = 150;
@@ -250,7 +249,7 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
     private void refreshFields(){
         try{
             GetEventParams params=new GetEventParams();
-            params.setURL("http://188.227.16.166:8080/event/getEvent");
+            params.setURL("http://192.168.1.33:8080/event/getEvent");
             Long id=(Long)getIntent().getExtras().getSerializable("eventId");
             params.setEventId(id );
 
@@ -266,27 +265,12 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
             ArrayList<Comment> list = new ArrayList<Comment>(currentEvent.getComments());
 
             if (list.size()>0){
-                ArrayList<Comment> l0=new ArrayList(list.subList(0,1));
-                //CommentsAdapter commentsAdapter=new CommentsAdapter(this,l0);
-                //lvComments.setAdapter(commentsAdapter);
-//                View listItem = commentsAdapter.getView(0, null, lvComments);
-//                listItem.measure(0, 0);
-//                float totalHeight = 0;
-//                for (int i = 0; i < commentsAdapter.getCount(); i++) {
-//                    totalHeight += listItem.getMeasuredHeight();
-//                }
-//                ViewGroup.LayoutParams layoutParams = lvComments.getLayoutParams();
-//                layoutParams.height = (int) (totalHeight + (lvComments.getDividerHeight() * (lvComments.getCount() - 1)));
-////                layoutParams.height=ViewGroup.LayoutParams.WRAP_CONTENT;
-//                lvComments.setLayoutParams(layoutParams);
-//                lvComments.requestLayout();
                 LinearLayout llComments=(LinearLayout)findViewById(R.id.llComments);
                 LayoutInflater inflater;
                 inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
 
                 for (int z=0;z<list.size();z++){
-                    //commentsAdapter.add(list.get(z));
                     LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.lv_comments_item ,null);
                     View convertView=layout;
                     Comment commentsItem=list.get(z);
@@ -297,23 +281,21 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                     tvDateView.setText(df.format(commentsItem.getCreateDate()));
                     try{
                         if (commentsItem.getAudioId()!=null &&!commentsItem.getAudioId().equals(new Long(0))){
-//            TableRow trAudioRow=(TableRow)convertView.findViewById(R.id.tableRow);
-//            trAudioRow.getLayoutParams()
                             final ProgressBar progressBar=(ProgressBar)convertView.findViewById(R.id.pbAudio);
                             final ImageButton btnPlayAudioComment=(ImageButton)convertView.findViewById(R.id.btnPlayAudio);
-                            final String audioFilePath= new FileDownloadTask().execute("http://188.227.16.166:8080/utils/getFile/"+commentsItem.getAudioId().toString(),"3gp").get();
+                            final String audioFilePath= new FileDownloadTask().execute("http://192.168.1.33:8080/utils/getFile/"+commentsItem.getAudioId().toString(),"3gp").get();
                             btnPlayAudioComment.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
                                     try{
-//                                        onPlay(mStartPlaying,audioFilePath,progressBar);
-//                                        if (mStartPlaying) {
-//                                            progressBar.setMax(mPlayer.getDuration());
-//                                            btnPlayAudioComment.setImageResource(R.drawable.icon_audio_play);//todo stopImage
-//                                        } else {
-//                                            btnPlayAudioComment.setImageResource(R.drawable.icon_audio_play);
-//                                        }
-//                                        mStartPlaying = !mStartPlaying;
+                                        onPlay(mStartPlaying,audioFilePath,progressBar);
+                                        if (mStartPlaying) {
+                                            progressBar.setMax(mPlayer.getDuration());
+                                            btnPlayAudioComment.setImageResource(R.drawable.icon_audio_play);//todo stopImage
+                                        } else {
+                                            btnPlayAudioComment.setImageResource(R.drawable.icon_audio_play);
+                                        }
+                                        mStartPlaying = !mStartPlaying;
                                     }catch(Exception e){
                                         e.printStackTrace();
                                     }
@@ -330,7 +312,7 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                             List<Long> photoIds=commentsItem.getPhotoIds();
                             for (int i=0;i<photoIds.size();i++){
                                 try{
-                                    final String photoFilePath=new FileDownloadTask().execute("http://188.227.16.166:8080/utils/getFile/"+photoIds.get(i),"jpg").get();
+                                    final String photoFilePath=new FileDownloadTask().execute("http://192.168.1.33:8080/utils/getFile/"+photoIds.get(i),"jpg").get();
 
 //                    ViewGroup.LayoutParams phLayoutParams = findViewById(R.id.trImageRow).getLayoutParams();
 //                    phLayoutParams.height =150;
@@ -374,7 +356,7 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                         }
                         if (commentsItem.getVideoId()!=null && !commentsItem.getVideoId().equals(new Long(0))){
                             try{
-                                final String videoFilePath=new FileDownloadTask().execute("http://188.227.16.166:8080/utils/getFile/"+commentsItem.getVideoId().toString(),"3gp").get();
+                                final String videoFilePath=new FileDownloadTask().execute("http://192.168.1.33:8080/utils/getFile/"+commentsItem.getVideoId().toString(),"3gp").get();
 
 //            ViewGroup.LayoutParams phLayoutParams = findViewById(R.id.trImageRow).getLayoutParams();
 //            phLayoutParams.height = 150;
@@ -477,7 +459,7 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
         ViewGroup.LayoutParams auLayoutParams= commentView.findViewById(R.id.trAudioRow).getLayoutParams();
         auLayoutParams.height=0;
         commentView.findViewById(R.id.trAudioRow).setLayoutParams(auLayoutParams);
-        progressCommentAudio=(ProgressBar)commentView.findViewById(R.id.pbAudio);
+        final ProgressBar progressCommentAudio=(ProgressBar)commentView.findViewById(R.id.pbAudio);
         ImageButton btnAudioComment=(ImageButton) commentView.findViewById(R.id.btnAudio);
         btnAudioComment.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -503,7 +485,7 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
             @Override
             public void onClick(View v) {
                 try{
-                    onPlay(mStartPlaying,true);
+                    onPlay(mStartPlaying,mFileName,progressCommentAudio);
                     if (mStartPlaying) {
                         progressCommentAudio.setMax(mPlayer.getDuration());
                         btnPlayAudioComment.setImageResource(R.drawable.icon_audio_play);//todo stopImage
@@ -562,11 +544,7 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                         cep.setURL(mCurrentVideoPath);
                         videoId=new UploadFileOperation().execute(cep).get();
                     }
-
-
-
                     String registrationId = GCMRegistrationHelper.getRegistrationId(getApplicationContext());
-
                     Comment sendData=new Comment();
                     sendData.setEvent(currentEvent);
                     EditText input=(EditText)commentView.findViewById(R.id.etEventText);
@@ -756,9 +734,9 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
         }
     }
 
-    private void onPlay(boolean start,boolean isComment) {
+    private void onPlay(boolean start,String audioFilePath,ProgressBar progressBar) {
         if (start) {
-            startPlaying(isComment);
+            startPlaying(audioFilePath,progressBar);
         } else {
             stopPlaying();
         }
@@ -767,14 +745,14 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
     private class MediaObserver implements Runnable {
         private AtomicBoolean stop = new AtomicBoolean(false);
 
-        private boolean isComment=false;
+        private ProgressBar progressBar;
 
-        public boolean isComment() {
-            return isComment;
+        public ProgressBar getProgressBar() {
+            return progressBar;
         }
 
-        public void setComment(boolean comment) {
-            isComment = comment;
+        public void setProgressBar(ProgressBar progressBar) {
+            this.progressBar = progressBar;
         }
 
         public void stop() {
@@ -785,13 +763,13 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
         public void run() {
             try{
                 while (!stop.get()) {
-                    if (isComment){
-                        progressCommentAudio.setProgress(mPlayer.getCurrentPosition());
-                    }else{
-                        progress.setProgress(mPlayer.getCurrentPosition());
+                    try{
+                        progressBar.setProgress(mPlayer.getCurrentPosition());
+                        Thread.sleep(200);
+                    }catch (Exception e){
+                        e.printStackTrace();
                     }
 
-                    Thread.sleep(200);
                 }
             }catch (Exception e){
                 Log.e("",e.getMessage());
@@ -800,33 +778,24 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
         }
     }
     private MediaObserver observer = null;
-    private void startPlaying(final boolean isComment) {
+    private void startPlaying(final String audioFilePath,final ProgressBar progressBar) {
         mPlayer = new MediaPlayer();
         try {
-            if (isComment){
-                mPlayer.setDataSource(mFileName);
-            }else{
-                mPlayer.setDataSource(audioFilePath);
-            }
+            mPlayer.setDataSource(audioFilePath);
 
             mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
                     try{
                         observer.stop();
-                        if (isComment){
-                            progressCommentAudio.setProgress(mp.getCurrentPosition());
-                        }else{
-                            progress.setProgress(mp.getCurrentPosition());
-                        }
-
+                        progressBar.setProgress(mp.getCurrentPosition());
                     }catch(Exception e){
                         e.printStackTrace();
                     }
                 }
             });
             observer = new MediaObserver();
-            observer.setComment(isComment);
+            observer.setProgressBar(progressBar);
             mPlayer.prepare();
             mPlayer.start();
 
@@ -837,8 +806,14 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
     }
 
     private void stopPlaying() {
-        mPlayer.release();
-        mPlayer = null;
+        try{
+            mPlayer.stop();
+            mPlayer.release();
+            mPlayer = null;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 
     @Override
