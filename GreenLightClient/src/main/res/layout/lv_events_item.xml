@@ -65,20 +65,23 @@
                 android:layout_width="match_parent"
                 android:layout_height="29dp">
             <ImageView
-                    android:layout_width="40dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="fill_parent"
                     android:id="@+id/ivHasAudio"
-                    android:layout_weight="1" android:background="#18ff19"/>
+                    android:background="@null" android:src="@drawable/icon_toolbar_micro_green"
+                    android:layout_marginLeft="30dp"/>
             <ImageView
-                    android:layout_width="40dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="fill_parent"
                     android:id="@+id/ivHasPhoto"
-                    android:layout_weight="1" android:background="#ff0f06"/>
+                    android:background="@null" android:src="@drawable/icon_camera_green"
+                    android:layout_marginLeft="10dp"/>
             <ImageView
-                    android:layout_width="40dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="fill_parent"
                     android:id="@+id/ivHasVideo"
-                    android:layout_weight="1" android:background="#0207ff"/>
+                    android:background="@null"
+                    android:src="@drawable/icon_video_camera_green" android:layout_marginLeft="10dp"/>
 
         </TableRow>
 

@@ -48,7 +48,9 @@ public class GetEventsOperation extends AsyncTask<GetEventParams, Void, List<Eve
             }
             if (params[0].getEventId()!=null){
                 msg.put("eventId",params[0].getEventId());
-                urlString+="?eventId="+params[0].getEventId().toString();
+                if (params[0].getChannelId()!=null && !params[0].getChannelId().equals(new Long(0))){
+                    msg.put("channelId",params[0].getChannelId());
+                }
 
             }
 

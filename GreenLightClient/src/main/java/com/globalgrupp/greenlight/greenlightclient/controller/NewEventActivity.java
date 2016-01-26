@@ -250,7 +250,6 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
                     onRecord(false);
                     mStartRecording = !mStartRecording;
                 }
-
                 return false;
             }
         });
@@ -262,10 +261,10 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
                     onPlay(mStartPlaying);
                     if (mStartPlaying) {
                         progress.setMax(mPlayer.getDuration());
-                        btnPlayAudio.setImageResource(R.drawable.icon_audio_play);//todo stopImage
+                        //btnPlayAudio.setImageResource(R.drawable.icon_audio_stop);//todo stopImage
                     } else {
                         btnPlayAudio.setImageResource(R.drawable.icon_audio_play);
-
+                        progress.setProgress(0);
                     }
                     mStartPlaying = !mStartPlaying;
                 }catch(Exception e){

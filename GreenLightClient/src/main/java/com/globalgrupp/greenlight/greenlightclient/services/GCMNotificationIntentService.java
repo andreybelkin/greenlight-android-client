@@ -89,11 +89,9 @@ public class GCMNotificationIntentService extends IntentService {
         mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
         Log.d(TAG, "Notification sent successfully.");
 
-        Intent intent = new Intent("unique_name");
-
+        Intent intent = new Intent("newEventBroadCast");
         //put whatever data you want to send, if any
-        intent.putExtra("message", "ololol");
-
+        intent.putExtra("eventId", id);
         //send broadcast
         sendBroadcast(intent);
 

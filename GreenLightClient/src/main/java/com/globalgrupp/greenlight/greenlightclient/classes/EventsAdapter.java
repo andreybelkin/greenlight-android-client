@@ -49,7 +49,7 @@ public class EventsAdapter  extends ArrayAdapter<Event> {
         if (commentsItem.getAudioId()==null||commentsItem.getAudioId().equals(new Long(0))){
             convertView.findViewById(R.id.ivHasAudio).setVisibility(View.INVISIBLE);
         }
-        if (commentsItem.getPhotoIds()==null||commentsItem.getPhotoIds().size()>0){
+        if (commentsItem.getPhotoIds()==null||commentsItem.getPhotoIds().size()==0){
             convertView.findViewById(R.id.ivHasPhoto).setVisibility(View.INVISIBLE);
         }
         if (commentsItem.getVideoId()==null||commentsItem.getVideoId().equals(new Long(0))){

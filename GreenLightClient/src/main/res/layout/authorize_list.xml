@@ -11,31 +11,35 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" android:layout_gravity="center"
             android:id="@+id/layout_buttons">
-        <Button
+        <ImageButton
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="VK"
                 android:id="@+id/btnVKLogin"
-                android:layout_gravity="center"/>
-        <Button
+                android:layout_gravity="center" android:background="@null" android:src="@drawable/icon_login_vk"
+                android:layout_marginTop="20dp"/>
+        <ImageButton
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="FACEBOOK"
+                android:text="facebook"
                 android:id="@+id/btnFBLogin"
-                android:layout_gravity="center"/>
+                android:layout_gravity="center"
+                android:background="@null" android:layout_marginTop="10dp" android:layout_marginBottom="10dp"
+                android:textColor="#f9f9ff" android:src="@drawable/icon_login_fb"/>
 
-        <Button
+        <ImageButton
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="TWITTER"
                 android:id="@+id/btnTwitterLogin"
-                android:layout_gravity="center"/>
-        <Button
+                android:layout_gravity="center" android:src="@drawable/icon_login_twitter" android:background="@null"/>
+        <ImageButton
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Без авторизации"
                 android:id="@+id/btnNotAuthorized"
-                android:layout_gravity="center"/>
+                android:layout_gravity="center" android:src="@drawable/not_authorized" android:background="@null"
+                android:layout_marginTop="10dp"/>
     </LinearLayout>
     <WebView
             android:layout_width="wrap_content"

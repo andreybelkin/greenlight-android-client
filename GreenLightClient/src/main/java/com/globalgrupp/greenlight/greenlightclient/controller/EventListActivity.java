@@ -1,5 +1,7 @@
 package com.globalgrupp.greenlight.greenlightclient.controller;
 
+import android.app.Activity;
+import android.app.KeyguardManager;
 import android.content.*;
 import android.location.Location;
 import android.media.MediaPlayer;
@@ -14,39 +16,26 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.*;
-import com.globalgrupp.greenlight.greenlightclient.Application;
 import com.globalgrupp.greenlight.greenlightclient.R;
 import com.globalgrupp.greenlight.greenlightclient.classes.*;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.places.AutocompleteFilter;
-import com.google.android.gms.location.places.AutocompletePredictionBuffer;
-import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.Places;
-import com.google.android.gms.maps.CameraUpdate;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.vk.sdk.VKAccessToken;
 import com.vk.sdk.VKCallback;
 import com.vk.sdk.VKSdk;
 import com.vk.sdk.api.VKError;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -61,7 +50,8 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
     ListView lvEvents;
     String keyToken;
     //MediaPlayer mPlayer;
-
+    EventsAdapter eventsAdapter;
+    DateFormat df = new SimpleDateFormat("HH:mm");
 
     private  AsyncTask<List<Event>, Void, Void> newEventAsyncTask;
 
@@ -69,7 +59,14 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
 
     @Override
     public void onClick(View v) {
-
+        if (v.getTag() instanceof Event){
+            Event event=(Event)v.getTag();
+            Intent startIntent = new Intent(this, EventDetailsActivity.class);
+            startIntent.putExtra("eventId", event.getId());
+            startActivity(startIntent);
+        }
+        //startIntent.putExtra("eventId", event.getId());
+        //startActivity(startIntent);
     }
 
     @Override
@@ -89,16 +86,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                     onBackPressed();
                 }
             });
-            if (ApplicationSettings.getInstance().getmGoogleApiClient()==null){
-                ApplicationSettings.getInstance().setmGoogleApiClient( new GoogleApiClient.Builder(this)
-                        .addConnectionCallbacks(this)
-                        .addOnConnectionFailedListener(this)
-                        .addApi(LocationServices.API)
-                        .addApi(Places.GEO_DATA_API)
-                        .build());
-                ApplicationSettings.getInstance().getmGoogleApiClient().connect();
-                ApplicationSettings.getInstance().startLocationTimer();
-            }
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
            //refreshEventList();
         }catch(Exception e){
             e.printStackTrace();
@@ -212,15 +200,26 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
             // устанавливаем обработчик нажатия
             spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
-                public void onItemSelected(AdapterView<?> parent, View view,
-                                           int position, long id) {
-                    Channel item = (Channel)parent.getItemAtPosition(position);
-                    ApplicationSettings.getInstance().setChannelId(item.getId());
-                    if (item.getId().equals(new Long(0))){
-                        refreshEventList(null);
-                    }else{
-                        refreshEventList(item.getId());
-                    }
+                public void onItemSelected(final AdapterView<?> parent, View view,
+                                           final int position, long id) {
+                    Thread myThread = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try{
+                                Channel item = (Channel)parent.getItemAtPosition(position);
+                                ApplicationSettings.getInstance().setChannelId(item.getId());
+                                if (item.getId().equals(new Long(0))){
+                                    refreshEventList(null);
+                                }else{
+                                    refreshEventList(item.getId());
+                                }
+                            }catch(Exception e){
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+                    myThread.start();
+
                 }
                 @Override
                 public void onNothingSelected(AdapterView<?> arg0) {
@@ -234,7 +233,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
     public void onResume()
     {
         super.onResume();
-        getApplicationContext().registerReceiver(mMessageReceiver, new IntentFilter("unique_name"));
+        getApplicationContext().registerReceiver(mMessageReceiver, new IntentFilter("newEventBroadCast"));
         initChannels();
     }
 
@@ -244,7 +243,13 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
         getApplicationContext().unregisterReceiver(mMessageReceiver);
     }
 
+    private Date date1;
+    private Date date2;
+    private Date date3;
+    private Date date4;
+
     public void refreshEventList(Long channelId){
+        date1=new Date();
         File cacheDir= getCacheDir();
         File oldEventsId=new File(cacheDir,"oldEventsId");
         if (oldEventsId.exists()){
@@ -283,6 +288,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                 e.printStackTrace();
             }
         }
+        date2=new Date();
         //ApplicationSettings.getInstance().setOldEventsId(new ArrayList<Long>());
         SimpleGeoCoords eLocation=null;
         if (getIntent().hasExtra("location")) {
@@ -306,26 +312,47 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
             SharedPreferences prefs=getApplicationContext().getSharedPreferences(
                     EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);
             params.setRadius(new Long(prefs.getLong("event_radius",10)));
-
-            ArrayList<Event> events=(ArrayList<Event>)new GetEventsOperation().execute(params).get();
-            //events=new ArrayList<Event>(events.subList(0,1));
+            date3=new Date();
+            final ArrayList<Event> events=(ArrayList<Event>)new GetEventsOperation().execute(params).get();
+            final ArrayList<Event> smallEvent=events;//new ArrayList<Event>(events.subList(0,1));
             lvEvents=(ListView)findViewById(R.id.listViewEvents);
-            EventsAdapter commentsAdapter=new EventsAdapter(this,(ArrayList)events);
-
-            lvEvents.setAdapter(commentsAdapter);
-            View listItem = commentsAdapter.getView(0, null, lvEvents);
-            listItem.measure(-1,0);
-            float totalHeight = 0;
-            for (int i = 0; i < commentsAdapter.getCount(); i++) {
-                totalHeight += listItem.getMeasuredHeight();
+            LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            final LinearLayout llevents=(LinearLayout)findViewById(R.id.llEvents);
+            if (llevents.getChildCount() > 0){
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        llevents.removeAllViews();
+                    }
+                });
             }
-            ViewGroup.LayoutParams layoutParams = lvEvents.getLayoutParams();
-            layoutParams.height = (int) (totalHeight + (lvEvents.getDividerHeight() * (lvEvents.getCount() - 1)));
-            //layoutParams.height= ViewGroup.LayoutParams.WRAP_CONTENT;
-            lvEvents.setLayoutParams(layoutParams);
-            lvEvents.requestLayout();
-            lvEvents.setOnItemClickListener(this);
 
+            for (int i=0;i<events.size();i++){
+                Event eventItem=events.get(i);
+                LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.lv_events_item ,null);
+                final View convertView=layout;
+                ((TextView) convertView.findViewById(R.id.tvEventsTitle)).setText(eventItem.getMessage());
+                ((TextView) convertView.findViewById(R.id.tvEventsDate)).setText(df.format(eventItem.getCreateDate()));
+                ((TextView) convertView.findViewById(R.id.tvEventsStreet)).setText(eventItem.getStreetName());
+                if (eventItem.getAudioId()==null||eventItem.getAudioId().equals(new Long(0))){
+                    convertView.findViewById(R.id.ivHasAudio).setVisibility(View.INVISIBLE);
+                }
+                if (eventItem.getPhotoIds()==null||eventItem.getPhotoIds().size()==0){
+                    convertView.findViewById(R.id.ivHasPhoto).setVisibility(View.INVISIBLE);
+                }
+                if (eventItem.getVideoId()==null||eventItem.getVideoId().equals(new Long(0))){
+                    convertView.findViewById(R.id.ivHasVideo).setVisibility(View.INVISIBLE);
+                }
+                convertView.setOnClickListener(this);
+                convertView.setTag(eventItem);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        llevents.addView(convertView);
+                    }
+                });
+
+            }
 
             newEventAsyncTask =new AsyncTask<List<Event>, Void, Void>() {
                 private boolean isplayed=false;
@@ -593,12 +620,165 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-
-            // Extract data included in the Intent
-            String message = intent.getStringExtra("message");
-            //todo апдейт списка при получении нового сообщения
-            //do other stuff here
+            Long newEventId=intent.getLongExtra("eventId",0);
+            addEventToList(newEventId);
         }
     };
+    private void addEventToList(final Long eventId){
+                try{
+                    GetEventParams params=new GetEventParams();
+                    params.setURL("http://192.168.1.33:8080/event/getEvent");
+                    params.setEventId(eventId);
+                    if (ApplicationSettings.getInstance().getChannelId()!=null &&
+                            !ApplicationSettings.getInstance().getChannelId().equals(new Long(0)))
+                    params.setChannelId(ApplicationSettings.getInstance().getChannelId());
+
+                    List<Event> events=new GetEventsOperation().execute(params).get();
+                    if (events.size()==0) return;
+                    final Event newEvent=events.get(0);
+                    //newEvent.setMessage("!!!!!!!!!!");
+
+                    LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.lv_events_item ,null);
+                    final View convertView=layout;
+                    ((TextView) convertView.findViewById(R.id.tvEventsTitle)).setText(newEvent.getMessage());
+                    ((TextView) convertView.findViewById(R.id.tvEventsDate)).setText(df.format(newEvent.getCreateDate()));
+                    ((TextView) convertView.findViewById(R.id.tvEventsStreet)).setText(newEvent.getStreetName());
+                    if (newEvent.getAudioId()==null||newEvent.getAudioId().equals(new Long(0))){
+                        convertView.findViewById(R.id.ivHasAudio).setVisibility(View.INVISIBLE);
+                    }
+                    if (newEvent.getPhotoIds()==null||newEvent.getPhotoIds().size()==0){
+                        convertView.findViewById(R.id.ivHasPhoto).setVisibility(View.INVISIBLE);
+                    }
+                    if (newEvent.getVideoId()==null||newEvent.getVideoId().equals(new Long(0))){
+                        convertView.findViewById(R.id.ivHasVideo).setVisibility(View.INVISIBLE);
+                    }
+                    convertView.setOnClickListener(this);
+                    convertView.setTag(newEvent);
+                    LinearLayout llevents=(LinearLayout)findViewById(R.id.llEvents);
+                    llevents.addView(convertView,0);
+
+                    newEventAsyncTask =new AsyncTask<List<Event>, Void, Void>() {
+                        private boolean isplayed=false;
+                        MediaPlayer mPlayer;
+                        @Override
+                        protected Void doInBackground(List<Event>... lists) {
+
+                            List<Event> events=lists[0];
+                            List<Long> oldId=ApplicationSettings.getInstance().getOldEventsId();
+                            for (int i=events.size()-1;i>=0;i--){
+                                if (!oldId.contains(events.get(i).getId())){
+                                    oldId.add(events.get(i).getId());
+                                    ApplicationSettings.getInstance().setOldEventsId(oldId);
+                                    try{
+                                        File temp = new File(ApplicationSettings.getInstance().getOldEventsIdFilePath());
+                                        String listString = "";
+
+                                        for (Long s : oldId)
+                                        {
+                                            listString += s.toString() + ",";
+                                        }
+                                        //write it
+                                        BufferedWriter bw = new BufferedWriter(new FileWriter(temp));
+                                        bw.write(listString);
+                                        bw.close();
+                                    }catch(Exception e){
+                                        e.printStackTrace();
+                                    }
+
+                                    if (events.get(i).getAudioId()==null||events.get(i).getAudioId().equals(new Long(0))){
+                                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                        Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
+                                        r.play();
+                                    }else{
+                                        File file=null;
+                                        try {
+                                            String DownloadUrl="http://192.168.1.33:8080/utils/getFile/"+events.get(i).getAudioId().toString();
+                                            String fileName= "newEventAudio.3gp";
+                                            String root = Environment.getExternalStorageDirectory().getAbsolutePath();
+
+                                            File dir = new File (root + "/gl");
+                                            if(dir.exists()==false) {
+                                                dir.mkdirs();
+                                            }
+                                            URL url = new URL(DownloadUrl); //you can write here any link
+                                            file = new File(dir, fileName);
+
+                                            URLConnection ucon = url.openConnection();
+                                            InputStream is = ucon.getInputStream();
+                                            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+                                            int nRead;
+                                            byte[] data = new byte[16384];
+
+                                            while ((nRead = is.read(data, 0, data.length)) != -1) {
+                                                buffer.write(data, 0, nRead);
+                                            }
+                                            buffer.flush();
+
+                                            byte[] dataFile = buffer.toByteArray();
+                                            FileOutputStream fos = new FileOutputStream(file);
+                                            fos.write(dataFile);
+                                            fos.flush();
+                                            fos.close();
+                                            String audioPath=file.toString();
+                                            mPlayer = new MediaPlayer();
+
+                                            mPlayer.setDataSource(audioPath);
+                                            mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                                                @Override
+                                                public void onCompletion(MediaPlayer mediaPlayer) {
+                                                    isplayed=false;
+                                                }
+                                            });
+                                            mPlayer.prepare();
+                                            isplayed=true;
+                                            mPlayer.start();
+
+                                            while (isplayed && !isCancelled()){
+                                                if (isCancelled()) break;
+                                            }
+                                            isplayed=false;
+                                            if (isCancelled()){
+                                                mPlayer.stop();
+                                                mPlayer.release();
+                                                break;
+                                            }
+
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+
+                                }
+                            }
+                            return null;
+                        }
+
+                        @Override
+                        protected void onCancelled() {
+                            isplayed=false;
+                            super.onCancelled();
+                        }
+
+                        @Override
+                        protected void onCancelled(Void aVoid) {
+                            isplayed=false;
+                            try{
+                                mPlayer.stop();
+                                mPlayer.release();
+                                mPlayer=null;
+                            }catch(Exception e){
+                                e.printStackTrace();
+                            }
+
+                            super.onCancelled(aVoid);
+                        }
+                    }.execute(events);
+
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
+
+    }
 }
 

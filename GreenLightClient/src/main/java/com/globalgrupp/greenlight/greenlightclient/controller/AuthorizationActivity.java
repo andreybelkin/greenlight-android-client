@@ -6,9 +6,12 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -35,7 +38,10 @@ import com.globalgrupp.greenlight.greenlightclient.R;
 import com.globalgrupp.greenlight.greenlightclient.classes.ApplicationSettings;
 import com.globalgrupp.greenlight.greenlightclient.classes.AuthorizationType;
 import com.globalgrupp.greenlight.greenlightclient.utils.GCMRegistrationHelper;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Places;
 import com.vk.sdk.VKAccessToken;
 import com.vk.sdk.VKCallback;
@@ -57,7 +63,7 @@ import java.util.Arrays;
 /**
  * Created by Lenovo on 14.01.2016.
  */
-public class AuthorizationActivity extends ActionBarActivity implements View.OnClickListener {
+public class AuthorizationActivity extends ActionBarActivity implements View.OnClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     Toolbar mActionBarToolbar;
 
@@ -119,20 +125,37 @@ public class AuthorizationActivity extends ActionBarActivity implements View.OnC
             getSupportActionBar().setDisplayShowHomeEnabled(true);
             getSupportActionBar().setIcon(R.drawable.ic_launcher);
 
-            Button vkButton=(Button) findViewById(R.id.btnVKLogin);
+            ImageButton vkButton=(ImageButton) findViewById(R.id.btnVKLogin);
             vkButton.setOnClickListener(this);
-            Button btnFBLogin=(Button) findViewById(R.id.btnFBLogin);
+            ImageButton btnFBLogin=(ImageButton) findViewById(R.id.btnFBLogin);
             btnFBLogin.setOnClickListener(this);
-            Button twitterButton=(Button) findViewById(R.id.btnTwitterLogin);
+            ImageButton twitterButton=(ImageButton) findViewById(R.id.btnTwitterLogin);
             twitterButton.setOnClickListener(this);
-            Button btnNotAuthorized=(Button) findViewById(R.id.btnNotAuthorized);
+            ImageButton btnNotAuthorized=(ImageButton) findViewById(R.id.btnNotAuthorized);
             btnNotAuthorized.setOnClickListener(this);
             findViewById(R.id.ivDropDown).setVisibility(View.INVISIBLE);
+
+            if (ApplicationSettings.getInstance().getmGoogleApiClient()==null){
+                ApplicationSettings.getInstance().setmGoogleApiClient( new GoogleApiClient.Builder(this)
+                        .addConnectionCallbacks(this)
+                        .addOnConnectionFailedListener(this)
+                        .addApi(LocationServices.API)
+                        .addApi(Places.GEO_DATA_API)
+                        .build());
+                ApplicationSettings.getInstance().getmGoogleApiClient().connect();
+                ApplicationSettings.getInstance().startLocationTimer();
+            }
 //            GCMRegistrationHelper helper=new GCMRegistrationHelper(getApplication());
 //            helper.registerGCM();
         }catch (Exception e){
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        //getMenuInflater().inflate(R.menu.menu_activity_main, menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -278,5 +301,20 @@ public class AuthorizationActivity extends ActionBarActivity implements View.OnC
     @Override
     protected void onResume() {
         super.onResume();
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
     }
 }

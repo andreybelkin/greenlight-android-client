@@ -159,9 +159,10 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                             onPlay(mStartPlaying,audioFilePath,progress);
                             if (mStartPlaying) {
                                 progress.setMax(mPlayer.getDuration());
-                                //todo set pause image
+                                //btnPlayAudio.setImageResource(R.drawable.icon_audio_stop);
                             } else {
-                                //todo set play image
+                                btnPlayAudio.setImageResource(R.drawable.icon_audio_play);
+                                progress.setProgress(0);
                             }
                             mStartPlaying = !mStartPlaying;
                         }
@@ -181,7 +182,6 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                         ImageView ivNew=new ImageView(getApplicationContext());
                         LinearLayout.LayoutParams layoutParams=new LinearLayout.LayoutParams(150,150);
                         ivNew.setLayoutParams(layoutParams);
-                        //ivNew.setBackgroundColor(Color.parseColor("#D8D8DA"));
                         ivNew.setPadding(5,5,5,5);
                         llImages.addView(ivNew);
                         BitmapFactory.Options bmOptions = new BitmapFactory.Options();
@@ -216,7 +216,6 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                     Bitmap bmPhoto= Bitmap.createScaledBitmap(thumbnail, 150, 150, true);
                     ImageView ivVideoPreview=(ImageView) findViewById(R.id.ivForVideo);
                     ivVideoPreview.setPadding(0,5,0,0);
-                    //ivVideoPreview.setBackgroundColor(Color.parseColor("#D8D8DA"));
                     ivVideoPreview.setImageBitmap(bmPhoto);
                     ImageButton btnPlayVideo=(ImageButton)findViewById(R.id.btnVideoPlay);
                     btnPlayVideo.setImageResource(R.drawable.icon_play_white);
@@ -291,9 +290,10 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                                         onPlay(mStartPlaying,audioFilePath,progressBar);
                                         if (mStartPlaying) {
                                             progressBar.setMax(mPlayer.getDuration());
-                                            btnPlayAudioComment.setImageResource(R.drawable.icon_audio_play);//todo stopImage
+                                            //btnPlayAudioComment.setImageResource(R.drawable.icon_audio_stop);
                                         } else {
                                             btnPlayAudioComment.setImageResource(R.drawable.icon_audio_play);
+                                            progressBar.setProgress(0);
                                         }
                                         mStartPlaying = !mStartPlaying;
                                     }catch(Exception e){
@@ -313,27 +313,18 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                             for (int i=0;i<photoIds.size();i++){
                                 try{
                                     final String photoFilePath=new FileDownloadTask().execute("http://192.168.1.33:8080/utils/getFile/"+photoIds.get(i),"jpg").get();
-
-//                    ViewGroup.LayoutParams phLayoutParams = findViewById(R.id.trImageRow).getLayoutParams();
-//                    phLayoutParams.height =150;
-//                    findViewById(R.id.trImageRow).setLayoutParams(phLayoutParams);
-//                    findViewById(R.id.trImageRow).setVisibility(View.VISIBLE);
                                     LinearLayout llImages=(LinearLayout)convertView.findViewById(R.id.llImages);
-                                    //viewHolder.listPhoto=
                                     ImageView ivNew=new ImageView(getApplicationContext());
                                     LinearLayout.LayoutParams layoutParams=new LinearLayout.LayoutParams(150,150);
                                     ivNew.setLayoutParams(layoutParams);
-                                    //ivNew.setBackgroundColor(Color.parseColor("#D8D8DA"));
                                     ivNew.setPadding(5,5,5,5);
                                     llImages.addView(ivNew);
-//                        viewHolder.listPhoto.addView(ivNew);
                                     BitmapFactory.Options bmOptions = new BitmapFactory.Options();
                                     Bitmap bitmap = BitmapFactory.decodeFile(photoFilePath.replace("file:", ""), bmOptions);
                                     Bitmap bmPhoto= Bitmap.createScaledBitmap(bitmap, 150, 150, true);
                                     ivNew.setImageBitmap(bmPhoto);
                                     ivNew.setClickable(true);
                                     final String path=photoFilePath;
-//                        viewHolder.listPhoto=llImages;
                                     ivNew.setOnClickListener(new View.OnClickListener() {
                                         @Override
                                         public void onClick(View view) {
@@ -357,20 +348,13 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                         if (commentsItem.getVideoId()!=null && !commentsItem.getVideoId().equals(new Long(0))){
                             try{
                                 final String videoFilePath=new FileDownloadTask().execute("http://192.168.1.33:8080/utils/getFile/"+commentsItem.getVideoId().toString(),"3gp").get();
-
-//            ViewGroup.LayoutParams phLayoutParams = findViewById(R.id.trImageRow).getLayoutParams();
-//            phLayoutParams.height = 150;
-//            findViewById(R.id.trImageRow).setLayoutParams(phLayoutParams);
-//            findViewById(R.id.trImageRow).setVisibility(View.VISIBLE);
                                 Bitmap thumbnail = ThumbnailUtils.createVideoThumbnail(videoFilePath,
                                         MediaStore.Images.Thumbnails.MINI_KIND);
                                 if (thumbnail!=null){
                                     Bitmap bmPhoto= Bitmap.createScaledBitmap(thumbnail, 150, 150, true);
                                     ImageView ivVideoPreview=(ImageView) convertView.findViewById(R.id.ivForVideo);
                                     ivVideoPreview.setPadding(5,5,5,5);
-                                    //ivVideoPreview.setBackgroundColor(Color.parseColor("#D8D8DA"));
                                     ivVideoPreview.setImageBitmap(bmPhoto);
-
                                     ImageButton btnPlayVideo=(ImageButton)convertView.findViewById(R.id.btnVideoPlay);
                                     btnPlayVideo.setImageResource(R.drawable.icon_play_white);
                                     final String path=videoFilePath;
@@ -384,7 +368,6 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                                         }
                                     });
                                 }
-
                             }catch (Exception e){
                                 e.printStackTrace();
                             }
@@ -420,7 +403,6 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
             ViewGroup.LayoutParams layoutParams= commentView.findViewById(R.id.trAudioRow).getLayoutParams();
             layoutParams.height=ViewGroup.LayoutParams.WRAP_CONTENT;
             commentView.findViewById(R.id.trAudioRow).setLayoutParams(layoutParams);
-            //findViewById(R.id.trAudioRow).setVisibility(View.VISIBLE);
         }
     }
     private void startRecording() {
@@ -488,9 +470,10 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                     onPlay(mStartPlaying,mFileName,progressCommentAudio);
                     if (mStartPlaying) {
                         progressCommentAudio.setMax(mPlayer.getDuration());
-                        btnPlayAudioComment.setImageResource(R.drawable.icon_audio_play);//todo stopImage
+                        //btnPlayAudioComment.setImageResource(R.drawable.icon_audio_stop);//todo stopImage
                     } else {
                         btnPlayAudioComment.setImageResource(R.drawable.icon_audio_play);
+                        progressCommentAudio.setProgress(0);
                     }
                     mStartPlaying = !mStartPlaying;
                 }catch(Exception e){
