@@ -6,7 +6,8 @@
     android:paddingLeft="0dp"
     android:paddingRight="0dp"
     tools:ignore="MissingPrefix"
-    android:orientation="horizontal" android:layout_weight="1">
+    android:orientation="horizontal" android:layout_weight="1"
+    android:background="@drawable/top_bottom_border">
 
     <LinearLayout
             android:layout_marginRight="1dp"
@@ -17,30 +18,65 @@
 
         <TableRow
                 android:layout_width="match_parent"
-                android:layout_height="25dp">
-            <TextView
-                android:id="@+id/tvEventsDate"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:textSize="14sp"
-                android:layout_marginLeft="7dp"
-                android:layout_marginTop="3dp"
-                android:textColor="@color/symbol_black"
-                fontPath="fonts/Roboto-Regular.ttf"
-                android:textIsSelectable="false"/>
-            <TextView
-                    android:id="@+id/tvEventsStreet"
-                    android:layout_toRightOf="@+id/tvEventsDate"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:textSize="14sp"
-                    android:layout_marginLeft="7dp"
-                    android:layout_marginTop="3dp"
-                    android:textColor="@color/symbol_black"
-                    fontPath="fonts/Roboto-Regular.ttf"
-            />
+                android:layout_height="wrap_content" android:layout_marginTop="5dp">
+            <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="left" android:gravity="left"
+                    android:layout_weight="1">
+                <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+                    <TextView
+                        android:id="@+id/tvEventsDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:textSize="14sp"
+                        android:layout_marginLeft="7dp"
+                        android:layout_marginTop="3dp"
+                        android:textColor="@color/symbol_black"
+                        fontPath="fonts/Roboto-Regular.ttf"
+                        android:textIsSelectable="false"/>
+                    <TextView
+                            android:id="@+id/tvEventsStreet"
+                            android:layout_toRightOf="@+id/tvEventsDate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:textSize="14sp"
+                            android:layout_marginLeft="7dp"
+                            android:layout_marginTop="3dp"
+                            android:textColor="@color/symbol_black"
+                            fontPath="fonts/Roboto-Regular.ttf"
+                    />
+                </TableRow>
+            </LinearLayout>
+            <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="right" android:layout_gravity="right"
+                    android:layout_weight="1">
+                <ImageButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/ibComment"
+                        android:src="@drawable/icon_comment80"
+                        android:background="@null" android:layout_gravity="center" android:layout_marginRight="10dp"/>
+                <ImageButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/ibShare" android:src="@drawable/icon_share80"
+                        android:background="@null" android:layout_gravity="center_vertical"
+                        android:layout_marginRight="10dp"/>
+                <ImageButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/ibMap" android:src="@drawable/icon_marker_green80"
+                        android:background="@null" android:layout_gravity="center" android:layout_marginRight="10dp"/>
+            </LinearLayout>
         </TableRow>
 
         <TableRow
@@ -63,19 +99,19 @@
         </TableRow>
         <TableRow
                 android:layout_width="match_parent"
-                android:layout_height="29dp">
+                android:layout_height="29dp" android:layout_marginLeft="20dp">
             <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="fill_parent"
                     android:id="@+id/ivHasAudio"
                     android:background="@null" android:src="@drawable/icon_toolbar_micro_green"
-                    android:layout_marginLeft="30dp"/>
+                    android:visibility="visible" android:layout_marginLeft="10dp"/>
             <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="fill_parent"
                     android:id="@+id/ivHasPhoto"
                     android:background="@null" android:src="@drawable/icon_camera_green"
-                    android:layout_marginLeft="10dp"/>
+                    android:layout_marginLeft="10dp" android:visibility="visible"/>
             <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="fill_parent"

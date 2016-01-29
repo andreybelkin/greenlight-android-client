@@ -22,7 +22,14 @@
                             android:id="@+id/fragment_clock_digital"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="DigitalClock" android:textSize="30sp"/>
+                            android:text="DigitalClock" android:textSize="30sp" android:textColor="#111111"/>
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:text="Комментарий"
+                            android:id="@+id/textView3" android:textSize="20sp"
+                            android:gravity="right" android:layout_marginLeft="30dp" android:textColor="#111111"/>
                     <!--<DigitalClock-->
                             <!--android:layout_width="wrap_content"-->
                             <!--android:layout_height="wrap_content"-->

@@ -72,14 +72,18 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Thread.setDefaultUncaughtExceptionHandler(new TopExceptionHandler(this));
         try{
             setContentView(R.layout.event_list);
             mActionBarToolbar = (Toolbar) findViewById(R.id.toolbar_actionbar);
+
             //mActionBarToolbar.setNavigationIcon(R.drawable.icon_toolbal_arrow_white);
             setSupportActionBar(mActionBarToolbar);
-            getSupportActionBar().setTitle("");
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-            getSupportActionBar().setIcon(R.drawable.ic_launcher);
+            //getSupportActionBar().setTitle("");
+            //getSupportActionBar().setIcon(R.drawable.ic_launcher);
+            //getSupportActionBar().setHomeButtonEnabled(true);
+            //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            //getSupportActionBar().setDisplayShowHomeEnabled(true);
             mActionBarToolbar.setNavigationOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -87,6 +91,17 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                 }
             });
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            ImageButton ibIconUp=(ImageButton)findViewById(R.id.ibIconUp);
+            ibIconUp.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    ScrollView scrollView=(ScrollView)findViewById(R.id.scrollView);
+                    scrollView.fullScroll(ScrollView.FOCUS_UP);
+                }
+            });
+            String root = Environment.getExternalStorageDirectory().getAbsolutePath();
+            File dir = new File (root + "/gl");
+            deleteFolder(dir);
            //refreshEventList();
         }catch(Exception e){
             e.printStackTrace();
@@ -95,7 +110,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
 
     public void initChannels(){
         try{
-            String url="http://192.168.1.33:8080/channel/getBaseChannels";
+            String url="http://188.227.16.166:8080/channel/getBaseChannels";
             //подгрузка каналов
             List<Channel> channels= new AsyncTask<String, Void, List<Channel>>() {
                 @Override
@@ -243,13 +258,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
         getApplicationContext().unregisterReceiver(mMessageReceiver);
     }
 
-    private Date date1;
-    private Date date2;
-    private Date date3;
-    private Date date4;
-
     public void refreshEventList(Long channelId){
-        date1=new Date();
         File cacheDir= getCacheDir();
         File oldEventsId=new File(cacheDir,"oldEventsId");
         if (oldEventsId.exists()){
@@ -288,7 +297,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                 e.printStackTrace();
             }
         }
-        date2=new Date();
+
         //ApplicationSettings.getInstance().setOldEventsId(new ArrayList<Long>());
         SimpleGeoCoords eLocation=null;
         if (getIntent().hasExtra("location")) {
@@ -297,9 +306,9 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
         try{
             GetEventParams params=new GetEventParams();
             if (channelId!=null){
-                params.setURL("http://192.168.1.33:8080/event/getEventsByChannel/"+channelId.toString());
+                params.setURL("http://188.227.16.166:8080/event/getEventsByChannel/"+channelId.toString());
             }else{
-                params.setURL("http://192.168.1.33:8080/event/getNearestEvents");
+                params.setURL("http://188.227.16.166:8080/event/getNearestEvents");
             }
 
             if (eLocation==null){
@@ -311,10 +320,10 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
             params.setCurrentCoords(eLocation);
             SharedPreferences prefs=getApplicationContext().getSharedPreferences(
                     EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);
-            params.setRadius(new Long(prefs.getLong("event_radius",10)));
-            date3=new Date();
+            params.setRadius(new Long(prefs.getLong("event_radius",5)));
+
             final ArrayList<Event> events=(ArrayList<Event>)new GetEventsOperation().execute(params).get();
-            final ArrayList<Event> smallEvent=events;//new ArrayList<Event>(events.subList(0,1));
+            //if (events.size()==0){return;}
             lvEvents=(ListView)findViewById(R.id.listViewEvents);
             LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             final LinearLayout llevents=(LinearLayout)findViewById(R.id.llEvents);
@@ -328,23 +337,80 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
             }
 
             for (int i=0;i<events.size();i++){
-                Event eventItem=events.get(i);
+                final Event eventItem=events.get(i);
                 LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.lv_events_item ,null);
                 final View convertView=layout;
                 ((TextView) convertView.findViewById(R.id.tvEventsTitle)).setText(eventItem.getMessage());
                 ((TextView) convertView.findViewById(R.id.tvEventsDate)).setText(df.format(eventItem.getCreateDate()));
                 ((TextView) convertView.findViewById(R.id.tvEventsStreet)).setText(eventItem.getStreetName());
                 if (eventItem.getAudioId()==null||eventItem.getAudioId().equals(new Long(0))){
-                    convertView.findViewById(R.id.ivHasAudio).setVisibility(View.INVISIBLE);
+                    convertView.findViewById(R.id.ivHasAudio).setVisibility(View.GONE);
+                    ViewGroup.LayoutParams qwe=convertView.findViewById(R.id.ivHasAudio).getLayoutParams();
+                    qwe.width=0;
+                    convertView.findViewById(R.id.ivHasAudio).setLayoutParams(qwe);
+                }else{
+
                 }
                 if (eventItem.getPhotoIds()==null||eventItem.getPhotoIds().size()==0){
-                    convertView.findViewById(R.id.ivHasPhoto).setVisibility(View.INVISIBLE);
+                    convertView.findViewById(R.id.ivHasPhoto).setVisibility(View.GONE);
+                    ViewGroup.LayoutParams qwe=convertView.findViewById(R.id.ivHasPhoto).getLayoutParams();
+                    qwe.width=0;
+                    convertView.findViewById(R.id.ivHasPhoto).setLayoutParams(qwe);
+                }else{
+
                 }
                 if (eventItem.getVideoId()==null||eventItem.getVideoId().equals(new Long(0))){
-                    convertView.findViewById(R.id.ivHasVideo).setVisibility(View.INVISIBLE);
+                    convertView.findViewById(R.id.ivHasVideo).setVisibility(View.GONE);
+                    ViewGroup.LayoutParams qwe=convertView.findViewById(R.id.ivHasVideo).getLayoutParams();
+                    qwe.width=0;
+                    convertView.findViewById(R.id.ivHasVideo).setLayoutParams(qwe);
+                }else{
+
                 }
+
                 convertView.setOnClickListener(this);
                 convertView.setTag(eventItem);
+
+
+                ImageButton ibComment=(ImageButton) convertView.findViewById(R.id.ibComment);
+                ibComment.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent startIntent = new Intent(getApplicationContext(), EventDetailsActivity.class);
+                        startIntent.putExtra("eventId", eventItem.getId());
+                        startIntent.putExtra("openComment",true);
+                        startActivity(startIntent);
+                    }
+                });
+
+                ImageButton ibShare=(ImageButton)convertView.findViewById(R.id.ibShare);
+                ibShare.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent startIntent = new Intent(getApplicationContext(), EventDetailsActivity.class);
+                        startIntent.putExtra("eventId", eventItem.getId());
+                        startIntent.putExtra("openShare",true);
+                        startActivity(startIntent);
+                    }
+                });
+
+                ImageButton ibMap=(ImageButton)convertView.findViewById(R.id.ibMap);
+                ibMap.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent startIntent= new Intent(getApplicationContext(), MainActivity.class);
+                        SimpleGeoCoords geoCoords=new SimpleGeoCoords(eventItem.getLongitude(),eventItem.getLatitude(),eventItem.getAltitude());
+                        startIntent.putExtra("eventCoords",geoCoords);
+                        startActivity(startIntent);
+                    }
+                });
+
+                if (ApplicationSettings.getInstance().getAuthorizationType()==AuthorizationType.NONE){
+                    ibShare.setImageResource(R.mipmap.icon_share_grey);
+                    ibShare.setEnabled(false);
+                    //ibShare.setVisibility(View.INVISIBLE);
+                }
+
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -389,7 +455,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                                 }else{
                                     File file=null;
                                     try {
-                                        String DownloadUrl="http://192.168.1.33:8080/utils/getFile/"+events.get(i).getAudioId().toString();
+                                        String DownloadUrl="http://188.227.16.166:8080/utils/getFile/"+events.get(i).getAudioId().toString();
                                         String fileName= "newEventAudio.3gp";
                                         String root = Environment.getExternalStorageDirectory().getAbsolutePath();
 
@@ -627,7 +693,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
     private void addEventToList(final Long eventId){
                 try{
                     GetEventParams params=new GetEventParams();
-                    params.setURL("http://192.168.1.33:8080/event/getEvent");
+                    params.setURL("http://188.227.16.166:8080/event/getEvent");
                     params.setEventId(eventId);
                     if (ApplicationSettings.getInstance().getChannelId()!=null &&
                             !ApplicationSettings.getInstance().getChannelId().equals(new Long(0)))
@@ -655,6 +721,46 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                     }
                     convertView.setOnClickListener(this);
                     convertView.setTag(newEvent);
+
+                    ImageButton ibComment=(ImageButton) convertView.findViewById(R.id.ibComment);
+                    ibComment.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Intent startIntent = new Intent(getApplicationContext(), EventDetailsActivity.class);
+                            startIntent.putExtra("eventId", newEvent.getId());
+                            startIntent.putExtra("openComment",true);
+                            startActivity(startIntent);
+                        }
+                    });
+
+                    ImageButton ibShare=(ImageButton)convertView.findViewById(R.id.ibShare);
+                    ibShare.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Intent startIntent = new Intent(getApplicationContext(), EventDetailsActivity.class);
+                            startIntent.putExtra("eventId", newEvent.getId());
+                            startIntent.putExtra("openShare",true);
+                            startActivity(startIntent);
+                        }
+                    });
+
+                    ImageButton ibMap=(ImageButton)convertView.findViewById(R.id.ibMap);
+                    ibMap.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Intent startIntent= new Intent(getApplicationContext(), MainActivity.class);
+                            SimpleGeoCoords geoCoords=new SimpleGeoCoords(newEvent.getLongitude(),newEvent.getLatitude(),newEvent.getAltitude());
+                            startIntent.putExtra("eventCoords",geoCoords);
+                            startActivity(startIntent);
+                        }
+                    });
+
+                    if (ApplicationSettings.getInstance().getAuthorizationType()==AuthorizationType.NONE){
+                        ibShare.setImageResource(R.mipmap.icon_share_grey);
+                        ibShare.setEnabled(false);
+                        //ibShare.setVisibility(View.INVISIBLE);
+                    }
+
                     LinearLayout llevents=(LinearLayout)findViewById(R.id.llEvents);
                     llevents.addView(convertView,0);
 
@@ -693,7 +799,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                                     }else{
                                         File file=null;
                                         try {
-                                            String DownloadUrl="http://192.168.1.33:8080/utils/getFile/"+events.get(i).getAudioId().toString();
+                                            String DownloadUrl="http://188.227.16.166:8080/utils/getFile/"+events.get(i).getAudioId().toString();
                                             String fileName= "newEventAudio.3gp";
                                             String root = Environment.getExternalStorageDirectory().getAbsolutePath();
 
@@ -779,6 +885,20 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                     e.printStackTrace();
                 }
 
+    }
+
+    public static void deleteFolder(File folder) {
+        File[] files = folder.listFiles();
+        if(files!=null) { //some JVMs return null for empty dirs
+            for(File f: files) {
+                if(f.isDirectory()) {
+                    //deleteFolder(f);
+                } else {
+                    f.delete();
+                }
+            }
+        }
+        folder.delete();
     }
 }
 

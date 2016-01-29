@@ -6,6 +6,17 @@
                                    app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
                                    android:layout_height="?android:actionBarSize"
                                    android:background="#3FA43A">
+    <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:src="@drawable/ic_launcher"
+            android:background="@null"
+            android:id="@+id/ibIconUp"/>
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:id="@+id/tvGl" android:text="GreenLight" android:gravity="center_vertical"
+            android:textColor="#ffffff" android:visibility="gone" android:textSize="20sp"/>
     <ImageView android:layout_width="wrap_content" android:layout_height="wrap_content"
                android:src="@drawable/triangle_down" android:id="@+id/ivDropDown"/>
     <Spinner

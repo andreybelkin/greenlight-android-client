@@ -29,6 +29,7 @@ import com.globalgrupp.greenlight.greenlightclient.classes.*;
 import com.globalgrupp.greenlight.greenlightclient.utils.GCMRegistrationHelper;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -66,6 +67,7 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Thread.setDefaultUncaughtExceptionHandler(new TopExceptionHandler(this));
         try{
             setContentView(R.layout.createevent);
             if (getIntent().hasExtra("location")){
@@ -79,9 +81,12 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
             mActionBarToolbar = (Toolbar) findViewById(R.id.toolbar_actionbar);
             mActionBarToolbar.setNavigationIcon(R.drawable.icon_toolbal_arrow_white);
             setSupportActionBar(mActionBarToolbar);
-            //getSupportActionBar().setTitle("");
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-            getSupportActionBar().setIcon(R.drawable.ic_launcher);
+            getSupportActionBar().setTitle("");
+            TextView tvGl=(TextView)findViewById(R.id.tvGl);
+            tvGl.setText("Новое событие");
+            tvGl.setVisibility(View.VISIBLE);
+//            getSupportActionBar().setDisplayShowHomeEnabled(true);
+//            getSupportActionBar().setIcon(R.drawable.ic_launcher);
             mActionBarToolbar.setNavigationOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -194,7 +199,7 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
                 videoId=new UploadFileOperation().execute(cep).get();
             }
 
-            String serverURL = "http://192.168.1.33:8080/event/createEvent";//todo config
+            String serverURL = "http://188.227.16.166:8080/event/createEvent";//todo config
             EditText et=(EditText) findViewById(R.id.etEventText);
 
             String registrationId =GCMRegistrationHelper.getRegistrationId(getApplicationContext());
@@ -444,6 +449,9 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
     }
     private void dispatchTakeVideoIntent() {
         Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+        takeVideoIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 0);
+        takeVideoIntent.putExtra(MediaStore.EXTRA_SIZE_LIMIT, 5491520L);
+
         if (takeVideoIntent.resolveActivity(getPackageManager()) != null) {
             File photoFile = null;
             try {
@@ -457,6 +465,9 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
             }
         }
     }
+
+
+
     private void setPic() {
         try {
             ViewGroup.LayoutParams phLayoutParams = findViewById(R.id.trImageRow).getLayoutParams();
@@ -472,9 +483,19 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
             llImages.addView(ivNew);
             BitmapFactory.Options bmOptions = new BitmapFactory.Options();
             Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath.replace("file:", ""), bmOptions);
+            String filePath=mCurrentPhotoPath.replace("JPEG","qwer");
+            Bitmap bmp= Bitmap.createScaledBitmap(bitmap,(int)(bitmap.getWidth()*0.6), (int)(bitmap.getHeight()*0.6), true);
+            File file = new File(filePath);
+            FileOutputStream fOut = new FileOutputStream(file);
+            bmp.compress(Bitmap.CompressFormat.JPEG, 85, fOut);
+            fOut.flush();
+            fOut.close();
+
+
             Bitmap bmPhoto= Bitmap.createScaledBitmap(bitmap, 150, 150, true);
             ivNew.setImageBitmap(bmPhoto);
             ivNew.setClickable(true);
+            mCurrentPhotoPath=filePath;
             final String path=mCurrentPhotoPath;
             ivNew.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -545,6 +566,7 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
         }
     }
 
+
     private void setVideo(){
         try{
             ViewGroup.LayoutParams phLayoutParams = findViewById(R.id.trImageRow).getLayoutParams();
@@ -559,7 +581,7 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
             //ivVideoPreview.setBackgroundColor(Color.parseColor("#D8D8DA"));
             ivVideoPreview.setImageBitmap(bmPhoto);
             ImageButton btnPlayVideo=(ImageButton)findViewById(R.id.btnVideoPlay);
-            btnPlayVideo.setImageResource(R.drawable.icon_play_white);
+            btnPlayVideo.setImageResource(R.drawable.icon_audio_play);
             final String path=mCurrentVideoPath;
             btnPlayVideo.setOnClickListener(new View.OnClickListener() {
                 @Override

@@ -21,6 +21,7 @@ import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
@@ -37,6 +38,7 @@ import com.facebook.share.model.SharePhotoContent;
 import com.globalgrupp.greenlight.greenlightclient.R;
 import com.globalgrupp.greenlight.greenlightclient.classes.ApplicationSettings;
 import com.globalgrupp.greenlight.greenlightclient.classes.AuthorizationType;
+import com.globalgrupp.greenlight.greenlightclient.classes.TopExceptionHandler;
 import com.globalgrupp.greenlight.greenlightclient.utils.GCMRegistrationHelper;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -97,6 +99,7 @@ public class AuthorizationActivity extends ActionBarActivity implements View.OnC
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+        Thread.setDefaultUncaughtExceptionHandler(new TopExceptionHandler(this));
         try{
             setContentView( R.layout.authorize_list);
 
@@ -121,9 +124,10 @@ public class AuthorizationActivity extends ActionBarActivity implements View.OnC
             });
             mActionBarToolbar = (Toolbar) findViewById(R.id.toolbar_actionbar);
             setSupportActionBar(mActionBarToolbar);
+//            getSupportActionBar().setDisplayShowHomeEnabled(true);
+//            getSupportActionBar().setIcon(R.drawable.ic_launcher);
             getSupportActionBar().setTitle("");
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-            getSupportActionBar().setIcon(R.drawable.ic_launcher);
+
 
             ImageButton vkButton=(ImageButton) findViewById(R.id.btnVKLogin);
             vkButton.setOnClickListener(this);
@@ -135,6 +139,11 @@ public class AuthorizationActivity extends ActionBarActivity implements View.OnC
             btnNotAuthorized.setOnClickListener(this);
             findViewById(R.id.ivDropDown).setVisibility(View.INVISIBLE);
 
+            TextView tvGl=(TextView)findViewById(R.id.tvGl);
+//            ViewGroup.LayoutParams layoutParams=tvGl.getLayoutParams();
+//            layoutParams.width=ViewGroup.LayoutParams.WRAP_CONTENT;
+//            tvGl.setLayoutParams(layoutParams);
+            tvGl.setVisibility(View.VISIBLE);
             if (ApplicationSettings.getInstance().getmGoogleApiClient()==null){
                 ApplicationSettings.getInstance().setmGoogleApiClient( new GoogleApiClient.Builder(this)
                         .addConnectionCallbacks(this)

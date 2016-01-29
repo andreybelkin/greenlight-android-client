@@ -42,13 +42,14 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Thread.setDefaultUncaughtExceptionHandler(new TopExceptionHandler(this));
         setContentView( R.layout.activity_maps);
         Toolbar mActionBarToolbar = (Toolbar) findViewById(R.id.toolbar_actionbar);
         setSupportActionBar(mActionBarToolbar);
         setActionBarEvents(mActionBarToolbar);
         getSupportActionBar().setTitle("");
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
-        getSupportActionBar().setIcon(R.drawable.ic_launcher);
+//        getSupportActionBar().setDisplayShowHomeEnabled(true);
+//        getSupportActionBar().setIcon(R.drawable.ic_launcher);
         setUpMapIfNeeded();
         mActionBarToolbar.setNavigationIcon(R.drawable.icon_toolbal_arrow_white);
 
@@ -72,16 +73,16 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
                 mMap.animateCamera(cameraUpdate);
 
                 GetEventParams params=new GetEventParams();
-                //params.setURL("http://192.168.1.33:8080/event/getNearestEvents");
+                //params.setURL("http://188.227.16.166:8080/event/getNearestEvents");
                 Long channelId= ApplicationSettings.getInstance().getChannelId();
                 if (channelId!=null && !channelId.equals(new Long(0))){
-                    params.setURL("http://192.168.1.33:8080/event/getEventsByChannel/"+channelId.toString());
+                    params.setURL("http://188.227.16.166:8080/event/getEventsByChannel/"+channelId.toString());
                 }else{
-                    params.setURL("http://192.168.1.33:8080/event/getNearestEvents");
+                    params.setURL("http://188.227.16.166:8080/event/getNearestEvents");
                 }
                 SharedPreferences prefs=getApplicationContext().getSharedPreferences(
                         EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);
-                params.setRadius(new Long(prefs.getLong("event_radius",10)));
+                params.setRadius(new Long(prefs.getLong("event_radius",5)));
                 SimpleGeoCoords coords=new SimpleGeoCoords(mLastLocation.getLongitude(),mLastLocation.getLatitude(),mLastLocation.getAltitude());
                 params.setCurrentCoords(coords);
                 List<Event> events=new GetEventsOperation().execute(params).get();
@@ -94,6 +95,7 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
                     mMarkers.put(marker.getId(),events.get(i).getId());
                 }
             }
+            findViewById(R.id.ivDropDown).setVisibility(View.INVISIBLE);
         }catch (Exception e){
             e.printStackTrace();
         }

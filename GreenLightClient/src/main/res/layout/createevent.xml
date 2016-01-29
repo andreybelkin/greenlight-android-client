@@ -2,42 +2,44 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical"
               android:layout_width="match_parent"
-              android:layout_height="match_parent">
+              android:layout_height="match_parent" android:background="#ffffff">
     <include layout="@layout/toolbar" />
 
     <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="fill_parent"
-            android:layout_below="@+id/toolbar_actionbar">
+            android:layout_below="@+id/toolbar_actionbar" android:background="@null">
         <TableRow
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" android:layout_weight="1">
+                android:layout_height="wrap_content" android:layout_weight="1" android:background="@null">
             <ScrollView
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/scrollView2" android:focusableInTouchMode="true" android:focusable="true">
+                    android:id="@+id/scrollView2" android:focusableInTouchMode="true" android:focusable="true"
+                    android:background="@null">
                 <LinearLayout
                         android:orientation="vertical"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_marginLeft="10dp">
+                        android:layout_marginLeft="10dp" android:background="@null">
                     <TableRow
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent">
+                            android:layout_height="match_parent" android:background="@null">
                         <com.globalgrupp.greenlight.greenlightclient.classes.CustomDigitalClock
                                 android:id="@+id/fragment_clock_digital"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="DigitalClock" android:textSize="30sp"
-                                android:layout_weight="1"/>
+                                android:layout_weight="1" android:textColor="#111111"/>
                         <Button
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Создать"
                                 android:background="#3FA43A"
                                 android:layout_weight="1"
-                                android:id="@+id/btnCreateEventTop" android:textColor="#f9f9ff"/>
+                                android:id="@+id/btnCreateEventTop" android:textColor="#f9f9ff"
+                                android:visibility="gone"/>
                         <!--<DigitalClock-->
                                 <!--android:layout_width="wrap_content"-->
                                 <!--android:layout_height="wrap_content"-->
@@ -63,11 +65,11 @@
                     <LinearLayout
                             android:orientation="vertical"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content">
+                            android:layout_height="wrap_content" android:background="@null">
                         <TableRow
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content" android:id="@+id/trAudioRow"
-                                android:orientation="vertical">
+                                android:orientation="vertical" android:background="@null">
                             <ImageButton
                                     style="?android:attr/buttonStyleSmall"
                                     android:layout_width="wrap_content"
@@ -90,7 +92,7 @@
                         </TableRow>
                         <TableRow
                                 android:layout_width="match_parent"
-                                android:layout_height="200dp" android:id="@+id/trImageRow">
+                                android:layout_height="200dp" android:id="@+id/trImageRow" android:background="@null">
                             <HorizontalScrollView
                                     android:layout_width="fill_parent"
                                     android:layout_height="fill_parent"
@@ -149,7 +151,7 @@
                     android:id="@+id/btnPhoto"
                     android:layout_weight="1"
                     android:src="@drawable/icon_camera"
-                    android:background="@null"/>
+                    android:background="@null" android:paddingTop="5px"/>
             <ImageButton
                     style="?android:attr/buttonStyleSmall"
                     android:layout_width="wrap_content"
