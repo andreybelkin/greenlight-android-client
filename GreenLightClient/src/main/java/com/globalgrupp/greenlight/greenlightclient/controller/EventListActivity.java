@@ -248,6 +248,21 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
     public void onResume()
     {
         super.onResume();
+        if (ApplicationSettings.getInstance().getmGoogleApiClient()==null){
+            ApplicationSettings.getInstance().setmGoogleApiClient( new GoogleApiClient.Builder(this)
+//                    .addConnectionCallbacks(this)
+//                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API)
+                    .addApi(Places.GEO_DATA_API)
+                    .build());
+            try{
+                ApplicationSettings.getInstance().getmGoogleApiClient().connect();
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
+//            ApplicationSettings.getInstance().startLocationTimer();
+        }
         getApplicationContext().registerReceiver(mMessageReceiver, new IntentFilter("newEventBroadCast"));
         initChannels();
     }
