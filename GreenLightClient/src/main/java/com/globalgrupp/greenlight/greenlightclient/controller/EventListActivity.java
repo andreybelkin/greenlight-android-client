@@ -110,7 +110,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
 
     public void initChannels(){
         try{
-            String url="http://188.227.16.166:8080/channel/getBaseChannels";
+            String url="http://192.168.1.38:8081/channel/getBaseChannels";
             //подгрузка каналов
             List<Channel> channels= new AsyncTask<String, Void, List<Channel>>() {
                 @Override
@@ -273,6 +273,8 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
         getApplicationContext().unregisterReceiver(mMessageReceiver);
     }
 
+    ArrayList<Event> allEvents=new ArrayList<Event>();
+
     public void refreshEventList(final Long channelId){
         if (ApplicationSettings.getInstance().getmGoogleApiClient()==null){
             ApplicationSettings.getInstance().setmGoogleApiClient( new GoogleApiClient.Builder(this)
@@ -346,9 +348,9 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
         try{
             GetEventParams params=new GetEventParams();
             if (channelId!=null){
-                params.setURL("http://188.227.16.166:8080/event/getEventsByChannel/"+channelId.toString());
+                params.setURL("http://192.168.1.38:8081/event/getEventsByChannel/"+channelId.toString());
             }else{
-                params.setURL("http://188.227.16.166:8080/event/getNearestEvents");
+                params.setURL("http://192.168.1.38:8081/event/getNearestEvents");
             }
 
             if (eLocation==null){
@@ -382,6 +384,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
             params.setRadius(new Long(prefs.getLong("event_radius",5)));
 
             final ArrayList<Event> events=(ArrayList<Event>)new GetEventsOperation().execute(params).get();
+            allEvents=events;
             //if (events.size()==0){return;}
             lvEvents=(ListView)findViewById(R.id.listViewEvents);
             LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -514,7 +517,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                                 }else{
                                     File file=null;
                                     try {
-                                        String DownloadUrl="http://188.227.16.166:8080/utils/getFile/"+events.get(i).getAudioId().toString();
+                                        String DownloadUrl="http://192.168.1.38:8081/utils/getFile/"+events.get(i).getAudioId().toString();
                                         String fileName= "newEventAudio.3gp";
                                         String root = Environment.getExternalStorageDirectory().getAbsolutePath();
 
@@ -630,13 +633,13 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_activity_main, menu);
-        if (ApplicationSettings.getInstance().getAuthorizationType()!=AuthorizationType.NONE){
+//        if (ApplicationSettings.getInstance().getAuthorizationType()!=AuthorizationType.NONE){
             MenuItem editMenuItem = menu.findItem(R.id.action_new_event);
             editMenuItem.setOnMenuItemClickListener(this);
-        }else {
-            MenuItem editMenuItem = menu.findItem(R.id.action_new_event);
-            editMenuItem.setVisible(false);
-        }
+//        }else {
+//            MenuItem editMenuItem = menu.findItem(R.id.action_new_event);
+//            editMenuItem.setVisible(false);
+//        }
 
         MenuItem eventListMenuItem=menu.findItem(R.id.action_event_list);
         eventListMenuItem.setOnMenuItemClickListener(this);
@@ -661,19 +664,23 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                 newEventAsyncTask=null;
             }
 
-            Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
-                    ApplicationSettings.getInstance().getmGoogleApiClient());
-            SimpleGeoCoords coords=new SimpleGeoCoords(mLastLocation.getLongitude(),mLastLocation.getLatitude(),mLastLocation.getAltitude());
+
             Intent startIntent;
             if (menuItem.getItemId()==R.id.action_new_event){
+                Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+                        ApplicationSettings.getInstance().getmGoogleApiClient());
+                SimpleGeoCoords coords=new SimpleGeoCoords(mLastLocation.getLongitude(),mLastLocation.getLatitude(),mLastLocation.getAltitude());
                 startIntent= new Intent(this, NewEventActivity.class);
                 startIntent.putExtra("location", coords);
                 startActivityForResult(startIntent,1);
             }else if(menuItem.getItemId()==R.id.action_event_list){
                 startIntent= new Intent(this, EventListActivity.class);
-                startIntent.putExtra("location", coords);
+//                startIntent.putExtra("location", coords);
                 startActivity(startIntent);
             } else if (menuItem.getItemId()==R.id.action_map){
+                Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+                        ApplicationSettings.getInstance().getmGoogleApiClient());
+                SimpleGeoCoords coords=new SimpleGeoCoords(mLastLocation.getLongitude(),mLastLocation.getLatitude(),mLastLocation.getAltitude());
                 startIntent= new Intent(this, MainActivity.class);
                 startIntent.putExtra("location", coords);
                 startActivity(startIntent);
@@ -750,9 +757,20 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
         }
     };
     private void addEventToList(final Long eventId){
+
+        boolean alreadyLoaded=false;
+        for (int i=0;i<allEvents.size();i++){
+            if (eventId.equals(allEvents.get(i).getId())){
+                alreadyLoaded=true;
+            }
+        }
+        if (alreadyLoaded){
+            return;
+        }
+
                 try{
                     GetEventParams params=new GetEventParams();
-                    params.setURL("http://188.227.16.166:8080/event/getEvent");
+                    params.setURL("http://192.168.1.38:8081/event/getEvent");
                     params.setEventId(eventId);
                     if (ApplicationSettings.getInstance().getChannelId()!=null &&
                             !ApplicationSettings.getInstance().getChannelId().equals(new Long(0)))
@@ -770,13 +788,13 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                     ((TextView) convertView.findViewById(R.id.tvEventsDate)).setText(df.format(newEvent.getCreateDate()));
                     ((TextView) convertView.findViewById(R.id.tvEventsStreet)).setText(newEvent.getStreetName());
                     if (newEvent.getAudioId()==null||newEvent.getAudioId().equals(new Long(0))){
-                        convertView.findViewById(R.id.ivHasAudio).setVisibility(View.INVISIBLE);
+                        convertView.findViewById(R.id.ivHasAudio).setVisibility(View.GONE);
                     }
                     if (newEvent.getPhotoIds()==null||newEvent.getPhotoIds().size()==0){
-                        convertView.findViewById(R.id.ivHasPhoto).setVisibility(View.INVISIBLE);
+                        convertView.findViewById(R.id.ivHasPhoto).setVisibility(View.GONE);
                     }
                     if (newEvent.getVideoId()==null||newEvent.getVideoId().equals(new Long(0))){
-                        convertView.findViewById(R.id.ivHasVideo).setVisibility(View.INVISIBLE);
+                        convertView.findViewById(R.id.ivHasVideo).setVisibility(View.GONE);
                     }
                     convertView.setOnClickListener(this);
                     convertView.setTag(newEvent);
@@ -858,7 +876,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                                     }else{
                                         File file=null;
                                         try {
-                                            String DownloadUrl="http://188.227.16.166:8080/utils/getFile/"+events.get(i).getAudioId().toString();
+                                            String DownloadUrl="http://192.168.1.38:8081/utils/getFile/"+events.get(i).getAudioId().toString();
                                             String fileName= "newEventAudio.3gp";
                                             String root = Environment.getExternalStorageDirectory().getAbsolutePath();
 
