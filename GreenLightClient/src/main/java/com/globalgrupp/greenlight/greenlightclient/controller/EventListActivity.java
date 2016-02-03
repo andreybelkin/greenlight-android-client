@@ -1,7 +1,5 @@
 package com.globalgrupp.greenlight.greenlightclient.controller;
 
-import android.app.Activity;
-import android.app.KeyguardManager;
 import android.content.*;
 import android.location.Location;
 import android.media.MediaPlayer;
@@ -22,6 +20,8 @@ import com.globalgrupp.greenlight.greenlightclient.R;
 import com.globalgrupp.greenlight.greenlightclient.classes.*;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Places;
 import com.vk.sdk.VKAccessToken;
@@ -30,15 +30,15 @@ import com.vk.sdk.VKSdk;
 import com.vk.sdk.api.VKError;
 import org.json.JSONArray;
 import org.json.JSONObject;
+
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by п on 31.12.2015.
@@ -248,6 +248,21 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
     public void onResume()
     {
         super.onResume();
+        if (ApplicationSettings.getInstance().getmGoogleApiClient()==null){
+            ApplicationSettings.getInstance().setmGoogleApiClient( new GoogleApiClient.Builder(this)
+//                    .addConnectionCallbacks(this)
+//                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API)
+                    .addApi(Places.GEO_DATA_API)
+                    .build());
+            try{
+                ApplicationSettings.getInstance().getmGoogleApiClient().connect();
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
+//            ApplicationSettings.getInstance().startLocationTimer();
+        }
         getApplicationContext().registerReceiver(mMessageReceiver, new IntentFilter("newEventBroadCast"));
         initChannels();
     }
@@ -258,7 +273,32 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
         getApplicationContext().unregisterReceiver(mMessageReceiver);
     }
 
-    public void refreshEventList(Long channelId){
+    public void refreshEventList(final Long channelId){
+        if (ApplicationSettings.getInstance().getmGoogleApiClient()==null){
+            ApplicationSettings.getInstance().setmGoogleApiClient( new GoogleApiClient.Builder(this)
+                    .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
+                        @Override
+                        public void onConnected(@Nullable Bundle bundle) {
+                            refreshEventList(channelId);
+                        }
+
+                        @Override
+                        public void onConnectionSuspended(int i) {
+
+                        }
+                    })
+                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API)
+                    .addApi(Places.GEO_DATA_API)
+                    .build());
+            try{
+                ApplicationSettings.getInstance().getmGoogleApiClient().connect();
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
+//            ApplicationSettings.getInstance().startLocationTimer();
+        }
         File cacheDir= getCacheDir();
         File oldEventsId=new File(cacheDir,"oldEventsId");
         if (oldEventsId.exists()){
@@ -314,7 +354,26 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
             if (eLocation==null){
                 Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
                         ApplicationSettings.getInstance().getmGoogleApiClient());
-                if (mLastLocation==null) return;
+                if (mLastLocation==null){
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try{
+                                LocationServices.FusedLocationApi.requestLocationUpdates(ApplicationSettings.getInstance().getmGoogleApiClient(), new LocationRequest(), new LocationListener() {
+                                    @Override
+                                    public void onLocationChanged(Location location) {
+                                        int i=0;
+                                    }
+                                });
+                            }catch (Exception e){
+                                e.printStackTrace();
+                            }
+
+                        }
+                    });
+
+                    return;
+                }
                 eLocation=new SimpleGeoCoords(mLastLocation.getLongitude(),mLastLocation.getLatitude(),mLastLocation.getAltitude());
             }
             params.setCurrentCoords(eLocation);

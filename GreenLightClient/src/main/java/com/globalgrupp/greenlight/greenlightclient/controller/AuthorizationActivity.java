@@ -1,8 +1,8 @@
 package com.globalgrupp.greenlight.greenlightclient.controller;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -10,7 +10,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.AttributeSet;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,7 +17,6 @@ import android.view.Window;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -29,37 +27,24 @@ import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
-import com.facebook.share.ShareApi;
-import com.facebook.share.Sharer;
-import com.facebook.share.internal.ShareFeedContent;
-import com.facebook.share.model.ShareLinkContent;
-import com.facebook.share.model.SharePhoto;
-import com.facebook.share.model.SharePhotoContent;
 import com.globalgrupp.greenlight.greenlightclient.R;
 import com.globalgrupp.greenlight.greenlightclient.classes.ApplicationSettings;
 import com.globalgrupp.greenlight.greenlightclient.classes.AuthorizationType;
 import com.globalgrupp.greenlight.greenlightclient.classes.TopExceptionHandler;
-import com.globalgrupp.greenlight.greenlightclient.utils.GCMRegistrationHelper;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Places;
 import com.vk.sdk.VKAccessToken;
 import com.vk.sdk.VKCallback;
 import com.vk.sdk.VKSdk;
 import com.vk.sdk.api.VKError;
-import com.facebook.messenger.*;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
 import twitter4j.auth.AccessToken;
 import twitter4j.auth.RequestToken;
-import twitter4j.conf.Configuration;
-import twitter4j.conf.ConfigurationBuilder;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.util.Arrays;
 
 /**
@@ -314,16 +299,29 @@ public class AuthorizationActivity extends ActionBarActivity implements View.OnC
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
+        try{
+            Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+                    ApplicationSettings.getInstance().getmGoogleApiClient());
+            int i=0;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
     }
 
     @Override
     public void onConnectionSuspended(int i) {
-
+        try{
+            Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+                    ApplicationSettings.getInstance().getmGoogleApiClient());
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
+        int i=0;
     }
 }

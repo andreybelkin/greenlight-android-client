@@ -15,7 +15,6 @@ import android.util.Log;
 
 import com.globalgrupp.greenlight.greenlightclient.R;
 import com.globalgrupp.greenlight.greenlightclient.controller.EventDetailsActivity;
-import com.globalgrupp.greenlight.greenlightclient.controller.EventListActivity;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 public class GCMNotificationIntentService extends IntentService {
@@ -65,7 +64,7 @@ public class GCMNotificationIntentService extends IntentService {
             }
         }
 
-        GcmBroadcastReceiver.completeWakefulIntent(intent);
+        com.globalgrupp.greenlight.greenlightclient.services.GCMBroadcastReceiver.completeWakefulIntent(intent);
     }
 
     private void sendNotification(String msg,Long id) {

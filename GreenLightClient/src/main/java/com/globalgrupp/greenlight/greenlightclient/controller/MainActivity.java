@@ -19,6 +19,7 @@ import com.globalgrupp.greenlight.greenlightclient.classes.*;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -42,6 +43,21 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (ApplicationSettings.getInstance().getmGoogleApiClient()==null){
+            ApplicationSettings.getInstance().setmGoogleApiClient( new GoogleApiClient.Builder(this)
+//                    .addConnectionCallbacks(this)
+//                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API)
+                    .addApi(Places.GEO_DATA_API)
+                    .build());
+            try{
+                ApplicationSettings.getInstance().getmGoogleApiClient().connect();
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
+//            ApplicationSettings.getInstance().startLocationTimer();
+        }
         Thread.setDefaultUncaughtExceptionHandler(new TopExceptionHandler(this));
         setContentView( R.layout.activity_maps);
         Toolbar mActionBarToolbar = (Toolbar) findViewById(R.id.toolbar_actionbar);

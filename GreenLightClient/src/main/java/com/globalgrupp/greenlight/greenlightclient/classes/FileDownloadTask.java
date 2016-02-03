@@ -37,6 +37,8 @@ public class FileDownloadTask extends AsyncTask<String,Void,String> {
             Log.d("DownloadManager", "downloaded file name:" + fileName);
 
             URLConnection ucon = url.openConnection();
+            ucon.setConnectTimeout(20000);
+            ucon.setReadTimeout(20000);
             InputStream is = ucon.getInputStream();
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             int nRead;
