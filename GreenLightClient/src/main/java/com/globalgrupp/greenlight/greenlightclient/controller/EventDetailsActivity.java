@@ -37,15 +37,14 @@ import twitter4j.Twitter;
 import twitter4j.TwitterFactory;
 import twitter4j.conf.ConfigurationBuilder;
 
-import java.io.*;
-import java.net.URL;
-import java.net.URLConnection;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -157,9 +156,9 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                 refreshFields();
                 //todo асинхронная загрузка
                 if (currentEvent.getAudioId()!=null&&!currentEvent.getAudioId().equals(new Long(0)) ){
-//                    "http://188.227.16.166:8080/utils/downloadFile?id=
+//                    "http://192.168.1.38:8081/utils/downloadFile?id=
 
-                    audioFilePath=new FileDownloadTask().execute("http://188.227.16.166:8080/utils/getFile/"+currentEvent.getAudioId().toString(),"3gp").get();
+                    audioFilePath=new FileDownloadTask().execute("http://192.168.1.38:8081/utils/getFile/"+currentEvent.getAudioId().toString(),"3gp").get();
                     trAudiorow=(TableRow) findViewById(R.id.trAudioRow);
                     llAudioparams=trAudiorow.getLayoutParams();
                     llAudioparams.height=ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -195,7 +194,7 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                 if (currentEvent.getPhotoIds()!=null&&currentEvent.getPhotoIds().size()>0){
                     List<Long> photoIds=currentEvent.getPhotoIds();
                     for (int i=0;i<photoIds.size();i++){
-                        final String photoFilePath=new FileDownloadTask().execute("http://188.227.16.166:8080/utils/getFile/"+photoIds.get(i),"jpg").get();
+                        final String photoFilePath=new FileDownloadTask().execute("http://192.168.1.38:8081/utils/getFile/"+photoIds.get(i),"jpg").get();
 
                         ViewGroup.LayoutParams phLayoutParams = findViewById(R.id.trImageRow).getLayoutParams();
                         phLayoutParams.height =150;
@@ -228,7 +227,7 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
 
                 }
                 if (currentEvent.getVideoId()!=null&&!currentEvent.getVideoId().equals(new Long(0))){
-                    videoFilePath=new FileDownloadTask().execute("http://188.227.16.166:8080/utils/getFile/"+currentEvent.getVideoId().toString(),"3gp").get();
+                    videoFilePath=new FileDownloadTask().execute("http://192.168.1.38:8081/utils/getFile/"+currentEvent.getVideoId().toString(),"3gp").get();
 
                     ViewGroup.LayoutParams phLayoutParams = findViewById(R.id.trImageRow).getLayoutParams();
                     phLayoutParams.height = 150;
@@ -319,7 +318,7 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
     private void refreshFields(){
         try{
             GetEventParams params=new GetEventParams();
-            params.setURL("http://188.227.16.166:8080/event/getEvent");
+            params.setURL("http://192.168.1.38:8081/event/getEvent");
             Long id=(Long)getIntent().getExtras().getSerializable("eventId");
             params.setEventId(id );
 
@@ -339,12 +338,12 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                 LayoutInflater inflater;
                 inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 if (llComments.getChildCount() > 0){
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
+//                    runOnUiThread(new Runnable() {
+//                        @Override
+//                        public void run() {
                             llComments.removeAllViews();
-                        }
-                    });
+//                        }
+//                    });
                 }
 
                 for (int z=0;z<list.size();z++){
@@ -361,7 +360,7 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                         if (commentsItem.getAudioId()!=null &&!commentsItem.getAudioId().equals(new Long(0))){
                             final ProgressBar progressBar=(ProgressBar)convertView.findViewById(R.id.pbAudio);
                             final ImageButton btnPlayAudioComment=(ImageButton)convertView.findViewById(R.id.btnPlayAudio);
-                            final String audioFilePath= new FileDownloadTask().execute("http://188.227.16.166:8080/utils/getFile/"+commentsItem.getAudioId().toString(),"3gp").get();
+                            final String audioFilePath= new FileDownloadTask().execute("http://192.168.1.38:8081/utils/getFile/"+commentsItem.getAudioId().toString(),"3gp").get();
                             btnPlayAudioComment.setOnClickListener(new View.OnClickListener() {
 
                                 @Override
@@ -402,7 +401,7 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                             List<Long> photoIds=commentsItem.getPhotoIds();
                             for (int i=0;i<photoIds.size();i++){
                                 try{
-                                    final String photoFilePath=new FileDownloadTask().execute("http://188.227.16.166:8080/utils/getFile/"+photoIds.get(i),"jpg").get();
+                                    final String photoFilePath=new FileDownloadTask().execute("http://192.168.1.38:8081/utils/getFile/"+photoIds.get(i),"jpg").get();
                                     LinearLayout llImages=(LinearLayout)convertView.findViewById(R.id.llImages);
                                     ImageView ivNew=new ImageView(getApplicationContext());
                                     LinearLayout.LayoutParams layoutParams=new LinearLayout.LayoutParams(150,150);
@@ -437,7 +436,7 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                         }
                         if (commentsItem.getVideoId()!=null && !commentsItem.getVideoId().equals(new Long(0))){
                             try{
-                                final String videoFilePath=new FileDownloadTask().execute("http://188.227.16.166:8080/utils/getFile/"+commentsItem.getVideoId().toString(),"3gp").get();
+                                final String videoFilePath=new FileDownloadTask().execute("http://192.168.1.38:8081/utils/getFile/"+commentsItem.getVideoId().toString(),"3gp").get();
                                 Bitmap thumbnail = ThumbnailUtils.createVideoThumbnail(videoFilePath,
                                         MediaStore.Images.Thumbnails.MINI_KIND);
                                 if (thumbnail!=null){
@@ -538,6 +537,7 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 try{
                     if(motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                        mFileName=null;
                         onRecord(true);
 //                        mStartRecording = !mStartRecording;
                     } else if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
@@ -604,7 +604,7 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                 try{
 
                     Long audioId=new Long(0);
-                    if (mFileName!=null){
+                    if (mFileName!=null &&!mFileName.isEmpty()){
                         CreateEventParams cep=new CreateEventParams();
                         cep.setURL(mFileName);
                         audioId=new UploadFileOperation().execute(cep).get();
@@ -620,7 +620,7 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                         }
                     }
                     Long videoId=new Long(0);
-                    if (mCurrentVideoPath!=null){
+                    if (mCurrentVideoPath!=null &&!mCurrentVideoPath.isEmpty()){
                         CreateEventParams cep=new CreateEventParams();
                         cep.setURL(mCurrentVideoPath);
                         videoId=new UploadFileOperation().execute(cep).get();
