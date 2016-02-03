@@ -155,103 +155,115 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
             try{
                 refreshFields();
                 //todo асинхронная загрузка
-                if (currentEvent.getAudioId()!=null&&!currentEvent.getAudioId().equals(new Long(0)) ){
+                Thread thread=new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try{
+                            if (currentEvent.getAudioId()!=null&&!currentEvent.getAudioId().equals(new Long(0)) ){
 //                    "http://192.168.1.38:8081/utils/downloadFile?id=
 
-                    audioFilePath=new FileDownloadTask().execute("http://192.168.1.38:8081/utils/getFile/"+currentEvent.getAudioId().toString(),"3gp").get();
-                    trAudiorow=(TableRow) findViewById(R.id.trAudioRow);
-                    llAudioparams=trAudiorow.getLayoutParams();
-                    llAudioparams.height=ViewGroup.LayoutParams.WRAP_CONTENT;
-                    trAudiorow.setLayoutParams(llAudioparams);
-                    btnPlayAudio=(ImageButton)findViewById(R.id.btnPlayAudio);
-                    final ProgressBar progress=(ProgressBar)findViewById(R.id.pbAudio);
-                    btnPlayAudio.setVisibility(View.VISIBLE);
-                    btnPlayAudio.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            if (lastPressedPlay!=null && !lastPressedPlay.equals(this)){
-                                mStartPlaying=true;
-                            }else if (lastPressedPlay==null) {
-                                mStartPlaying=true;
-                            } else {
-                                mStartPlaying=false;
+                                audioFilePath=new FileDownloadTask().execute("http://192.168.1.38:8081/utils/getFile/"+currentEvent.getAudioId().toString(),"3gp").get();
+                                TableRow trAudiorow=(TableRow) findViewById(R.id.trAudioRow);
+                                ViewGroup.LayoutParams llAudioparams=trAudiorow.getLayoutParams();
+                                llAudioparams.height=ViewGroup.LayoutParams.WRAP_CONTENT;
+                                trAudiorow.setLayoutParams(llAudioparams);
+                                final ImageButton btnPlayAudio=(ImageButton)findViewById(R.id.btnPlayAudio);
+                                final ProgressBar progress=(ProgressBar)findViewById(R.id.pbAudio);
+                                btnPlayAudio.setVisibility(View.VISIBLE);
+                                btnPlayAudio.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        if (lastPressedPlay!=null && !lastPressedPlay.equals(this)){
+                                            mStartPlaying=true;
+                                        }else if (lastPressedPlay==null) {
+                                            mStartPlaying=true;
+                                        } else if (lastPressedPlay.equals(this)){
+                                        } else{
+                                            mStartPlaying=false;
+                                        }
+                                        lastPressedPlay=this;
+                                        onPlay(mStartPlaying,audioFilePath,progress);
+                                        if (mStartPlaying) {
+                                            progress.setMax(mPlayer.getDuration());
+                                            //btnPlayAudio.setImageResource(R.drawable.icon_audio_stop);
+                                        } else {
+                                            btnPlayAudio.setImageResource(R.drawable.icon_audio_play);
+                                            progress.setProgress(0);
+                                        }
+                                        mStartPlaying = !mStartPlaying;
+                                    }
+                                });
                             }
-                            lastPressedPlay=this;
-                            lastPressedPlay=this;
-                            onPlay(mStartPlaying,audioFilePath,progress);
-                            if (mStartPlaying) {
-                                progress.setMax(mPlayer.getDuration());
-                                //btnPlayAudio.setImageResource(R.drawable.icon_audio_stop);
-                            } else {
-                                btnPlayAudio.setImageResource(R.drawable.icon_audio_play);
-                                progress.setProgress(0);
+
+                            if (currentEvent.getPhotoIds()!=null&&currentEvent.getPhotoIds().size()>0){
+                                List<Long> photoIds=currentEvent.getPhotoIds();
+                                for (int i=0;i<photoIds.size();i++){
+                                    final String photoFilePath=new FileDownloadTask().execute("http://192.168.1.38:8081/utils/getFile/"+photoIds.get(i),"jpg").get();
+
+                                    ViewGroup.LayoutParams phLayoutParams = findViewById(R.id.trImageRow).getLayoutParams();
+                                    phLayoutParams.height =150;
+                                    findViewById(R.id.trImageRow).setLayoutParams(phLayoutParams);
+                                    findViewById(R.id.trImageRow).setVisibility(View.VISIBLE);
+                                    LinearLayout llImages=(LinearLayout)findViewById(R.id.llImages);
+                                    ImageView ivNew=new ImageView(getApplicationContext());
+                                    LinearLayout.LayoutParams layoutParams=new LinearLayout.LayoutParams(150,150);
+                                    ivNew.setLayoutParams(layoutParams);
+                                    ivNew.setPadding(5,5,5,5);
+                                    llImages.addView(ivNew);
+                                    BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+                                    Bitmap bitmap = BitmapFactory.decodeFile(photoFilePath.replace("file:", ""), bmOptions);
+                                    Bitmap bmPhoto= Bitmap.createScaledBitmap(bitmap, 150, 150, true);
+                                    ivNew.setImageBitmap(bmPhoto);
+                                    ivNew.setClickable(true);
+                                    final String path=photoFilePath;
+                                    ivNew.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) {
+                                            Intent intent = new Intent();
+                                            intent.setAction(Intent.ACTION_VIEW);
+                                            intent.setDataAndType(Uri.parse("file://"+path), "image/*");
+                                            startActivity(intent);
+                                        }
+                                    });
+                                }
+
+                            }else {
+
                             }
-                            mStartPlaying = !mStartPlaying;
+                            if (currentEvent.getVideoId()!=null&&!currentEvent.getVideoId().equals(new Long(0))){
+                                videoFilePath=new FileDownloadTask().execute("http://192.168.1.38:8081/utils/getFile/"+currentEvent.getVideoId().toString(),"3gp").get();
+
+                                ViewGroup.LayoutParams phLayoutParams = findViewById(R.id.trImageRow).getLayoutParams();
+                                phLayoutParams.height = 150;
+                                findViewById(R.id.trImageRow).setLayoutParams(phLayoutParams);
+                                findViewById(R.id.trImageRow).setVisibility(View.VISIBLE);
+                                Bitmap thumbnail = ThumbnailUtils.createVideoThumbnail(videoFilePath,
+                                        MediaStore.Images.Thumbnails.MINI_KIND);
+                                Bitmap bmPhoto= Bitmap.createScaledBitmap(thumbnail, 150, 150, true);
+                                ImageView ivVideoPreview=(ImageView) findViewById(R.id.ivForVideo);
+                                ivVideoPreview.setPadding(0,5,0,0);
+                                ivVideoPreview.setImageBitmap(bmPhoto);
+                                ImageButton btnPlayVideo=(ImageButton)findViewById(R.id.btnVideoPlay);
+                                btnPlayVideo.setImageResource(R.drawable.icon_audio_play);
+                                final String path=videoFilePath;
+                                btnPlayVideo.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        Intent intent = new Intent();
+                                        intent.setAction(Intent.ACTION_VIEW);
+                                        intent.setDataAndType(Uri.parse("file://"+path), "video/*");
+                                        startActivity(intent);
+                                    }
+                                });
+                            }
+                        }catch (Exception e){
+                            e.printStackTrace();
                         }
-                    });
-                }
 
-                if (currentEvent.getPhotoIds()!=null&&currentEvent.getPhotoIds().size()>0){
-                    List<Long> photoIds=currentEvent.getPhotoIds();
-                    for (int i=0;i<photoIds.size();i++){
-                        final String photoFilePath=new FileDownloadTask().execute("http://192.168.1.38:8081/utils/getFile/"+photoIds.get(i),"jpg").get();
-
-                        ViewGroup.LayoutParams phLayoutParams = findViewById(R.id.trImageRow).getLayoutParams();
-                        phLayoutParams.height =150;
-                        findViewById(R.id.trImageRow).setLayoutParams(phLayoutParams);
-                        findViewById(R.id.trImageRow).setVisibility(View.VISIBLE);
-                        LinearLayout llImages=(LinearLayout)findViewById(R.id.llImages);
-                        ImageView ivNew=new ImageView(getApplicationContext());
-                        LinearLayout.LayoutParams layoutParams=new LinearLayout.LayoutParams(150,150);
-                        ivNew.setLayoutParams(layoutParams);
-                        ivNew.setPadding(5,5,5,5);
-                        llImages.addView(ivNew);
-                        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-                        Bitmap bitmap = BitmapFactory.decodeFile(photoFilePath.replace("file:", ""), bmOptions);
-                        Bitmap bmPhoto= Bitmap.createScaledBitmap(bitmap, 150, 150, true);
-                        ivNew.setImageBitmap(bmPhoto);
-                        ivNew.setClickable(true);
-                        final String path=photoFilePath;
-                        ivNew.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                Intent intent = new Intent();
-                                intent.setAction(Intent.ACTION_VIEW);
-                                intent.setDataAndType(Uri.parse("file://"+path), "image/*");
-                                startActivity(intent);
-                            }
-                        });
                     }
+                });
+                thread.start();
 
-                }else {
-
-                }
-                if (currentEvent.getVideoId()!=null&&!currentEvent.getVideoId().equals(new Long(0))){
-                    videoFilePath=new FileDownloadTask().execute("http://192.168.1.38:8081/utils/getFile/"+currentEvent.getVideoId().toString(),"3gp").get();
-
-                    ViewGroup.LayoutParams phLayoutParams = findViewById(R.id.trImageRow).getLayoutParams();
-                    phLayoutParams.height = 150;
-                    findViewById(R.id.trImageRow).setLayoutParams(phLayoutParams);
-                    findViewById(R.id.trImageRow).setVisibility(View.VISIBLE);
-                    Bitmap thumbnail = ThumbnailUtils.createVideoThumbnail(videoFilePath,
-                            MediaStore.Images.Thumbnails.MINI_KIND);
-                    Bitmap bmPhoto= Bitmap.createScaledBitmap(thumbnail, 150, 150, true);
-                    ImageView ivVideoPreview=(ImageView) findViewById(R.id.ivForVideo);
-                    ivVideoPreview.setPadding(0,5,0,0);
-                    ivVideoPreview.setImageBitmap(bmPhoto);
-                    ImageButton btnPlayVideo=(ImageButton)findViewById(R.id.btnVideoPlay);
-                    btnPlayVideo.setImageResource(R.drawable.icon_audio_play);
-                    final String path=videoFilePath;
-                    btnPlayVideo.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            Intent intent = new Intent();
-                            intent.setAction(Intent.ACTION_VIEW);
-                            intent.setDataAndType(Uri.parse("file://"+path), "video/*");
-                            startActivity(intent);
-                        }
-                    });
-                }
             }catch (Exception e) {
                 e.printStackTrace();
             }
@@ -331,11 +343,11 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
             TextView eventStreetName=(TextView)findViewById(R.id.tvStreetName);
             eventStreetName.setText(currentEvent.getStreetName());
             lvComments=(ListView)findViewById(R.id.listViewComments);
-            ArrayList<Comment> list = new ArrayList<Comment>(currentEvent.getComments());
+            final ArrayList<Comment> list = new ArrayList<Comment>(currentEvent.getComments());
 
             if (list.size()>0){
-                final LinearLayout llComments=(LinearLayout)findViewById(R.id.llComments);
-                LayoutInflater inflater;
+                LinearLayout llComments=(LinearLayout)findViewById(R.id.llComments);
+                final LayoutInflater inflater;
                 inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 if (llComments.getChildCount() > 0){
 //                    runOnUiThread(new Runnable() {
@@ -346,134 +358,156 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
 //                    });
                 }
 
-                for (int z=0;z<list.size();z++){
-                    LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.lv_comments_item ,null);
+                Thread thread=new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try{
+                            final LayoutInflater inflater;
+                            inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                            final LinearLayout llComments=(LinearLayout)findViewById(R.id.llComments);
+                            for (int z=0;z<list.size();z++){
+                                LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.lv_comments_item ,null);
 
-                    View convertView=layout;
-                    Comment commentsItem=list.get(z);
-                    TextView tvCommentMessage=(TextView) convertView.findViewById(R.id.tvCommentMessage);
-                    TextView tvDateView = (TextView) convertView.findViewById(R.id.tvCommentDate);
-                    tvCommentMessage.setText(commentsItem.getMessage());
-                    DateFormat df = new SimpleDateFormat("HH:mm");
-                    tvDateView.setText(df.format(commentsItem.getCreateDate()));
-                    try{
-                        if (commentsItem.getAudioId()!=null &&!commentsItem.getAudioId().equals(new Long(0))){
-                            final ProgressBar progressBar=(ProgressBar)convertView.findViewById(R.id.pbAudio);
-                            final ImageButton btnPlayAudioComment=(ImageButton)convertView.findViewById(R.id.btnPlayAudio);
-                            final String audioFilePath= new FileDownloadTask().execute("http://192.168.1.38:8081/utils/getFile/"+commentsItem.getAudioId().toString(),"3gp").get();
-                            btnPlayAudioComment.setOnClickListener(new View.OnClickListener() {
-
-                                @Override
-                                public void onClick(View v) {
-
-                                    try{
-                                        if (lastPressedPlay!=null && !lastPressedPlay.equals(this)){
-                                            mStartPlaying=true;
-                                        }else if (lastPressedPlay==null) {
-                                            mStartPlaying=true;
-                                        } else {
-                                            //mStartPlaying=false;
-                                        }
-                                        lastPressedPlay=this;
-
-                                        onPlay(mStartPlaying,audioFilePath,progressBar);
-                                        if (mStartPlaying) {
-                                            progressBar.setMax(mPlayer.getDuration());
-                                            //btnPlayAudioComment.setImageResource(R.drawable.icon_audio_stop);
-                                        } else {
-                                            btnPlayAudioComment.setImageResource(R.drawable.icon_audio_play);
-                                            progressBar.setProgress(0);
-                                        }
-                                        mStartPlaying = !mStartPlaying;
-                                    }catch(Exception e){
-                                        e.printStackTrace();
-                                    }
-                                }
-                            });
-                        }else{
-                            TableRow trAudioRow=(TableRow)convertView.findViewById(R.id.tableRow);
-                            ViewGroup.LayoutParams layoutParams= trAudioRow.getLayoutParams();
-                            layoutParams.height=0;
-                            trAudioRow.setLayoutParams(layoutParams);
-                        }
-                        if (commentsItem.getPhotoIds()!=null && commentsItem.getPhotoIds().size()>0){
-
-                            List<Long> photoIds=commentsItem.getPhotoIds();
-                            for (int i=0;i<photoIds.size();i++){
+                                final View convertView=layout;
+                                Comment commentsItem=list.get(z);
+                                TextView tvCommentMessage=(TextView) convertView.findViewById(R.id.tvCommentMessage);
+                                TextView tvDateView = (TextView) convertView.findViewById(R.id.tvCommentDate);
+                                tvCommentMessage.setText(commentsItem.getMessage());
+                                DateFormat df = new SimpleDateFormat("HH:mm");
+                                tvDateView.setText(df.format(commentsItem.getCreateDate()));
                                 try{
-                                    final String photoFilePath=new FileDownloadTask().execute("http://192.168.1.38:8081/utils/getFile/"+photoIds.get(i),"jpg").get();
-                                    LinearLayout llImages=(LinearLayout)convertView.findViewById(R.id.llImages);
-                                    ImageView ivNew=new ImageView(getApplicationContext());
-                                    LinearLayout.LayoutParams layoutParams=new LinearLayout.LayoutParams(150,150);
-                                    ivNew.setLayoutParams(layoutParams);
-                                    ivNew.setPadding(5,5,5,5);
-                                    llImages.addView(ivNew);
-                                    BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-                                    Bitmap bitmap = BitmapFactory.decodeFile(photoFilePath.replace("file:", ""), bmOptions);
-                                    Bitmap bmPhoto= Bitmap.createScaledBitmap(bitmap, 150, 150, true);
-                                    ivNew.setImageBitmap(bmPhoto);
-                                    ivNew.setClickable(true);
-                                    final String path=photoFilePath;
-                                    ivNew.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View view) {
-                                            Intent intent = new Intent();
-                                            intent.setAction(Intent.ACTION_VIEW);
-                                            intent.setDataAndType(Uri.parse("file://"+path), "image/*");
-                                            startActivity(intent);
+                                    if (commentsItem.getAudioId()!=null &&!commentsItem.getAudioId().equals(new Long(0))){
+                                        final ProgressBar progressBar=(ProgressBar)convertView.findViewById(R.id.pbAudio);
+                                        final ImageButton btnPlayAudioComment=(ImageButton)convertView.findViewById(R.id.btnPlayAudio);
+                                        final String audioFilePath= new FileDownloadTask().execute("http://192.168.1.38:8081/utils/getFile/"+commentsItem.getAudioId().toString(),"3gp").get();
+                                        btnPlayAudioComment.setOnClickListener(new View.OnClickListener() {
+
+                                            @Override
+                                            public void onClick(View v) {
+
+                                                try{
+                                                    if (lastPressedPlay!=null && !lastPressedPlay.equals(this)){
+                                                        mStartPlaying=true;
+                                                    }else if (lastPressedPlay==null) {
+                                                        mStartPlaying=true;
+                                                    } else if (lastPressedPlay.equals(this)){
+                                                    } else{
+                                                        mStartPlaying=false;
+                                                    }
+                                                    lastPressedPlay=this;
+
+                                                    onPlay(mStartPlaying,audioFilePath,progressBar);
+                                                    if (mStartPlaying) {
+                                                        progressBar.setMax(mPlayer.getDuration());
+                                                        //btnPlayAudioComment.setImageResource(R.drawable.icon_audio_stop);
+                                                    } else {
+                                                        btnPlayAudioComment.setImageResource(R.drawable.icon_audio_play);
+                                                        progressBar.setProgress(0);
+                                                    }
+                                                    mStartPlaying = !mStartPlaying;
+                                                }catch(Exception e){
+                                                    e.printStackTrace();
+                                                }
+                                            }
+                                        });
+                                    }else{
+                                        TableRow trAudioRow=(TableRow)convertView.findViewById(R.id.tableRow);
+                                        ViewGroup.LayoutParams layoutParams= trAudioRow.getLayoutParams();
+                                        layoutParams.height=0;
+                                        trAudioRow.setLayoutParams(layoutParams);
+                                    }
+                                    if (commentsItem.getPhotoIds()!=null && commentsItem.getPhotoIds().size()>0){
+
+                                        List<Long> photoIds=commentsItem.getPhotoIds();
+                                        for (int i=0;i<photoIds.size();i++){
+                                            try{
+                                                final String photoFilePath=new FileDownloadTask().execute("http://192.168.1.38:8081/utils/getFile/"+photoIds.get(i),"jpg").get();
+                                                LinearLayout llImages=(LinearLayout)convertView.findViewById(R.id.llImages);
+                                                ImageView ivNew=new ImageView(getApplicationContext());
+                                                LinearLayout.LayoutParams layoutParams=new LinearLayout.LayoutParams(150,150);
+                                                ivNew.setLayoutParams(layoutParams);
+                                                ivNew.setPadding(5,5,5,5);
+                                                llImages.addView(ivNew);
+                                                BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+                                                Bitmap bitmap = BitmapFactory.decodeFile(photoFilePath.replace("file:", ""), bmOptions);
+                                                Bitmap bmPhoto= Bitmap.createScaledBitmap(bitmap, 150, 150, true);
+                                                ivNew.setImageBitmap(bmPhoto);
+                                                ivNew.setClickable(true);
+                                                final String path=photoFilePath;
+                                                ivNew.setOnClickListener(new View.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(View view) {
+                                                        Intent intent = new Intent();
+                                                        intent.setAction(Intent.ACTION_VIEW);
+                                                        intent.setDataAndType(Uri.parse("file://"+path), "image/*");
+                                                        startActivity(intent);
+                                                    }
+                                                });
+                                            }catch (Exception e){
+                                                e.printStackTrace();
+                                            }
+
                                         }
-                                    });
+                                    }else{
+                                        TableRow trVideoRow=(TableRow) convertView.findViewById(R.id.tableRow2);
+                                        ViewGroup.LayoutParams layoutParams=trVideoRow.getLayoutParams();
+                                        layoutParams.height=0;
+                                        trVideoRow.setLayoutParams(layoutParams);
+                                    }
+                                    if (commentsItem.getVideoId()!=null && !commentsItem.getVideoId().equals(new Long(0))){
+                                        try{
+                                            final String videoFilePath=new FileDownloadTask().execute("http://192.168.1.38:8081/utils/getFile/"+commentsItem.getVideoId().toString(),"3gp").get();
+                                            Bitmap thumbnail = ThumbnailUtils.createVideoThumbnail(videoFilePath,
+                                                    MediaStore.Images.Thumbnails.MINI_KIND);
+                                            if (thumbnail!=null){
+                                                Bitmap bmPhoto= Bitmap.createScaledBitmap(thumbnail, 150, 150, true);
+                                                ImageView ivVideoPreview=(ImageView) convertView.findViewById(R.id.ivForVideo);
+                                                ivVideoPreview.setPadding(5,5,5,5);
+                                                ivVideoPreview.setImageBitmap(bmPhoto);
+                                                ImageButton btnPlayVideo=(ImageButton)convertView.findViewById(R.id.btnVideoPlay);
+                                                btnPlayVideo.setImageResource(R.drawable.icon_play_white);
+                                                final String path=videoFilePath;
+                                                btnPlayVideo.setOnClickListener(new View.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(View view) {
+                                                        Intent intent = new Intent();
+                                                        intent.setAction(Intent.ACTION_VIEW);
+                                                        intent.setDataAndType(Uri.parse("file://"+path), "video/*");
+                                                        startActivity(intent);
+                                                    }
+                                                });
+                                            }
+                                        }catch (Exception e){
+                                            e.printStackTrace();
+                                        }
+
+                                    }else{
+                                        TableRow trVideoRow=(TableRow) convertView.findViewById(R.id.tableRow2);
+                                        ViewGroup.LayoutParams layoutParams=trVideoRow.getLayoutParams();
+                                        layoutParams.height=0;
+                                        trVideoRow.setLayoutParams(layoutParams);
+                                    }
                                 }catch (Exception e){
                                     e.printStackTrace();
                                 }
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        llComments.addView(convertView);
+                                    }
+                                });
 
                             }
-                        }else{
-                            TableRow trVideoRow=(TableRow) convertView.findViewById(R.id.tableRow2);
-                            ViewGroup.LayoutParams layoutParams=trVideoRow.getLayoutParams();
-                            layoutParams.height=0;
-                            trVideoRow.setLayoutParams(layoutParams);
+                        }catch (Exception e){
+                            e.printStackTrace();
                         }
-                        if (commentsItem.getVideoId()!=null && !commentsItem.getVideoId().equals(new Long(0))){
-                            try{
-                                final String videoFilePath=new FileDownloadTask().execute("http://192.168.1.38:8081/utils/getFile/"+commentsItem.getVideoId().toString(),"3gp").get();
-                                Bitmap thumbnail = ThumbnailUtils.createVideoThumbnail(videoFilePath,
-                                        MediaStore.Images.Thumbnails.MINI_KIND);
-                                if (thumbnail!=null){
-                                    Bitmap bmPhoto= Bitmap.createScaledBitmap(thumbnail, 150, 150, true);
-                                    ImageView ivVideoPreview=(ImageView) convertView.findViewById(R.id.ivForVideo);
-                                    ivVideoPreview.setPadding(5,5,5,5);
-                                    ivVideoPreview.setImageBitmap(bmPhoto);
-                                    ImageButton btnPlayVideo=(ImageButton)convertView.findViewById(R.id.btnVideoPlay);
-                                    btnPlayVideo.setImageResource(R.drawable.icon_play_white);
-                                    final String path=videoFilePath;
-                                    btnPlayVideo.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View view) {
-                                            Intent intent = new Intent();
-                                            intent.setAction(Intent.ACTION_VIEW);
-                                            intent.setDataAndType(Uri.parse("file://"+path), "video/*");
-                                            startActivity(intent);
-                                        }
-                                    });
-                                }
-                            }catch (Exception e){
-                                e.printStackTrace();
-                            }
 
-                        }else{
-                            TableRow trVideoRow=(TableRow) convertView.findViewById(R.id.tableRow2);
-                            ViewGroup.LayoutParams layoutParams=trVideoRow.getLayoutParams();
-                            layoutParams.height=0;
-                            trVideoRow.setLayoutParams(layoutParams);
-                        }
-                    }catch (Exception e){
-                        e.printStackTrace();
+
                     }
+                });
+                thread.start();
 
-                    llComments.addView(convertView);
-                }
-                llComments.requestLayout();
+                //llComments.requestLayout();
             }
         }catch (Exception e){
             e.printStackTrace();
@@ -561,7 +595,8 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                         mStartPlaying=true;
                     }else if (lastPressedPlay==null) {
                         mStartPlaying=true;
-                    } else {
+                    } else if (lastPressedPlay.equals(this)){
+                    } else{
                         mStartPlaying=false;
                     }
                     lastPressedPlay=this;
