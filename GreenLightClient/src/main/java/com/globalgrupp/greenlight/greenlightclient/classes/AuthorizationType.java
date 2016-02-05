@@ -7,5 +7,6 @@ public enum AuthorizationType {
     VK,
     FACEBOOK,
     TWITTER,
+    GREENLIGHT,
     NONE
 }

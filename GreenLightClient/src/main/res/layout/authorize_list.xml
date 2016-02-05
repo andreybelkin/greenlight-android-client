@@ -47,6 +47,11 @@
                 android:id="@+id/btnNotAuthorized"
                 android:layout_gravity="center" android:src="@drawable/not_authorized" android:background="@null"
                 android:layout_marginTop="10dp"/>
+        <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Авторизация GL"
+                android:id="@+id/btnAuthorizeGl"/>
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
