@@ -88,9 +88,6 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
         mActionBarToolbar.setNavigationIcon(R.drawable.icon_toolbal_arrow_white);
 
         setSupportActionBar(mActionBarToolbar);
-//        getSupportActionBar().setDisplayShowHomeEnabled(true);
-//        getSupportActionBar().setIcon(R.drawable.ic_launcher);
-//        getSupportActionBar().setHomeButtonEnabled(true);
         ListView lv=(ListView)findViewById(R.id.listViewComments);
         lv.setFocusable(false);
         findViewById(R.id.ivDropDown).setVisibility(View.INVISIBLE);
@@ -155,16 +152,14 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
             try{
                 refreshFields();
                 //todo асинхронная загрузка
-                Thread thread=new Thread(new Runnable() {
-                    @Override
-                    public void run() {
+//                Thread thread=new Thread(new Runnable() {
+//                    @Override
+//                    public void run() {
                         try{
                             if (currentEvent.getAudioId()!=null&&!currentEvent.getAudioId().equals(new Long(0)) ){
-//                    "http://192.168.1.38:8081/utils/downloadFile?id=
+//                    "http://188.227.16.166:8080/utils/downloadFile?id=
 
-                                audioFilePath=new FileDownloadTask().execute("http://192.168.1.38:8081/utils/getFile/"+currentEvent.getAudioId().toString(),"3gp").get();
-                                TableRow trAudiorow=(TableRow) findViewById(R.id.trAudioRow);
-                                ViewGroup.LayoutParams llAudioparams=trAudiorow.getLayoutParams();
+                                audioFilePath=new FileDownloadTask().execute("http://188.227.16.166:8080/utils/getFile/"+currentEvent.getAudioId().toString(),"3gp").get();
                                 llAudioparams.height=ViewGroup.LayoutParams.WRAP_CONTENT;
                                 trAudiorow.setLayoutParams(llAudioparams);
                                 final ImageButton btnPlayAudio=(ImageButton)findViewById(R.id.btnPlayAudio);
@@ -198,7 +193,7 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                             if (currentEvent.getPhotoIds()!=null&&currentEvent.getPhotoIds().size()>0){
                                 List<Long> photoIds=currentEvent.getPhotoIds();
                                 for (int i=0;i<photoIds.size();i++){
-                                    final String photoFilePath=new FileDownloadTask().execute("http://192.168.1.38:8081/utils/getFile/"+photoIds.get(i),"jpg").get();
+                                    final String photoFilePath=new FileDownloadTask().execute("http://188.227.16.166:8080/utils/getFile/"+photoIds.get(i),"jpg").get();
 
                                     ViewGroup.LayoutParams phLayoutParams = findViewById(R.id.trImageRow).getLayoutParams();
                                     phLayoutParams.height =150;
@@ -231,7 +226,7 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
 
                             }
                             if (currentEvent.getVideoId()!=null&&!currentEvent.getVideoId().equals(new Long(0))){
-                                videoFilePath=new FileDownloadTask().execute("http://192.168.1.38:8081/utils/getFile/"+currentEvent.getVideoId().toString(),"3gp").get();
+                                videoFilePath=new FileDownloadTask().execute("http://188.227.16.166:8080/utils/getFile/"+currentEvent.getVideoId().toString(),"3gp").get();
 
                                 ViewGroup.LayoutParams phLayoutParams = findViewById(R.id.trImageRow).getLayoutParams();
                                 phLayoutParams.height = 150;
@@ -260,9 +255,9 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                             e.printStackTrace();
                         }
 
-                    }
-                });
-                thread.start();
+//                    }
+//                });
+//                thread.start();
 
             }catch (Exception e) {
                 e.printStackTrace();
@@ -330,7 +325,7 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
     private void refreshFields(){
         try{
             GetEventParams params=new GetEventParams();
-            params.setURL("http://192.168.1.38:8081/event/getEvent");
+            params.setURL("http://188.227.16.166:8080/event/getEvent");
             Long id=(Long)getIntent().getExtras().getSerializable("eventId");
             params.setEventId(id );
 
@@ -358,13 +353,12 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
 //                    });
                 }
 
-                Thread thread=new Thread(new Runnable() {
-                    @Override
-                    public void run() {
+//                Thread thread=new Thread(new Runnable() {
+//                    @Override
+//                    public void run() {
                         try{
-                            final LayoutInflater inflater;
-                            inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                            final LinearLayout llComments=(LinearLayout)findViewById(R.id.llComments);
+
+
                             for (int z=0;z<list.size();z++){
                                 LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.lv_comments_item ,null);
 
@@ -379,7 +373,7 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                                     if (commentsItem.getAudioId()!=null &&!commentsItem.getAudioId().equals(new Long(0))){
                                         final ProgressBar progressBar=(ProgressBar)convertView.findViewById(R.id.pbAudio);
                                         final ImageButton btnPlayAudioComment=(ImageButton)convertView.findViewById(R.id.btnPlayAudio);
-                                        final String audioFilePath= new FileDownloadTask().execute("http://192.168.1.38:8081/utils/getFile/"+commentsItem.getAudioId().toString(),"3gp").get();
+                                        final String audioFilePath= new FileDownloadTask().execute("http://188.227.16.166:8080/utils/getFile/"+commentsItem.getAudioId().toString(),"3gp").get();
                                         btnPlayAudioComment.setOnClickListener(new View.OnClickListener() {
 
                                             @Override
@@ -421,7 +415,7 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                                         List<Long> photoIds=commentsItem.getPhotoIds();
                                         for (int i=0;i<photoIds.size();i++){
                                             try{
-                                                final String photoFilePath=new FileDownloadTask().execute("http://192.168.1.38:8081/utils/getFile/"+photoIds.get(i),"jpg").get();
+                                                final String photoFilePath=new FileDownloadTask().execute("http://188.227.16.166:8080/utils/getFile/"+photoIds.get(i),"jpg").get();
                                                 LinearLayout llImages=(LinearLayout)convertView.findViewById(R.id.llImages);
                                                 ImageView ivNew=new ImageView(getApplicationContext());
                                                 LinearLayout.LayoutParams layoutParams=new LinearLayout.LayoutParams(150,150);
@@ -456,7 +450,7 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                                     }
                                     if (commentsItem.getVideoId()!=null && !commentsItem.getVideoId().equals(new Long(0))){
                                         try{
-                                            final String videoFilePath=new FileDownloadTask().execute("http://192.168.1.38:8081/utils/getFile/"+commentsItem.getVideoId().toString(),"3gp").get();
+                                            final String videoFilePath=new FileDownloadTask().execute("http://188.227.16.166:8080/utils/getFile/"+commentsItem.getVideoId().toString(),"3gp").get();
                                             Bitmap thumbnail = ThumbnailUtils.createVideoThumbnail(videoFilePath,
                                                     MediaStore.Images.Thumbnails.MINI_KIND);
                                             if (thumbnail!=null){
@@ -490,22 +484,17 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                                 }catch (Exception e){
                                     e.printStackTrace();
                                 }
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        llComments.addView(convertView);
-                                    }
-                                });
+
+                                llComments.addView(convertView);
+
 
                             }
                         }catch (Exception e){
                             e.printStackTrace();
                         }
-
-
-                    }
-                });
-                thread.start();
+//                    }
+//                });
+//                thread.start();
 
                 //llComments.requestLayout();
             }
