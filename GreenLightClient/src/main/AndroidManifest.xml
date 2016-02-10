@@ -57,11 +57,15 @@
         <activity
             android:name=".controller.NewEventActivity"
             android:windowSoftInputMode="adjustPan"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="portrait"
             android:label="@string/create_new_event" />
         <activity
                 android:name=".controller.EventDetailsActivity"
                 android:label=""
-                android:windowSoftInputMode="adjustPan"/>
+                android:windowSoftInputMode="adjustPan"
+                android:configChanges="orientation|keyboardHidden|screenSize"
+                android:screenOrientation="portrait"/>
         <activity
                 android:name=".controller.MainActivity"
                 android:label="" />

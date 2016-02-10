@@ -65,6 +65,11 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
 
 
     @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Thread.setDefaultUncaughtExceptionHandler(new TopExceptionHandler(this));
@@ -199,7 +204,7 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
                 videoId=new UploadFileOperation().execute(cep).get();
             }
 
-            String serverURL = "http://188.227.16.166:8080/event/createEvent";//todo config
+            String serverURL = "http://192.168.1.33:8080/event/createEvent";//todo config
             EditText et=(EditText) findViewById(R.id.etEventText);
 
             String registrationId =GCMRegistrationHelper.getRegistrationId(getApplicationContext());
@@ -436,11 +441,8 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
             try {
                 photoFile = createImageFile();
             } catch (IOException ex) {
-
             }
-            // Continue only if the File was successfully created
             if (photoFile != null) {
-                //mCurrentPhotoPath=Uri.fromFile(photoFile).toString();
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
                         Uri.fromFile(photoFile));
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
@@ -469,20 +471,25 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
 
 
     private void setPic() {
-        try {
-            ViewGroup.LayoutParams phLayoutParams = findViewById(R.id.trImageRow).getLayoutParams();
+        ViewGroup.LayoutParams phLayoutParams;
+        LinearLayout llImages=(LinearLayout)findViewById(R.id.llImages);;
+        try{
+            phLayoutParams = findViewById(R.id.trImageRow).getLayoutParams();
             phLayoutParams.height = 150;
             findViewById(R.id.trImageRow).setLayoutParams(phLayoutParams);
             findViewById(R.id.trImageRow).setVisibility(View.VISIBLE);
-            LinearLayout llImages=(LinearLayout)findViewById(R.id.llImages);
-            ImageView ivNew=new ImageView(getApplicationContext());
-            LinearLayout.LayoutParams layoutParams=new LinearLayout.LayoutParams(150,150);
-            ivNew.setLayoutParams(layoutParams);
-            //ivNew.setBackgroundColor(Color.parseColor("#D8D8DA"));
-            ivNew.setPadding(5,5,5,5);
-            llImages.addView(ivNew);
+
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+
+        Bitmap bmPhoto;
+        try {
             BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-            Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath.replace("file:", ""), bmOptions);
+            bmOptions.inSampleSize=4;
+            File photoFile=new File(mCurrentPhotoPath);
+            Bitmap bitmap = BitmapFactory.decodeFile(photoFile.getAbsolutePath(), bmOptions);
             String filePath=mCurrentPhotoPath.replace("JPEG","qwer");
             Bitmap bmp= Bitmap.createScaledBitmap(bitmap,(int)(bitmap.getWidth()*0.6), (int)(bitmap.getHeight()*0.6), true);
             File file = new File(filePath);
@@ -490,12 +497,22 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
             bmp.compress(Bitmap.CompressFormat.JPEG, 85, fOut);
             fOut.flush();
             fOut.close();
-
-
-            Bitmap bmPhoto= Bitmap.createScaledBitmap(bitmap, 150, 150, true);
+            bmPhoto= Bitmap.createScaledBitmap(bitmap, 150, 150, true);
+            mCurrentPhotoPath=filePath;
+        }catch (Exception e){
+            e.printStackTrace();
+            return;
+        }
+        try{
+            ImageView ivNew=new ImageView(getApplicationContext());
+            LinearLayout.LayoutParams layoutParams=new LinearLayout.LayoutParams(150,150);
+            ivNew.setLayoutParams(layoutParams);
+            //ivNew.setBackgroundColor(Color.parseColor("#D8D8DA"));
+            ivNew.setPadding(5,5,5,5);
+            llImages.addView(ivNew);
             ivNew.setImageBitmap(bmPhoto);
             ivNew.setClickable(true);
-            mCurrentPhotoPath=filePath;
+
             final String path=mCurrentPhotoPath;
             ivNew.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -507,11 +524,10 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
                 }
             });
             photoPathList.add(mCurrentPhotoPath);
-        }catch (Exception e){
-            e.printStackTrace();
         }
-
-
+           catch (Exception e){
+               e.printStackTrace();
+           }
     }
 
     String mCurrentPhotoPath;
@@ -555,7 +571,7 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
             try{
                 setPic();
             }catch(Exception e){
-                Log.e("photoActivityResult",e.getMessage());
+                e.printStackTrace();
             }
         }else if (requestCode == REQUEST_VIDEO_CAPTURE && resultCode == RESULT_OK){
             try{
