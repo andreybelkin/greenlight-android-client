@@ -82,10 +82,12 @@
                         android:layout_margin="5px" android:layout_marginRight="5dp">
                     <TextView
                             android:layout_width="match_parent"
-                            android:layout_height="60dp"
+                            android:layout_height="80dp"
                             android:text="New Text"
                             android:id="@+id/eventMessage"
-                            android:layout_below="@+id/contentTopPanel"/>
+                            android:layout_below="@+id/contentTopPanel"
+                            android:maxLines = "900"
+                            android:scrollbars = "vertical"/>
                 </LinearLayout>
                 <LinearLayout
                         android:orientation="vertical"

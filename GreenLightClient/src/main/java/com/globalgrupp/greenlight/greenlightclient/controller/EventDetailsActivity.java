@@ -18,6 +18,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.*;
 import android.view.inputmethod.InputMethodManager;
@@ -93,6 +94,7 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
         lv.setFocusable(false);
         findViewById(R.id.ivDropDown).setVisibility(View.INVISIBLE);
 
+        ((TextView)findViewById(R.id.eventMessage)).setMovementMethod(new ScrollingMovementMethod());
         mActionBarToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

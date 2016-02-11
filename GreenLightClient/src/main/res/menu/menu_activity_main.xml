@@ -27,22 +27,22 @@
         android:id="@+id/action_event_list"
         android:title="Лента"
         android:icon="@drawable/icon_menu"
-        yourapp:showAsAction="ifRoom" />
+        yourapp:showAsAction="never" />
     <item
         android:id="@+id/action_map"
         android:title="@string/map"
         android:icon="@drawable/icon_menu"
-        yourapp:showAsAction="ifRoom" />
+        yourapp:showAsAction="never" />
     <item
             android:id="@+id/action_settings"
             android:title="Настройки"
             android:icon="@drawable/ic_setting_dark"
-            yourapp:showAsAction="ifRoom" />
+            yourapp:showAsAction="never" />
     <item
         android:id="@+id/action_logout"
         android:title="Выход"
         android:icon="@drawable/logout"
-        yourapp:showAsAction="ifRoom" />
+        yourapp:showAsAction="never" />
 
 
     <!--<item-->
