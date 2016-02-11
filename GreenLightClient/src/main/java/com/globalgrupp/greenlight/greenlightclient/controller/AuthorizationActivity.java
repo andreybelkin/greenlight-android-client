@@ -16,9 +16,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.*;
-import android.webkit.WebChromeClient;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
+import android.webkit.*;
 import android.widget.*;
 import com.facebook.*;
 import com.facebook.login.LoginManager;
@@ -444,7 +442,18 @@ public class AuthorizationActivity extends ActionBarActivity implements View.OnC
                     }
                 }.execute(verifier).get();
                 twitter.setOAuthAccessToken(mAccessToken);
-                String userName=twitter.getAccountSettings().getScreenName();
+                String userName=
+                new AsyncTask<Void, Void, String>() {
+                    @Override
+                    protected String doInBackground(Void... params) {
+                        try{
+                            return twitter.getAccountSettings().getScreenName();
+                        }catch (Exception e){
+                            e.printStackTrace();
+                            return null;
+                        }
+                    }
+                }.execute().get();
                 ApplicationSettings.getInstance().setTwitterAccessToken(mAccessToken);
                 final SharedPreferences prefs = getApplicationContext().getSharedPreferences(
                         EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);
@@ -533,6 +542,13 @@ public class AuthorizationActivity extends ActionBarActivity implements View.OnC
     @Override
     protected void onResume() {
         super.onResume();
+        CookieSyncManager.createInstance(this);
+        CookieManager cookieManager = CookieManager.getInstance();
+        cookieManager.removeSessionCookie();
+
+//        twitter.setOAuthAccessToken(null);
+//        twitter.shutdown();
+
     }
 
     @Override

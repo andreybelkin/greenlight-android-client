@@ -2,6 +2,7 @@ package com.globalgrupp.greenlight.greenlightclient.controller;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.*;
 import android.location.Address;
 import android.location.Geocoder;
@@ -214,6 +215,30 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
             params.setStreetName(street);
             params.setSenderAppId(registrationId);
             params.setPhotoIds(photoIds);
+
+            final SharedPreferences prefs = getApplicationContext().getSharedPreferences(
+                    EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);
+            if (ApplicationSettings.getInstance().getAuthorizationType()==AuthorizationType.FACEBOOK){
+                String userName = prefs.getString("FacebookUserName", "");
+                params.setUserName(userName);
+                params.setSocialType(new Long(AuthorizationType.FACEBOOK.getValue()));
+
+            } else if (ApplicationSettings.getInstance().getAuthorizationType()==AuthorizationType.VK){
+                String userName = prefs.getString("VKUserName", "");
+                params.setUserName(userName);
+                params.setSocialType(new Long(AuthorizationType.VK.getValue()));
+
+            } else if (ApplicationSettings.getInstance().getAuthorizationType()==AuthorizationType.TWITTER){
+                String userName = prefs.getString("TwitterUserName", "");
+                params.setUserName(userName);
+                params.setSocialType(new Long(AuthorizationType.TWITTER.getValue()));
+
+            } else if (ApplicationSettings.getInstance().getAuthorizationType()==AuthorizationType.GREENLIGHT){
+                String userName = prefs.getString("GreenLightToken", "");
+                params.setUserName(userName);
+                params.setSocialType(new Long(AuthorizationType.GREENLIGHT.getValue()));
+
+            }
 
             Boolean res= new CreateEventOperation().execute(params).get();
             if (res){

@@ -35,6 +35,26 @@ public class Event {
 
     private List<Long> photoIds;
 
+    private Long socialType;
+
+    private String userName;
+
+    public Long getSocialType() {
+        return socialType;
+    }
+
+    public void setSocialType(Long socialType) {
+        this.socialType = socialType;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
     public List<Long> getPhotoIds() {
         return photoIds;
     }

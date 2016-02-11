@@ -19,6 +19,26 @@ public class Comment {
 
     private Long videoId;
 
+    private Long socialType;
+
+    private String userName;
+
+    public Long getSocialType() {
+        return socialType;
+    }
+
+    public void setSocialType(Long socialType) {
+        this.socialType = socialType;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
     public Long getAudioId() {
         return audioId;
     }

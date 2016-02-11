@@ -13,7 +13,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -109,6 +108,8 @@ public class GetEventsOperation extends AsyncTask<GetEventParams, Void, List<Eve
                 e.setVideoId(!jsonObject.isNull("videoId")?jsonObject.getLong("videoId"):null);
                 e.setStreetName(!jsonObject.isNull("streetName")?jsonObject.getString("streetName"):null);
                 e.setCreateDate(new Date(jsonObject.getLong("createDate")));
+                e.setSocialType(!jsonObject.isNull("socialType")?jsonObject.getLong("socialType"):null);
+                e.setUserName(!jsonObject.isNull("userName")?jsonObject.getString("userName"):"");
                 List<Long> photoIds=new ArrayList<Long>();
                 JSONArray photoArray=jsonObject.getJSONArray("photoIds");
                 for (int k=0;k<photoArray.length(); k++){
@@ -126,6 +127,8 @@ public class GetEventsOperation extends AsyncTask<GetEventParams, Void, List<Eve
                     com.setCreateDate(new Date(comObject.getLong("createDate")));
                     com.setAudioId(!comObject.isNull("audioId")?comObject.getLong("audioId"):null);
                     com.setVideoId(!comObject.isNull("videoId")?comObject.getLong("videoId"):null);
+                    com.setSocialType(!comObject.isNull("socialType")?comObject.getLong("socialType"):null);
+                    com.setUserName(!comObject.isNull("userName")?comObject.getString("userName"):"");
                     List<Long> commentPhotoIds=new ArrayList<Long>();
                     JSONArray commentPhotoArray=comObject.getJSONArray("photoIds");
                     for (int z=0;z<commentPhotoArray.length(); z++){

@@ -3,7 +3,6 @@ package com.globalgrupp.greenlight.greenlightclient.classes;
 import android.os.AsyncTask;
 import android.util.Log;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -44,8 +43,12 @@ import java.net.URL;
             msg.put("photoId",params[0].getPhotoId());
             msg.put("streetName",params[0].getStreetName());
             msg.put("senderAppId",params[0].getSenderAppId());
+            msg.put("socialType",params[0].getSocialType());
+            msg.put("userName",params[0].getUserName());
             JSONArray array=new JSONArray(params[0].getPhotoIds());
             msg.put("photoIds",array);
+
+
             Log.i("message",msg.toString());
             URL url = new URL(params[0].getURL());
 

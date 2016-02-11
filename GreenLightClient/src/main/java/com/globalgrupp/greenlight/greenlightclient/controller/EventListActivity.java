@@ -323,6 +323,23 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                 ((TextView) convertView.findViewById(R.id.tvEventsTitle)).setText(eventItem.getMessage());
                 ((TextView) convertView.findViewById(R.id.tvEventsDate)).setText(df.format(eventItem.getCreateDate()));
                 ((TextView) convertView.findViewById(R.id.tvEventsStreet)).setText(eventItem.getStreetName());
+
+                if (eventItem.getUserName()!=null && !eventItem.getUserName().isEmpty()){
+                    ((TextView)convertView.findViewById(R.id.tvUserName)).setText(eventItem.getUserName());
+                }
+
+                if (eventItem.getSocialType()!=null){
+                    if (eventItem.getSocialType().equals(new Long(1))){
+                        ((ImageView)convertView.findViewById(R.id.ivCreateIcon)).setImageResource(R.drawable.icon_vk_event);
+                    } else if (eventItem.getSocialType().equals(new Long(2))){
+                        ((ImageView)convertView.findViewById(R.id.ivCreateIcon)).setImageResource(R.drawable.icon_facebook_event);
+                    } else if (eventItem.getSocialType().equals(new Long(3))){
+                        ((ImageView)convertView.findViewById(R.id.ivCreateIcon)).setImageResource(R.drawable.icon_twitter_event);
+                    } else if (eventItem.getSocialType().equals(new Long(4))){
+                        ((ImageView)convertView.findViewById(R.id.ivCreateIcon)).setImageResource(R.drawable.icon_greenlight_event);
+                    }
+                }
+
                 if (eventItem.getAudioId() == null || eventItem.getAudioId().equals(new Long(0))) {
                     convertView.findViewById(R.id.ivHasAudio).setVisibility(View.GONE);
                     ViewGroup.LayoutParams qwe = convertView.findViewById(R.id.ivHasAudio).getLayoutParams();
@@ -600,6 +617,10 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                     LoginManager.getInstance().logOut();
                 } else if (ApplicationSettings.getInstance().getAuthorizationType()==AuthorizationType.VK){
                     VKSdk.logout();
+                } else if (ApplicationSettings.getInstance().getAuthorizationType()==AuthorizationType.TWITTER){
+//                    Twitter twitter=new TwitterFactory().getInstance();
+//                    twitter.setOAuthAccessToken(ApplicationSettings.getInstance().getTwitterAccessToken());
+//                    twitter.shutdown();
                 }
 
                 startIntent = new Intent(this, AuthorizationActivity.class);

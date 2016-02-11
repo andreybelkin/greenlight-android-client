@@ -151,9 +151,9 @@ public class RegistrationActivity extends ActionBarActivity {
                     if (result){
                         final SharedPreferences prefs = getApplicationContext().getSharedPreferences(
                                 EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);
-                        SharedPreferences.Editor editor = prefs.edit();
-                        editor.putString("FacebookToken",userCredentials.getLogin());
-                        editor.commit();
+                        //SharedPreferences.Editor editor = prefs.edit();
+                        //editor.putString("Gree",userCredentials.getLogin());
+                        //editor.commit();
                         Intent intent=new Intent(getApplicationContext(),AuthorizationActivity.class);
                         startActivity(intent);
                     }
