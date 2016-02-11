@@ -1,8 +1,10 @@
 package com.globalgrupp.greenlight.greenlightclient.controller;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -33,7 +35,6 @@ import com.globalgrupp.greenlight.greenlightclient.classes.UserCredentials;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.places.Places;
 import com.vk.sdk.VKAccessToken;
 import com.vk.sdk.VKCallback;
 import com.vk.sdk.VKSdk;
@@ -99,6 +100,11 @@ public class AuthorizationActivity extends ActionBarActivity implements View.OnC
                 @Override
                 public void onSuccess(LoginResult loginResult) {
                     keytoken=loginResult.getAccessToken().getToken();
+                    final SharedPreferences prefs = getApplicationContext().getSharedPreferences(
+                            EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = prefs.edit();
+                    editor.putString("FacebookToken",loginResult.getAccessToken().getToken());
+                    editor.commit();
                     ApplicationSettings.getInstance().setAuthorizationType(authorizationType);
                     Intent intent= new Intent(getApplicationContext(), EventListActivity.class);
                     startActivity(intent);
@@ -112,6 +118,8 @@ public class AuthorizationActivity extends ActionBarActivity implements View.OnC
                     e.printStackTrace();
                 }
             });
+
+
             mActionBarToolbar = (Toolbar) findViewById(R.id.toolbar_actionbar);
             setSupportActionBar(mActionBarToolbar);
             getSupportActionBar().setTitle("");
@@ -127,8 +135,11 @@ public class AuthorizationActivity extends ActionBarActivity implements View.OnC
             btnNotAuthorized.setOnClickListener(this);
             findViewById(R.id.ivDropDown).setVisibility(View.INVISIBLE);
 
-            Button btnAuthorizeGl=(Button)findViewById(R.id.btnAuthorizeGl);
+            ImageButton btnAuthorizeGl=(ImageButton) findViewById(R.id.btnAuthorizeGl);
             btnAuthorizeGl.setOnClickListener(this);
+
+            Button btnGLreg=(Button)findViewById(R.id.btnGLreg);
+            btnGLreg.setOnClickListener(this);
 
 
             TextView tvGl=(TextView)findViewById(R.id.tvGl);
@@ -138,11 +149,38 @@ public class AuthorizationActivity extends ActionBarActivity implements View.OnC
                         .addConnectionCallbacks(this)
                         .addOnConnectionFailedListener(this)
                         .addApi(LocationServices.API)
-                        .addApi(Places.GEO_DATA_API)
                         .build());
                 ApplicationSettings.getInstance().getmGoogleApiClient().connect();
                 ApplicationSettings.getInstance().startLocationTimer();
             }
+
+            final SharedPreferences prefs = getApplicationContext().getSharedPreferences(
+                    EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);
+            String registrationId = prefs.getString("FacebookToken", "");
+            if (!registrationId.isEmpty()){
+                ApplicationSettings.getInstance().setAuthorizationType(AuthorizationType.FACEBOOK);
+                Intent intent= new Intent(getApplicationContext(), EventListActivity.class);
+                startActivity(intent);
+            }
+            registrationId = prefs.getString("VKToken", "");
+            if (!registrationId.isEmpty()){
+                ApplicationSettings.getInstance().setAuthorizationType(AuthorizationType.VK);
+                Intent intent= new Intent(getApplicationContext(), EventListActivity.class);
+                startActivity(intent);
+            }
+            registrationId = prefs.getString("TwitterToken", "");
+            if (!registrationId.isEmpty()){
+                ApplicationSettings.getInstance().setAuthorizationType(AuthorizationType.TWITTER);
+                Intent intent= new Intent(getApplicationContext(), EventListActivity.class);
+                startActivity(intent);
+            }
+            registrationId=prefs.getString("GreenLightToken","");
+            if (!registrationId.isEmpty()){
+                ApplicationSettings.getInstance().setAuthorizationType(AuthorizationType.GREENLIGHT);
+                Intent intent= new Intent(getApplicationContext(), EventListActivity.class);
+                startActivity(intent);
+            }
+
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -160,7 +198,11 @@ public class AuthorizationActivity extends ActionBarActivity implements View.OnC
             if (view.getId()==R.id.btnVKLogin){
                 authorizationType=AuthorizationType.VK;
                 VKSdk.login(this, "wall");
-            } else if (view.getId()==R.id.btnFBLogin){
+            } else if (view.getId()==R.id.btnGLreg){
+                Intent intent=new Intent(getApplicationContext(),RegistrationActivity.class);
+                startActivity(intent);
+            }
+            else if (view.getId()==R.id.btnFBLogin){
                 authorizationType=AuthorizationType.FACEBOOK;
                 LoginManager.getInstance().logInWithPublishPermissions(this, Arrays.asList("publish_actions"));
             } else if (view.getId()==R.id.btnTwitterLogin){
@@ -322,6 +364,12 @@ public class AuthorizationActivity extends ActionBarActivity implements View.OnC
                                 }
                             }.execute(userCredentials).get();
                             if (result){
+                                final SharedPreferences prefs = getApplicationContext().getSharedPreferences(
+                                        EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);
+                                SharedPreferences.Editor editor = prefs.edit();
+                                //todo token
+                                editor.putString("GreenLightToken",userCredentials.getLogin());
+                                editor.commit();
                                 ApplicationSettings.getInstance().setAuthorizationType(AuthorizationType.GREENLIGHT);
                                 Intent intent=new Intent(getApplicationContext(),EventListActivity.class);
                                 startActivity(intent);
@@ -332,14 +380,6 @@ public class AuthorizationActivity extends ActionBarActivity implements View.OnC
 
                     }
                 });
-
-
-//                alertDialog.setPositiveButton("Войти", new DialogInterface.OnClickListener() {
-//                            @Override
-//                            public void onClick(DialogInterface dialog, int which) {
-//                                EditText etLogin=(EditText)commentView.findViewById(R.id.)
-//                            }
-//                        });
 
                 alertDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
                             @Override
@@ -383,6 +423,11 @@ public class AuthorizationActivity extends ActionBarActivity implements View.OnC
                 }.execute(verifier).get();
                 twitter.setOAuthAccessToken(mAccessToken);
                 ApplicationSettings.getInstance().setTwitterAccessToken(mAccessToken);
+                final SharedPreferences prefs = getApplicationContext().getSharedPreferences(
+                        EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putString("TwitterToken",mAccessToken.getToken());
+                editor.commit();
                 // Add code here to save the OAuth AccessToken and AccessTokenSecret into  SharedPreferences
             } catch (Exception e) {
                 e.printStackTrace();
@@ -400,6 +445,11 @@ public class AuthorizationActivity extends ActionBarActivity implements View.OnC
                     public void onResult(VKAccessToken res) {
                         // Пользователь успешно авторизовался
                         keytoken=res.accessToken;
+                        final SharedPreferences prefs = getApplicationContext().getSharedPreferences(
+                                EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = prefs.edit();
+                        editor.putString("VKToken",res.accessToken);
+                        editor.commit();
                         ApplicationSettings.getInstance().setAuthorizationType(authorizationType);
                         Intent intent= new Intent(getApplicationContext(), EventListActivity.class);
                         startActivity(intent);

@@ -7,15 +7,11 @@ import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.util.Log;
-import android.widget.Toast;
 import com.globalgrupp.greenlight.greenlightclient.controller.EventListActivity;
-import com.globalgrupp.greenlight.greenlightclient.controller.MainActivity;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 import java.io.*;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
 
 /**
@@ -63,7 +59,6 @@ public class GCMRegistrationHelper {
         int currentVersion = getAppVersion(context);
         if (registeredVersion != currentVersion) {
             Log.i(TAG, "App version changed.");
-            //GCMRegistrationHelper
             GCMRegistrationHelper.registerInBackground(context);
             return "";
         }
@@ -100,13 +95,12 @@ public class GCMRegistrationHelper {
 
                     storeRegistrationId(params[0], regId);
 
-                         final SharedPreferences prefs = params[0].getSharedPreferences(
-                                EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);
-                        int appVersion = getAppVersion(params[0]);
-                        Log.i(TAG, "Saving regId on app version " + appVersion);
-                        SharedPreferences.Editor editor = prefs.edit();
-                        editor.putBoolean("IS_PUSH_ID_SENDED",sendRegId(regId));
-                        editor.commit();
+                    final SharedPreferences prefs = params[0].getSharedPreferences(EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);
+                    int appVersion = getAppVersion(params[0]);
+                    Log.i(TAG, "Saving regId on app version " + appVersion);
+                    SharedPreferences.Editor editor = prefs.edit();
+                    editor.putBoolean("IS_PUSH_ID_SENDED",sendRegId(regId));
+                    editor.commit();
 
 
 

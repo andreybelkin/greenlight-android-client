@@ -41,17 +41,29 @@
                 android:id="@+id/btnTwitterLogin"
                 android:layout_gravity="center" android:src="@drawable/icon_login_twitter" android:background="@null"/>
         <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Авторизация GL"
+                android:id="@+id/btnAuthorizeGl"
+                android:src="@drawable/icon_login_greenlight"
+                android:layout_gravity="center"
+                android:background="@null"
+                android:layout_marginTop="10dp"/>
+        <ImageButton
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Без авторизации"
                 android:id="@+id/btnNotAuthorized"
-                android:layout_gravity="center" android:src="@drawable/not_authorized" android:background="@null"
-                android:layout_marginTop="10dp"/>
-        <Button
-                android:layout_width="wrap_content"
+                android:layout_gravity="center"
+                android:src="@drawable/not_authorized"
+                android:background="@null"
+                android:layout_marginTop="10dp" />
+
+        <Button android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Авторизация GL"
-                android:id="@+id/btnAuthorizeGl"/>
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp" android:text="регистрация" android:id="@+id/btnGLreg"/>
+
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
