@@ -13,17 +13,14 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.*;
 import android.widget.*;
+import com.facebook.login.LoginManager;
 import com.globalgrupp.greenlight.greenlightclient.R;
 import com.globalgrupp.greenlight.greenlightclient.classes.*;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.places.Places;
 import com.vk.sdk.VKAccessToken;
 import com.vk.sdk.VKCallback;
 import com.vk.sdk.VKSdk;
@@ -100,7 +97,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
 
     public void initChannels() {
         try {
-            String url = "http://192.168.1.33:8080/channel/getBaseChannels";
+            String url = "http://192.168.1.38:8080/channel/getBaseChannels";
             List<Channel> channels = new AsyncTask<String, Void, List<Channel>>() {
                 @Override
                 protected List<Channel> doInBackground(String... params) {
@@ -291,9 +288,9 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
         try {
             GetEventParams params = new GetEventParams();
             if (channelId != null) {
-                params.setURL("http://192.168.1.33:8080/event/getEventsByChannel/" + channelId.toString());
+                params.setURL("http://192.168.1.38:8080/event/getEventsByChannel/" + channelId.toString());
             } else {
-                params.setURL("http://192.168.1.33:8080/event/getNearestEvents");
+                params.setURL("http://192.168.1.38:8080/event/getNearestEvents");
             }
 
             if (eLocation == null) {
@@ -429,7 +426,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                             } else {
                                 File file = null;
                                 try {
-                                    String DownloadUrl = "http://192.168.1.33:8080/utils/getFile/" + events.get(i).getAudioId().toString();
+                                    String DownloadUrl = "http://192.168.1.38:8080/utils/getFile/" + events.get(i).getAudioId().toString();
                                     String fileName = "newEventAudio.3gp";
                                     String root = Environment.getExternalStorageDirectory().getAbsolutePath();
 
@@ -591,6 +588,20 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                 startIntent.putExtra("location", coords);
                 startActivity(startIntent);
             } else if (menuItem.getItemId() == R.id.action_logout) {
+                final SharedPreferences prefs = getApplicationContext().getSharedPreferences(
+                        EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putString("FacebookToken","");
+                editor.putString("VKToken","");
+                editor.putString("TwitterToken","");
+                editor.putString("GreenLightToken","");
+                editor.commit();
+                if (ApplicationSettings.getInstance().getAuthorizationType()==AuthorizationType.FACEBOOK){
+                    LoginManager.getInstance().logOut();
+                } else if (ApplicationSettings.getInstance().getAuthorizationType()==AuthorizationType.VK){
+                    VKSdk.logout();
+                }
+
                 startIntent = new Intent(this, AuthorizationActivity.class);
                 startActivity(startIntent);
             } else if (menuItem.getItemId() == R.id.action_settings) {
@@ -678,7 +689,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
         }
         try {
             GetEventParams params = new GetEventParams();
-            params.setURL("http://192.168.1.33:8080/event/getEvent");
+            params.setURL("http://192.168.1.38:8080/event/getEvent");
             params.setEventId(eventId);
             if (ApplicationSettings.getInstance().getChannelId() != null &&
                     !ApplicationSettings.getInstance().getChannelId().equals(new Long(0)))
@@ -779,7 +790,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                             } else {
                                 File file = null;
                                 try {
-                                    String DownloadUrl = "http://192.168.1.33:8080/utils/getFile/" + events.get(i).getAudioId().toString();
+                                    String DownloadUrl = "http://192.168.1.38:8080/utils/getFile/" + events.get(i).getAudioId().toString();
                                     String fileName = "newEventAudio.3gp";
                                     String root = Environment.getExternalStorageDirectory().getAbsolutePath();
 

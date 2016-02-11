@@ -1,6 +1,8 @@
 package com.globalgrupp.greenlight.greenlightclient.controller;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -39,9 +41,15 @@ public class RegistrationActivity extends ActionBarActivity {
                 String etPwd=((EditText)findViewById(R.id.etPwd)).getText().toString();
                 String etConfirmPwd=((EditText)findViewById(R.id.etConfirmPwd)).getText().toString();
                 String etLogin=((EditText)findViewById(R.id.etLogin)).getText().toString();
-                if (etPwd.equals(etConfirmPwd)){
+                if(etPwd.isEmpty()||etConfirmPwd.isEmpty()||etLogin.isEmpty()){
                     Toast toast = Toast.makeText(getApplicationContext(),
-                            "Пароль не ссовпадает с потдверждением", Toast.LENGTH_LONG);
+                            "Не все поля заполнены", Toast.LENGTH_LONG);
+                    toast.show();
+                    return;
+                }
+                if (!etPwd.equals(etConfirmPwd)){
+                    Toast toast = Toast.makeText(getApplicationContext(),
+                            "Пароль не совпадает с потдверждением", Toast.LENGTH_LONG);
                     toast.show();
                     return;
                 }
@@ -66,7 +74,7 @@ public class RegistrationActivity extends ActionBarActivity {
                                 msg.put("password",params[0].getPassword());
                                 msg.put("newUser",params[0].isNewUser());
 
-                                URL url = new URL("http://192.168.1.33:8080/utils/authorize");
+                                URL url = new URL("http://192.168.1.38:8080/utils/authorize");
 
                                 // Send POST data request
 
@@ -141,6 +149,11 @@ public class RegistrationActivity extends ActionBarActivity {
                         }
                     }.execute(userCredentials).get();
                     if (result){
+                        final SharedPreferences prefs = getApplicationContext().getSharedPreferences(
+                                EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = prefs.edit();
+                        editor.putString("FacebookToken",userCredentials.getLogin());
+                        editor.commit();
                         Intent intent=new Intent(getApplicationContext(),AuthorizationActivity.class);
                         startActivity(intent);
                     }

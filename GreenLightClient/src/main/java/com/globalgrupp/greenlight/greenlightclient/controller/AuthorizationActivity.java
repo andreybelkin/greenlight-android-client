@@ -20,10 +20,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.*;
-import com.facebook.CallbackManager;
-import com.facebook.FacebookCallback;
-import com.facebook.FacebookException;
-import com.facebook.FacebookSdk;
+import com.facebook.*;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
@@ -38,7 +35,11 @@ import com.google.android.gms.location.LocationServices;
 import com.vk.sdk.VKAccessToken;
 import com.vk.sdk.VKCallback;
 import com.vk.sdk.VKSdk;
+import com.vk.sdk.api.VKApi;
 import com.vk.sdk.api.VKError;
+import com.vk.sdk.api.VKRequest;
+import com.vk.sdk.api.VKResponse;
+import org.json.JSONException;
 import org.json.JSONObject;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
@@ -105,9 +106,30 @@ public class AuthorizationActivity extends ActionBarActivity implements View.OnC
                     SharedPreferences.Editor editor = prefs.edit();
                     editor.putString("FacebookToken",loginResult.getAccessToken().getToken());
                     editor.commit();
-                    ApplicationSettings.getInstance().setAuthorizationType(authorizationType);
-                    Intent intent= new Intent(getApplicationContext(), EventListActivity.class);
-                    startActivity(intent);
+                    try{
+                        GraphRequest request=GraphRequest.newMeRequest(loginResult.getAccessToken(), new GraphRequest.GraphJSONObjectCallback() {
+                            @Override
+                            public void onCompleted(JSONObject jsonObject, GraphResponse graphResponse) {
+                                try {
+                                    String userName=jsonObject.getString("name");
+                                    SharedPreferences.Editor editor = prefs.edit();
+                                    editor.putString("FacebookUserName",userName);
+                                    editor.commit();
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
+                        Bundle parameters = new Bundle();
+                        parameters.putString("fields", "id,name,email");
+                        request.setParameters(parameters);
+                        request.executeAsync();
+                        ApplicationSettings.getInstance().setAuthorizationType(authorizationType);
+                        Intent intent= new Intent(getApplicationContext(), EventListActivity.class);
+                        startActivity(intent);
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
                 }
 
                 @Override
@@ -289,7 +311,7 @@ public class AuthorizationActivity extends ActionBarActivity implements View.OnC
                                         msg.put("password",params[0].getPassword());
                                         msg.put("newUser",params[0].isNewUser());
 
-                                        URL url = new URL("http://192.168.1.33:8080/utils/authorize");
+                                        URL url = new URL("http://192.168.1.38:8080/utils/authorize");
 
                                         // Send POST data request
 
@@ -422,11 +444,13 @@ public class AuthorizationActivity extends ActionBarActivity implements View.OnC
                     }
                 }.execute(verifier).get();
                 twitter.setOAuthAccessToken(mAccessToken);
+                String userName=twitter.getAccountSettings().getScreenName();
                 ApplicationSettings.getInstance().setTwitterAccessToken(mAccessToken);
                 final SharedPreferences prefs = getApplicationContext().getSharedPreferences(
                         EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = prefs.edit();
                 editor.putString("TwitterToken",mAccessToken.getToken());
+                editor.putString("TwitterUserName",userName);
                 editor.commit();
                 // Add code here to save the OAuth AccessToken and AccessTokenSecret into  SharedPreferences
             } catch (Exception e) {
@@ -450,6 +474,23 @@ public class AuthorizationActivity extends ActionBarActivity implements View.OnC
                         SharedPreferences.Editor editor = prefs.edit();
                         editor.putString("VKToken",res.accessToken);
                         editor.commit();
+                        VKRequest request = VKApi.users().get();
+                        request.executeWithListener(new VKRequest.VKRequestListener() {
+                            @Override
+                            public void onComplete(VKResponse response) {
+                                super.onComplete(response);
+                                try {
+                                    String firstName= response.json.getJSONArray("response").getJSONObject(0).getString("first_name");
+                                    String lastName=response.json.getJSONArray("response").getJSONObject(0).getString("last_name");
+                                    SharedPreferences.Editor editor = prefs.edit();
+                                    editor.putString("VKUserName",firstName+" "+lastName);
+                                    editor.commit();
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+
+                            }
+                        });
                         ApplicationSettings.getInstance().setAuthorizationType(authorizationType);
                         Intent intent= new Intent(getApplicationContext(), EventListActivity.class);
                         startActivity(intent);

@@ -201,7 +201,7 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
                 videoId=new UploadFileOperation().execute(cep).get();
             }
 
-            String serverURL = "http://192.168.1.33:8080/event/createEvent";//todo config
+            String serverURL = "http://192.168.1.38:8080/event/createEvent";//todo config
             EditText et=(EditText) findViewById(R.id.etEventText);
 
             String registrationId =GCMRegistrationHelper.getRegistrationId(getApplicationContext());

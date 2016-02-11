@@ -27,7 +27,7 @@ public class UploadFileOperation extends AsyncTask<CreateEventParams, Void, Long
         try
         {
 
-            String urlString="http://192.168.1.33:8080/utils/uploadFile";
+            String urlString="http://192.168.1.38:8080/utils/uploadFile";
 
 
 
