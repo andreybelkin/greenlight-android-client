@@ -13,39 +13,69 @@
             <TableRow
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
-                <TextView
+                <LinearLayout
+                        android:orientation="vertical"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textAppearance="?android:attr/textAppearanceMedium"
-                        android:text="Логин"
-                        android:id="@+id/textView7"
-                        android:layout_weight="2"/>
-                <EditText
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:inputType="textPersonName"
-                        android:text=""
-                        android:ems="10"
-                        android:id="@+id/etLogin"
-                        android:layout_weight="1"/>
+                        android:layout_height="match_parent"
+                        android:layout_gravity="bottom">
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:text="Логин:"
+                            android:id="@+id/textView7"
+                            android:minLines="1"
+                            android:maxLines="1"
+                            android:layout_gravity="center_vertical"
+                            android:minWidth="100dp" android:gravity="center_vertical"/>
+                </LinearLayout>
+                <LinearLayout
+                        android:orientation="vertical"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+                    <EditText
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:inputType="textPersonName"
+                            android:text=""
+                            android:ems="10"
+                            android:id="@+id/etLogin"
+                            />
+                </LinearLayout>
             </TableRow>
             <TableRow
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
-                <TextView
+                <LinearLayout
+                        android:orientation="vertical"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textAppearance="?android:attr/textAppearanceMedium"
-                        android:text="Пароль"
-                        android:id="@+id/textView8"
-                        android:layout_weight="1"/>
-                <EditText
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:inputType="textPassword"
-                        android:ems="10"
-                        android:id="@+id/etPass"
-                        android:layout_weight="1"/>
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center_vertical">
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:text="Пароль:"
+                            android:id="@+id/textView8"
+                            android:layout_weight="1"
+                            android:minLines="1"
+                            android:maxLines="1"
+                            android:minWidth="100dp" android:layout_gravity="center_vertical"
+                            android:gravity="center_vertical"/>
+                </LinearLayout>
+                <LinearLayout
+                        android:orientation="vertical"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                >
+                    <EditText
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:inputType="textPassword"
+                            android:ems="10"
+                            android:id="@+id/etPass"
+                            android:layout_weight="1"/>
+                </LinearLayout>
             </TableRow>
             <TableRow
                     android:layout_width="match_parent"
@@ -59,11 +89,35 @@
             <TableRow
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
-                <Button
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Войти"
-                        android:id="@+id/btnLogin"/>
+
+            <LinearLayout android:orientation="horizontal"
+                              android:weightSum="3"
+                          android:layout_height="wrap_content">
+                <LinearLayout android:layout_width="wrap_content"
+
+                        android:layout_gravity="left"
+                              android:layout_height="wrap_content"
+                              >
+                    <Button
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Войти"
+                            android:id="@+id/btnLogin"/>
+                </LinearLayout>
+                <LinearLayout android:layout_width="wrap_content"
+                              android:layout_gravity="right"
+                              android:layout_height="wrap_content"
+                              android:layout_marginLeft="40dp">
+                    <Button
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="регистрация"
+                            android:id="@+id/btnRegist" android:layout_gravity="right" android:maxLines="1"
+                            />
+                </LinearLayout>
+            </LinearLayout>
+
+
             </TableRow>
         </LinearLayout>
     </TableRow>

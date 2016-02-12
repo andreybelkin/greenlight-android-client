@@ -8,6 +8,8 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
@@ -51,7 +53,7 @@ public class GCMNotificationIntentService extends IntentService {
                             "Working... " + (i + 1) + "/5 @ "
                                     + SystemClock.elapsedRealtime());
                     try {
-                        Thread.sleep(5000);
+                        Thread.sleep(1000);
                     } catch (InterruptedException e) {
                     }
                 }
@@ -73,16 +75,20 @@ public class GCMNotificationIntentService extends IntentService {
                 .getSystemService(Context.NOTIFICATION_SERVICE);
         Intent newEventIntent=new Intent(this, EventDetailsActivity.class);
         newEventIntent.putExtra("eventId", id);
+//        newEventIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+//                | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        newEventIntent.setAction(Long.toString(System.currentTimeMillis()));
 
 
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
                 newEventIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
+        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(
                 this).setSmallIcon(R.drawable.ic_launcher)
                 .setContentTitle("Greenlight")
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(msg))
-                .setContentText(msg).setAutoCancel(true);
+                .setContentText(msg).setAutoCancel(true)
+                .setSound(notification);
 
         mBuilder.setContentIntent(contentIntent);
         mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());

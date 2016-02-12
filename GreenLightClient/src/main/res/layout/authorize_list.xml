@@ -23,12 +23,21 @@
                     android:id="@+id/textView2" android:layout_gravity="center_horizontal"
                     android:gravity="center_horizontal"/>
             <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Авторизация GL"
+                    android:id="@+id/btnAuthorizeGl"
+                    android:src="@drawable/icon_login_greenlight"
+                    android:layout_gravity="center"
+                    android:background="@null"
+                    android:layout_marginTop="10dp"/>
+            <ImageButton
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="VK"
                     android:id="@+id/btnVKLogin"
                     android:layout_gravity="center" android:background="@null" android:src="@drawable/icon_login_vk"
-                    android:layout_marginTop="20dp"/>
+                    android:layout_marginTop="10dp"/>
             <ImageButton
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -45,15 +54,6 @@
                     android:id="@+id/btnTwitterLogin"
                     android:layout_gravity="center" android:src="@drawable/icon_login_twitter" android:background="@null"/>
             <ImageButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Авторизация GL"
-                    android:id="@+id/btnAuthorizeGl"
-                    android:src="@drawable/icon_login_greenlight"
-                    android:layout_gravity="center"
-                    android:background="@null"
-                    android:layout_marginTop="10dp"/>
-            <ImageButton
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Без авторизации"
@@ -66,7 +66,8 @@
             <Button android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:layout_marginTop="10dp" android:text="регистрация" android:id="@+id/btnGLreg"/>
+                    android:layout_marginTop="10dp" android:text="регистрация" android:id="@+id/btnGLreg"
+                    android:visibility="gone"/>
 
             <TextView
                     android:layout_width="wrap_content"

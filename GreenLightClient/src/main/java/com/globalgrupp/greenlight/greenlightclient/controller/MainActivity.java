@@ -14,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import com.facebook.login.LoginManager;
 import com.globalgrupp.greenlight.greenlightclient.R;
 import com.globalgrupp.greenlight.greenlightclient.classes.*;
 import com.google.android.gms.common.ConnectionResult;
@@ -27,6 +28,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.vk.sdk.VKSdk;
 
 import java.util.HashMap;
 import java.util.List;
@@ -89,12 +91,12 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
                 mMap.animateCamera(cameraUpdate);
 
                 GetEventParams params=new GetEventParams();
-                //params.setURL("http://192.168.1.38:8080/event/getNearestEvents");
+                //params.setURL("http://188.227.16.166:8080/event/getNearestEvents");
                 Long channelId= ApplicationSettings.getInstance().getChannelId();
                 if (channelId!=null && !channelId.equals(new Long(0))){
-                    params.setURL("http://192.168.1.38:8080/event/getEventsByChannel/"+channelId.toString());
+                    params.setURL("http://188.227.16.166:8080/event/getEventsByChannel/"+channelId.toString());
                 }else{
-                    params.setURL("http://192.168.1.38:8080/event/getNearestEvents");
+                    params.setURL("http://188.227.16.166:8080/event/getNearestEvents");
                 }
                 SharedPreferences prefs=getApplicationContext().getSharedPreferences(
                         EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);
@@ -142,6 +144,12 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
         eventListMenuItem.setOnMenuItemClickListener(this);
         MenuItem mapMenuItem=menu.findItem(R.id.action_map);
         mapMenuItem.setVisible(false);
+        MenuItem settingMenuItem=menu.findItem(R.id.action_settings);
+        settingMenuItem.setOnMenuItemClickListener(this);
+        MenuItem logoutMenuItem=menu.findItem(R.id.action_logout);
+        logoutMenuItem.setOnMenuItemClickListener(this);
+
+
         return true;
     }
 
@@ -216,6 +224,30 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
             }else if(item.getItemId()==R.id.action_event_list){
                 startIntent= new Intent(this, EventListActivity.class);
                 startIntent.putExtra("location", coords);
+                startActivity(startIntent);
+            } else if (item.getItemId()==R.id.action_logout){
+                final SharedPreferences prefs = getApplicationContext().getSharedPreferences(
+                        EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putString("FacebookToken","");
+                editor.putString("VKToken","");
+                editor.putString("TwitterToken","");
+                editor.putString("GreenLightToken","");
+                editor.commit();
+                if (ApplicationSettings.getInstance().getAuthorizationType()==AuthorizationType.FACEBOOK){
+                    LoginManager.getInstance().logOut();
+                } else if (ApplicationSettings.getInstance().getAuthorizationType()==AuthorizationType.VK){
+                    VKSdk.logout();
+                } else if (ApplicationSettings.getInstance().getAuthorizationType()==AuthorizationType.TWITTER){
+//                    Twitter twitter=new TwitterFactory().getInstance();
+//                    twitter.setOAuthAccessToken(ApplicationSettings.getInstance().getTwitterAccessToken());
+//                    twitter.shutdown();
+                }
+                ApplicationSettings.getInstance().setAuthorizationType(AuthorizationType.NONE);
+                startIntent = new Intent(this, AuthorizationActivity.class);
+                startActivity(startIntent);
+            } else if( item.getItemId()==R.id.action_settings){
+                startIntent = new Intent(this, SettingsActivity.class);
                 startActivity(startIntent);
             }
 

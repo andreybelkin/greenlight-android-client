@@ -97,7 +97,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
 
     public void initChannels() {
         try {
-            String url = "http://192.168.1.38:8080/channel/getBaseChannels";
+            String url = "http://188.227.16.166:8080/channel/getBaseChannels";
             List<Channel> channels = new AsyncTask<String, Void, List<Channel>>() {
                 @Override
                 protected List<Channel> doInBackground(String... params) {
@@ -288,9 +288,9 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
         try {
             GetEventParams params = new GetEventParams();
             if (channelId != null) {
-                params.setURL("http://192.168.1.38:8080/event/getEventsByChannel/" + channelId.toString());
+                params.setURL("http://188.227.16.166:8080/event/getEventsByChannel/" + channelId.toString());
             } else {
-                params.setURL("http://192.168.1.38:8080/event/getNearestEvents");
+                params.setURL("http://188.227.16.166:8080/event/getNearestEvents");
             }
 
             if (eLocation == null) {
@@ -421,8 +421,8 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                     List<Event> events = lists[0];
                     List<Long> oldId = ApplicationSettings.getInstance().getOldEventsId();
                     for (int i = events.size() - 1; i >= 0; i--) {
-//                        if (!oldId.contains(events.get(i).getId())) {
-                        if (true) {
+                        if (!oldId.contains(events.get(i).getId())) {
+//                        if (true) {
                             oldId.add(events.get(i).getId());
                             ApplicationSettings.getInstance().setOldEventsId(oldId);
                             String listString = "";
@@ -431,9 +431,9 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                             }
                             SharedPreferences prefs = getApplicationContext().getSharedPreferences(
                                     EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);
-                            //SharedPreferences.Editor editor = prefs.edit();
-                            //editor.putString("oldEventsId", listString);
-                            //editor.commit();
+                            SharedPreferences.Editor editor = prefs.edit();
+                            editor.putString("oldEventsId", listString);
+                            editor.commit();
 
 
                             if (events.get(i).getAudioId() == null || events.get(i).getAudioId().equals(new Long(0))) {
@@ -443,7 +443,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                             } else {
                                 File file = null;
                                 try {
-                                    String DownloadUrl = "http://192.168.1.38:8080/utils/getFile/" + events.get(i).getAudioId().toString();
+                                    String DownloadUrl = "http://188.227.16.166:8080/utils/getFile/" + events.get(i).getAudioId().toString();
                                     String fileName = "newEventAudio.3gp";
                                     String root = Environment.getExternalStorageDirectory().getAbsolutePath();
 
@@ -489,8 +489,13 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                                     }
                                     isplayed = false;
                                     if (isCancelled()) {
-                                        mPlayer.stop();
-                                        mPlayer.release();
+                                        try{
+                                            mPlayer.stop();
+                                            mPlayer.release();
+                                        }catch (Exception e){
+                                            e.printStackTrace();
+                                        }
+
                                         break;
                                     }
 
@@ -502,9 +507,14 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                         }
                     }
                     if (mPlayer!=null){
-                        mPlayer.stop();
-                        mPlayer.release();
-                        mPlayer=null;
+                        try{
+                            mPlayer.stop();
+                            mPlayer.release();
+                            mPlayer=null;
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }
+
                     }
 
                     return null;
@@ -561,13 +571,13 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_activity_main, menu);
-//        if (ApplicationSettings.getInstance().getAuthorizationType()!=AuthorizationType.NONE){
-        MenuItem editMenuItem = menu.findItem(R.id.action_new_event);
-        editMenuItem.setOnMenuItemClickListener(this);
-//        }else {
-//            MenuItem editMenuItem = menu.findItem(R.id.action_new_event);
-//            editMenuItem.setVisible(false);
-//        }
+        if (ApplicationSettings.getInstance().getAuthorizationType()!=AuthorizationType.NONE){
+            MenuItem editMenuItem = menu.findItem(R.id.action_new_event);
+            editMenuItem.setOnMenuItemClickListener(this);
+        }else {
+            MenuItem editMenuItem = menu.findItem(R.id.action_new_event);
+            editMenuItem.setVisible(false);
+        }
 
         MenuItem eventListMenuItem = menu.findItem(R.id.action_event_list);
         eventListMenuItem.setOnMenuItemClickListener(this);
@@ -578,7 +588,6 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
         logoutItem.setOnMenuItemClickListener(this);
         MenuItem settingItem = menu.findItem(R.id.action_settings);
         settingItem.setOnMenuItemClickListener(this);
-
         return true;
     }
 
@@ -622,7 +631,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
 //                    twitter.setOAuthAccessToken(ApplicationSettings.getInstance().getTwitterAccessToken());
 //                    twitter.shutdown();
                 }
-
+                ApplicationSettings.getInstance().setAuthorizationType(AuthorizationType.NONE);
                 startIntent = new Intent(this, AuthorizationActivity.class);
                 startActivity(startIntent);
             } else if (menuItem.getItemId() == R.id.action_settings) {
@@ -708,9 +717,10 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
         if (alreadyLoaded) {
             return;
         }
+
         try {
             GetEventParams params = new GetEventParams();
-            params.setURL("http://192.168.1.38:8080/event/getEvent");
+            params.setURL("http://188.227.16.166:8080/event/getEvent");
             params.setEventId(eventId);
             if (ApplicationSettings.getInstance().getChannelId() != null &&
                     !ApplicationSettings.getInstance().getChannelId().equals(new Long(0)))
@@ -720,7 +730,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
             if (events.size() == 0) return;
             final Event newEvent = events.get(0);
             //newEvent.setMessage("!!!!!!!!!!");
-
+            allEvents.add(newEvent);
             LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.lv_events_item, null);
             final View convertView = layout;
@@ -781,7 +791,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
             LinearLayout llevents = (LinearLayout) findViewById(R.id.llEvents);
             llevents.addView(convertView, 0);
 
-            newEventAsyncTask = new AsyncTask<List<Event>, Void, Void>() {
+            AsyncTask<List<Event>, Void, Void> newEventAsyncTask = new AsyncTask<List<Event>, Void, Void>() {
                 private boolean isplayed = false;
                 MediaPlayer mPlayer;
 
@@ -811,7 +821,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                             } else {
                                 File file = null;
                                 try {
-                                    String DownloadUrl = "http://192.168.1.38:8080/utils/getFile/" + events.get(i).getAudioId().toString();
+                                    String DownloadUrl = "http://188.227.16.166:8080/utils/getFile/" + events.get(i).getAudioId().toString();
                                     String fileName = "newEventAudio.3gp";
                                     String root = Environment.getExternalStorageDirectory().getAbsolutePath();
 
@@ -857,9 +867,14 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                                     }
                                     isplayed = false;
                                     if (isCancelled()) {
-                                        mPlayer.stop();
-                                        mPlayer.release();
+                                        try{
+                                            mPlayer.stop();
+                                            mPlayer.release();
+                                        }catch (Exception e){
+                                            e.printStackTrace();
+                                        }
                                         break;
+
                                     }
 
                                 } catch (Exception e) {
@@ -891,7 +906,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
 
                     super.onCancelled(aVoid);
                 }
-            };//.execute(events);
+            }.execute(events);
 
         } catch (Exception e) {
             e.printStackTrace();

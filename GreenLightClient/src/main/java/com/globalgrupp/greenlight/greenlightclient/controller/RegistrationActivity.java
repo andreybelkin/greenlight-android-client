@@ -33,7 +33,7 @@ public class RegistrationActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_registration);
-
+        findViewById(R.id.ivDropDown).setVisibility(View.INVISIBLE);
         Button btnRegister=(Button)findViewById(R.id.btnSend);
         btnRegister.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -74,7 +74,7 @@ public class RegistrationActivity extends ActionBarActivity {
                                 msg.put("password",params[0].getPassword());
                                 msg.put("newUser",params[0].isNewUser());
 
-                                URL url = new URL("http://192.168.1.38:8080/utils/authorize");
+                                URL url = new URL("http://188.227.16.166:8080/utils/authorize");
 
                                 // Send POST data request
 

@@ -20,6 +20,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import com.globalgrupp.greenlight.greenlightclient.R;
@@ -72,7 +73,9 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
         super.onCreate(savedInstanceState);
         Thread.setDefaultUncaughtExceptionHandler(new TopExceptionHandler(this));
         try{
+
             setContentView(R.layout.createevent);
+//            requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
             if (getIntent().hasExtra("location")){
                 eLocation=(SimpleGeoCoords) getIntent().getExtras().getSerializable("location");
             }
@@ -179,6 +182,9 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
     boolean mStartPlaying = true;
     public void sendEvent(){
         try{
+            Button btnSend=(Button)findViewById(R.id.btnCreateEvent);
+            btnSend.setEnabled(false);
+//            setProgressBarIndeterminateVisibility(true);
             Long audioId=new Long(0);
             if (mFileName!=null){
                 CreateEventParams cep=new CreateEventParams();
@@ -202,7 +208,7 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
                 videoId=new UploadFileOperation().execute(cep).get();
             }
 
-            String serverURL = "http://192.168.1.38:8080/event/createEvent";//todo config
+            String serverURL = "http://188.227.16.166:8080/event/createEvent";//todo config
             EditText et=(EditText) findViewById(R.id.etEventText);
 
             String registrationId =GCMRegistrationHelper.getRegistrationId(getApplicationContext());
@@ -244,15 +250,20 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
             if (res){
                 finish();
             } else{
+//                setProgressBarIndeterminateVisibility(false);
                 Toast toast = Toast.makeText(getApplicationContext(),
                         "Проблемы с соединением.\n Повторите попытку позже.", Toast.LENGTH_LONG);
                 toast.show();
+                btnSend.setEnabled(true);
             }
         }catch (Exception e){
             e.printStackTrace();
+//            setProgressBarIndeterminateVisibility(false);
             Toast toast = Toast.makeText(getApplicationContext(),
                     "Проблемы с соединением.\n Повторите попытку позже.", Toast.LENGTH_LONG);
             toast.show();
+            Button btnSend=(Button)findViewById(R.id.btnCreateEvent);
+            btnSend.setEnabled(true);
         }
     }
 

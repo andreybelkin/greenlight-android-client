@@ -76,12 +76,19 @@ public class AuthorizationActivity extends ActionBarActivity implements View.OnC
 
     private int ll_buttons_height;
 
+    private boolean webViewExpanded=false;
+
     @Override
     public void onBackPressed() {
-        Intent startMain = new Intent(Intent.ACTION_MAIN);
-        startMain.addCategory(Intent.CATEGORY_HOME);
-        startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(startMain);
+        if (webViewExpanded){
+            finish();
+            startActivity(getIntent());
+        }else{
+            Intent startMain = new Intent(Intent.ACTION_MAIN);
+            startMain.addCategory(Intent.CATEGORY_HOME);
+            startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(startMain);
+        }
     }
 
     CallbackManager callbackManager;
@@ -218,7 +225,7 @@ public class AuthorizationActivity extends ActionBarActivity implements View.OnC
             if (view.getId()==R.id.btnVKLogin){
                 authorizationType=AuthorizationType.VK;
                 VKSdk.login(this, "wall");
-            } else if (view.getId()==R.id.btnGLreg){
+            } else if (view.getId()==R.id.btnGLreg||view.getId()==R.id.btnRegist){
                 Intent intent=new Intent(getApplicationContext(),RegistrationActivity.class);
                 startActivity(intent);
             }
@@ -243,9 +250,15 @@ public class AuthorizationActivity extends ActionBarActivity implements View.OnC
                     }
                 }.execute().get();
 
-                LinearLayout ll=(LinearLayout)findViewById(R.id.layout_buttons);
-                ll_buttons_height=ll.getHeight();
-                ll.setLayoutParams(new LinearLayout.LayoutParams(ll.getWidth(),0));
+//                LinearLayout ll=(LinearLayout)findViewById(R.id.layout_buttons);
+//                ll_buttons_height=ll.getHeight();
+//                ll.setLayoutParams(new LinearLayout.LayoutParams(ll.getWidth(),0));
+
+                ScrollView scrollView=(ScrollView)findViewById(R.id.scrollView3);
+                ViewGroup.LayoutParams lpScroll=scrollView.getLayoutParams();
+                lpScroll.height=0;
+                scrollView.setLayoutParams(lpScroll);
+                webViewExpanded=true;
                 WebView mWebView = (WebView)findViewById(R.id.webView);
                 mWebView.setWebViewClient(new WebViewClient(){
                     @Override
@@ -281,6 +294,11 @@ public class AuthorizationActivity extends ActionBarActivity implements View.OnC
                         .inflate(R.layout.login_pass_dialog, null);
                 alertDialog.setView(commentView);
                 alertDialog.setCancelable(true);
+
+                Button btnRegistr=(Button)commentView.findViewById(R.id.btnRegist);
+                btnRegistr.setOnClickListener(this);
+
+
                 Button btnLogin=(Button)commentView.findViewById(R.id.btnLogin);
                 btnLogin.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -309,7 +327,7 @@ public class AuthorizationActivity extends ActionBarActivity implements View.OnC
                                         msg.put("password",params[0].getPassword());
                                         msg.put("newUser",params[0].isNewUser());
 
-                                        URL url = new URL("http://192.168.1.38:8080/utils/authorize");
+                                        URL url = new URL("http://188.227.16.166:8080/utils/authorize");
 
                                         // Send POST data request
 
