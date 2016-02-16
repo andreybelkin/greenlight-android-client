@@ -5,6 +5,8 @@ import android.location.Location;
 import android.media.MediaPlayer;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -13,14 +15,18 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.*;
 import android.widget.*;
 import com.facebook.login.LoginManager;
+import com.globalgrupp.greenlight.greenlightclient.Application;
 import com.globalgrupp.greenlight.greenlightclient.R;
 import com.globalgrupp.greenlight.greenlightclient.classes.*;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
 import com.vk.sdk.VKAccessToken;
 import com.vk.sdk.VKCallback;
 import com.vk.sdk.VKSdk;
@@ -29,12 +35,15 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.*;
+import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -47,10 +56,81 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
     ListView lvEvents;
     String keyToken;
     MediaPlayer mPlayer;
-    EventsAdapter eventsAdapter;
+
     DateFormat df = new SimpleDateFormat("HH:mm");
+    EventsAdapter eventsAdapter;
 
     private AsyncTask<List<Event>, Void, Void> newEventAsyncTask;
+
+
+
+    Thread eventUploader=new Thread(){
+        @Override
+        public void run() {
+
+            ConnectivityManager cm = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo info = cm.getActiveNetworkInfo();
+            if (info==null||!info.isConnected()){
+                return;
+            }
+            SharedPreferences prefs = getApplicationContext().getSharedPreferences(
+                    EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);
+            String queueString = prefs.getString("messageQueue","[]");
+            Gson gson = new Gson();
+            Type listType = new TypeToken<ArrayList<CreateEventParams>>() {
+            }.getType();
+            List<CreateEventParams> queueResults=gson.fromJson(queueString,listType);
+            String oldQueueString = prefs.getString("oldMessageQueue","[]");
+            queueResults.addAll((ArrayList<CreateEventParams>)gson.fromJson(queueString,listType));
+            Iterator<CreateEventParams> iter = queueResults.iterator();
+            while(iter.hasNext()){
+                CreateEventParams res=iter.next();
+                try{
+                    Long audioId=new Long(0);
+                    if (res.getAudioPath()!=null){
+                        CreateEventParams cep=new CreateEventParams();
+                        cep.setURL(res.getAudioPath());
+                        audioId=new UploadFileOperation().execute(cep).get();
+                    }
+                    res.setAudioId(audioId);
+
+
+                    List<Long> photoIds=new ArrayList<Long>();
+                    if (res.getPhotoPathList().size()>0){
+                        for (int i=0;i<res.getPhotoPathList().size();i++){
+                            CreateEventParams cep=new CreateEventParams();
+                            cep.setURL(res.getPhotoPathList().get(i));
+                            Long phId=new UploadFileOperation().execute(cep).get();
+                            photoIds.add(phId);
+                        }
+                    }
+                    res.setPhotoIds(photoIds);
+                    Long videoId=new Long(0);
+                    if (res.getVideoPath()!=null){
+                        CreateEventParams cep=new CreateEventParams();
+                        cep.setURL(res.getVideoPath());
+                        videoId=new UploadFileOperation().execute(cep).get();
+                    }
+                    res.setVideoId(videoId);
+                    Boolean result=new CreateEventOperation().execute(res).get();
+                    if (result){
+                        iter.remove();
+                    }else{
+
+                    }
+
+                }catch (Exception e){
+                    e.printStackTrace();
+                    break; //connection problem again?
+                }
+            }
+            SharedPreferences.Editor prefsEditor = prefs.edit();
+            String json = gson.toJson(queueResults);
+            prefsEditor.putString("oldMessageQueue", json);
+            prefsEditor.commit();
+        }
+    };
+
 
     @Override
     public void onClick(View v) {
@@ -60,8 +140,6 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
             startIntent.putExtra("eventId", event.getId());
             startActivity(startIntent);
         }
-        //startIntent.putExtra("eventId", event.getId());
-        //startActivity(startIntent);
     }
 
     @Override
@@ -87,9 +165,36 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                     scrollView.fullScroll(ScrollView.FOCUS_UP);
                 }
             });
-            //String root = Environment.getExternalStorageDirectory().getAbsolutePath();
-            //File dir = new File(root + "/gl");
-            //deleteFolder(dir);
+
+            if (ApplicationSettings.getInstance().getAuthorizationType()==AuthorizationType.NONE){
+                TableRow trBottomButtons=(TableRow)findViewById(R.id.trBottomButtons);
+                trBottomButtons.setVisibility(View.GONE);
+            } else{
+                ImageButton ibRed=(ImageButton)findViewById(R.id.ibRed);
+                ibRed.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        startNewEventActivity();
+                    }
+                });
+                ImageButton ibYellow=(ImageButton)findViewById(R.id.ibYellow);
+                ibYellow.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        startNewEventActivity();
+                    }
+                });
+                ImageButton ibWhite=(ImageButton)findViewById(R.id.ibWhite);
+                ibWhite.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        startNewEventActivity();
+                    }
+                });
+            }
+            String root = Environment.getExternalStorageDirectory().getAbsolutePath();
+            File dir = new File(root + "/gl");
+            deleteFolder(dir);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -97,7 +202,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
 
     public void initChannels() {
         try {
-            String url = "http://188.227.16.166:8080/channel/getBaseChannels";
+            String url = "http://192.168.1.33:8080/channel/getBaseChannels";
             List<Channel> channels = new AsyncTask<String, Void, List<Channel>>() {
                 @Override
                 protected List<Channel> doInBackground(String... params) {
@@ -212,6 +317,10 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
         }
         getApplicationContext().registerReceiver(mMessageReceiver, new IntentFilter("newEventBroadCast"));
         initChannels();
+        if (eventUploader.getState()== Thread.State.TERMINATED||eventUploader.getState()== Thread.State.NEW){
+            eventUploader.start();
+        }
+
     }
 
     @Override
@@ -288,9 +397,9 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
         try {
             GetEventParams params = new GetEventParams();
             if (channelId != null) {
-                params.setURL("http://188.227.16.166:8080/event/getEventsByChannel/" + channelId.toString());
+                params.setURL("http://192.168.1.33:8080/event/getEventsByChannel/" + channelId.toString());
             } else {
-                params.setURL("http://188.227.16.166:8080/event/getNearestEvents");
+                params.setURL("http://192.168.1.33:8080/event/getNearestEvents");
             }
 
             if (eLocation == null) {
@@ -306,110 +415,118 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                     EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);
             params.setRadius(new Long(prefs.getLong("event_radius", 5)));
 
-            final ArrayList<Event> events = (ArrayList<Event>) new GetEventsOperation().execute(params).get();
+//            final ArrayList<Event> events = (ArrayList<Event>) new GetEventsOperation().execute(params).get();
+
+
+            final ArrayList<Event> events =(ArrayList<Event>) new AsyncTask<GetEventParams, Void, List<Event>>(){
+                @Override
+                protected List<Event> doInBackground(GetEventParams... params) {
+
+                    BufferedReader reader=null;
+                    Log.i("doInBackground service ","doInBackground service ");
+                    // Send data
+                    List<Event> result=new ArrayList<Event>();
+                    try
+                    {
+                        String urlString=params[0].getURL();
+                        // Defined URL  where to send data
+                        JSONObject msg=new JSONObject();
+                        if (params[0].getCurrentCoords()!=null){
+                            msg.put("longitude",params[0].getCurrentCoords().getLongtitude());
+                            msg.put("latitude",params[0].getCurrentCoords().getLatitude());
+                            msg.put("altitude",params[0].getCurrentCoords().getAltitude());
+                            msg.put("radius",params[0].getRadius());
+                        }
+                        if (params[0].getEventId()!=null){
+                            msg.put("eventId",params[0].getEventId());
+                            if (params[0].getChannelId()!=null && !params[0].getChannelId().equals(new Long(0))){
+                                msg.put("channelId",params[0].getChannelId());
+                            }
+
+                        }
+
+                        URL url = new URL(urlString);
+
+                        // Send POST data request
+
+                        HttpURLConnection conn =(HttpURLConnection) url.openConnection();
+                        conn.setDoOutput(true);
+                        conn.setDoInput(true);
+                        conn.setRequestMethod("POST");
+                        conn.setRequestProperty("User-Agent","Mozilla/5.0");
+                        conn.setRequestProperty("Accept","*/*");
+                        conn.setRequestProperty("Content-Type","application/json");
+                        conn.setRequestProperty("charset", "utf-8");
+                        conn.setConnectTimeout(20000);
+                        conn.setReadTimeout(20000);
+
+                        DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
+                        String str = msg.toString();
+                        byte[] data=str.getBytes("UTF-8");
+                        wr.write(data);
+                        wr.flush();
+                        wr.close();
+                        // Get the server response
+                        InputStream is; //todo conn.getResponseCode() for errors
+                        try{
+                            is= conn.getInputStream();
+                        }
+                        catch (Exception e){
+                            e.printStackTrace();
+                            is=conn.getErrorStream();
+                        }
+                        reader = new BufferedReader(new InputStreamReader(is));
+                        StringBuilder sb = new StringBuilder();
+                        String line = null;
+
+                        // Read Server Response
+                        while((line = reader.readLine()) != null)
+                        {
+                            // Append server response in string
+                            sb.append(line + "\n");
+                        }
+
+                        JSONArray jsonResponseArray=new JSONArray(sb.toString());
+                        GsonBuilder builder=new GsonBuilder();
+                        builder.registerTypeAdapter(Date.class, new JsonDeserializer<Date>() {
+                            public Date deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+
+                                return new Date(json.getAsJsonPrimitive().getAsLong());
+                            }
+                        });
+                        Gson gson = builder.create();
+                        List<Event> queueResults=new ArrayList<Event>();
+                        Type listType = new TypeToken<ArrayList<Event>>() {
+                        }.getType();
+                        queueResults=gson.fromJson(sb.toString(),listType);
+                        result=queueResults;
+                    }
+                    catch(Exception ex)
+                    {
+                        Log.d(ex.getMessage(),ex.getMessage());
+                        ex.printStackTrace();
+                    }
+                    finally
+                    {
+                        try
+                        {
+                            reader.close();
+                        }
+                        catch(Exception ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                    return result;
+                }
+            }.execute(params).get();
+
+
+
             allEvents=events;
-            //if (events.size()==0){return;}
-//            lvEvents = (ListView) findViewById(R.id.listViewEvents);
-            LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            final LinearLayout llevents = (LinearLayout) findViewById(R.id.llEvents);
-            if (llevents.getChildCount() > 0) {
-                llevents.removeAllViews();
-            }
 
-            for (int i = 0; i < events.size(); i++) {
-                final Event eventItem = events.get(i);
-                LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.lv_events_item, null);
-                final View convertView = layout;
-                ((TextView) convertView.findViewById(R.id.tvEventsTitle)).setText(eventItem.getMessage());
-                ((TextView) convertView.findViewById(R.id.tvEventsDate)).setText(df.format(eventItem.getCreateDate()));
-                ((TextView) convertView.findViewById(R.id.tvEventsStreet)).setText(eventItem.getStreetName());
-
-                if (eventItem.getUserName()!=null && !eventItem.getUserName().isEmpty()){
-                    ((TextView)convertView.findViewById(R.id.tvUserName)).setText(eventItem.getUserName());
-                }
-
-                if (eventItem.getSocialType()!=null){
-                    if (eventItem.getSocialType().equals(new Long(1))){
-                        ((ImageView)convertView.findViewById(R.id.ivCreateIcon)).setImageResource(R.drawable.icon_vk_event);
-                    } else if (eventItem.getSocialType().equals(new Long(2))){
-                        ((ImageView)convertView.findViewById(R.id.ivCreateIcon)).setImageResource(R.drawable.icon_facebook_event);
-                    } else if (eventItem.getSocialType().equals(new Long(3))){
-                        ((ImageView)convertView.findViewById(R.id.ivCreateIcon)).setImageResource(R.drawable.icon_twitter_event);
-                    } else if (eventItem.getSocialType().equals(new Long(4))){
-                        ((ImageView)convertView.findViewById(R.id.ivCreateIcon)).setImageResource(R.drawable.icon_greenlight_event);
-                    }
-                }
-
-                if (eventItem.getAudioId() == null || eventItem.getAudioId().equals(new Long(0))) {
-                    convertView.findViewById(R.id.ivHasAudio).setVisibility(View.GONE);
-                    ViewGroup.LayoutParams qwe = convertView.findViewById(R.id.ivHasAudio).getLayoutParams();
-                    qwe.width = 0;
-                    convertView.findViewById(R.id.ivHasAudio).setLayoutParams(qwe);
-                } else {
-
-                }
-                if (eventItem.getPhotoIds() == null || eventItem.getPhotoIds().size() == 0) {
-                    convertView.findViewById(R.id.ivHasPhoto).setVisibility(View.GONE);
-                    ViewGroup.LayoutParams qwe = convertView.findViewById(R.id.ivHasPhoto).getLayoutParams();
-                    qwe.width = 0;
-                    convertView.findViewById(R.id.ivHasPhoto).setLayoutParams(qwe);
-                } else {
-
-                }
-                if (eventItem.getVideoId() == null || eventItem.getVideoId().equals(new Long(0))) {
-                    convertView.findViewById(R.id.ivHasVideo).setVisibility(View.GONE);
-                    ViewGroup.LayoutParams qwe = convertView.findViewById(R.id.ivHasVideo).getLayoutParams();
-                    qwe.width = 0;
-                    convertView.findViewById(R.id.ivHasVideo).setLayoutParams(qwe);
-                } else {
-
-                }
-
-                convertView.setOnClickListener(this);
-                convertView.setTag(eventItem);
-
-                ImageButton ibComment = (ImageButton) convertView.findViewById(R.id.ibComment);
-                ibComment.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Intent startIntent = new Intent(getApplicationContext(), EventDetailsActivity.class);
-                        startIntent.putExtra("eventId", eventItem.getId());
-                        startIntent.putExtra("openComment", true);
-                        startActivity(startIntent);
-                    }
-                });
-
-                ImageButton ibShare = (ImageButton) convertView.findViewById(R.id.ibShare);
-                ibShare.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Intent startIntent = new Intent(getApplicationContext(), EventDetailsActivity.class);
-                        startIntent.putExtra("eventId", eventItem.getId());
-                        startIntent.putExtra("openShare", true);
-                        startActivity(startIntent);
-                    }
-                });
-
-                ImageButton ibMap = (ImageButton) convertView.findViewById(R.id.ibMap);
-                ibMap.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Intent startIntent = new Intent(getApplicationContext(), MainActivity.class);
-                        SimpleGeoCoords geoCoords = new SimpleGeoCoords(eventItem.getLongitude(), eventItem.getLatitude(), eventItem.getAltitude());
-                        startIntent.putExtra("eventCoords", geoCoords);
-                        startActivity(startIntent);
-                    }
-                });
-
-                if (ApplicationSettings.getInstance().getAuthorizationType() == AuthorizationType.NONE) {
-                    ibShare.setImageResource(R.mipmap.icon_share_grey);
-                    ibShare.setEnabled(false);
-                    //ibShare.setVisibility(View.INVISIBLE);
-                }
-
-                llevents.addView(convertView);
-
-            }
+            eventsAdapter=new EventsAdapter(getApplicationContext(),events);
+            ListView listView=(ListView)findViewById(R.id.listViewEvents);
+            listView.setAdapter(eventsAdapter);
 
             newEventAsyncTask = new AsyncTask<List<Event>, Void, Void>() {
                 private boolean isplayed = false;
@@ -443,7 +560,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                             } else {
                                 File file = null;
                                 try {
-                                    String DownloadUrl = "http://188.227.16.166:8080/utils/getFile/" + events.get(i).getAudioId().toString();
+                                    String DownloadUrl = "http://192.168.1.33:8080/utils/getFile/" + events.get(i).getAudioId().toString();
                                     String fileName = "newEventAudio.3gp";
                                     String root = Environment.getExternalStorageDirectory().getAbsolutePath();
 
@@ -539,12 +656,17 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
 
                     super.onCancelled(aVoid);
                 }
-            }.execute(events);
+            }.execute(allEvents);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
+
+
+
+
 
 
     @Override
@@ -591,17 +713,28 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
         return true;
     }
 
+
+    private void startNewEventActivity(){
+        try{
+            Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+                    ApplicationSettings.getInstance().getmGoogleApiClient());
+            SimpleGeoCoords coords = new SimpleGeoCoords(mLastLocation.getLongitude(), mLastLocation.getLatitude(), mLastLocation.getAltitude());
+            Intent startIntent = new Intent(this, NewEventActivity.class);
+            startIntent.putExtra("location", coords);
+            startActivityForResult(startIntent, 1);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+    }
+
+
     @Override
     public boolean onMenuItemClick(MenuItem menuItem) {
         try {
             Intent startIntent;
             if (menuItem.getItemId() == R.id.action_new_event) {
-                Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
-                        ApplicationSettings.getInstance().getmGoogleApiClient());
-                SimpleGeoCoords coords = new SimpleGeoCoords(mLastLocation.getLongitude(), mLastLocation.getLatitude(), mLastLocation.getAltitude());
-                startIntent = new Intent(this, NewEventActivity.class);
-                startIntent.putExtra("location", coords);
-                startActivityForResult(startIntent, 1);
+                startNewEventActivity();
             } else if (menuItem.getItemId() == R.id.action_event_list) {
                 startIntent = new Intent(this, EventListActivity.class);
 //                startIntent.putExtra("location", coords);
@@ -708,19 +841,16 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
 
     private void addEventToList(final Long eventId) {
 
-        boolean alreadyLoaded = false;
         for (int i = 0; i < allEvents.size(); i++) {
             if (eventId.equals(allEvents.get(i).getId())) {
-                alreadyLoaded = true;
+                return;
             }
         }
-        if (alreadyLoaded) {
-            return;
-        }
+
 
         try {
             GetEventParams params = new GetEventParams();
-            params.setURL("http://188.227.16.166:8080/event/getEvent");
+            params.setURL("http://192.168.1.33:8080/event/getEvent");
             params.setEventId(eventId);
             if (ApplicationSettings.getInstance().getChannelId() != null &&
                     !ApplicationSettings.getInstance().getChannelId().equals(new Long(0)))
@@ -729,69 +859,16 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
             List<Event> events = new GetEventsOperation().execute(params).get();
             if (events.size() == 0) return;
             final Event newEvent = events.get(0);
-            //newEvent.setMessage("!!!!!!!!!!");
+//            newEvent.setMessage("!!!!!!!!!!");
             allEvents.add(newEvent);
-            LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.lv_events_item, null);
-            final View convertView = layout;
-            ((TextView) convertView.findViewById(R.id.tvEventsTitle)).setText(newEvent.getMessage());
-            ((TextView) convertView.findViewById(R.id.tvEventsDate)).setText(df.format(newEvent.getCreateDate()));
-            ((TextView) convertView.findViewById(R.id.tvEventsStreet)).setText(newEvent.getStreetName());
-            if (newEvent.getAudioId() == null || newEvent.getAudioId().equals(new Long(0))) {
-                convertView.findViewById(R.id.ivHasAudio).setVisibility(View.GONE);
+
+            eventsAdapter.insert(newEvent,0);
+
+            if (newEventAsyncTask!=null){
+                newEventAsyncTask.cancel(true);
+                newEventAsyncTask=null;
             }
-            if (newEvent.getPhotoIds() == null || newEvent.getPhotoIds().size() == 0) {
-                convertView.findViewById(R.id.ivHasPhoto).setVisibility(View.GONE);
-            }
-            if (newEvent.getVideoId() == null || newEvent.getVideoId().equals(new Long(0))) {
-                convertView.findViewById(R.id.ivHasVideo).setVisibility(View.GONE);
-            }
-            convertView.setOnClickListener(this);
-            convertView.setTag(newEvent);
-
-            ImageButton ibComment = (ImageButton) convertView.findViewById(R.id.ibComment);
-            ibComment.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent startIntent = new Intent(getApplicationContext(), EventDetailsActivity.class);
-                    startIntent.putExtra("eventId", newEvent.getId());
-                    startIntent.putExtra("openComment", true);
-                    startActivity(startIntent);
-                }
-            });
-
-            ImageButton ibShare = (ImageButton) convertView.findViewById(R.id.ibShare);
-            ibShare.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent startIntent = new Intent(getApplicationContext(), EventDetailsActivity.class);
-                    startIntent.putExtra("eventId", newEvent.getId());
-                    startIntent.putExtra("openShare", true);
-                    startActivity(startIntent);
-                }
-            });
-
-            ImageButton ibMap = (ImageButton) convertView.findViewById(R.id.ibMap);
-            ibMap.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent startIntent = new Intent(getApplicationContext(), MainActivity.class);
-                    SimpleGeoCoords geoCoords = new SimpleGeoCoords(newEvent.getLongitude(), newEvent.getLatitude(), newEvent.getAltitude());
-                    startIntent.putExtra("eventCoords", geoCoords);
-                    startActivity(startIntent);
-                }
-            });
-
-            if (ApplicationSettings.getInstance().getAuthorizationType() == AuthorizationType.NONE) {
-                ibShare.setImageResource(R.mipmap.icon_share_grey);
-                ibShare.setEnabled(false);
-                //ibShare.setVisibility(View.INVISIBLE);
-            }
-
-            LinearLayout llevents = (LinearLayout) findViewById(R.id.llEvents);
-            llevents.addView(convertView, 0);
-
-            AsyncTask<List<Event>, Void, Void> newEventAsyncTask = new AsyncTask<List<Event>, Void, Void>() {
+            newEventAsyncTask = new AsyncTask<List<Event>, Void, Void>() {
                 private boolean isplayed = false;
                 MediaPlayer mPlayer;
 
@@ -821,7 +898,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                             } else {
                                 File file = null;
                                 try {
-                                    String DownloadUrl = "http://188.227.16.166:8080/utils/getFile/" + events.get(i).getAudioId().toString();
+                                    String DownloadUrl = "http://192.168.1.33:8080/utils/getFile/" + events.get(i).getAudioId().toString();
                                     String fileName = "newEventAudio.3gp";
                                     String root = Environment.getExternalStorageDirectory().getAbsolutePath();
 

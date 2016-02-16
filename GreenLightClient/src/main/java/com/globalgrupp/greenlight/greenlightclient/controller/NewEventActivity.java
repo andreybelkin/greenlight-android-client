@@ -26,10 +26,13 @@ import android.widget.*;
 import com.globalgrupp.greenlight.greenlightclient.R;
 import com.globalgrupp.greenlight.greenlightclient.classes.*;
 import com.globalgrupp.greenlight.greenlightclient.utils.GCMRegistrationHelper;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -184,43 +187,48 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
         try{
             Button btnSend=(Button)findViewById(R.id.btnCreateEvent);
             btnSend.setEnabled(false);
-//            setProgressBarIndeterminateVisibility(true);
-            Long audioId=new Long(0);
-            if (mFileName!=null){
-                CreateEventParams cep=new CreateEventParams();
-                cep.setURL(mFileName);
-                audioId=new UploadFileOperation().execute(cep).get();
-            }
-
-            List<Long> photoIds=new ArrayList<Long>();
-            if (photoPathList.size()>0){
-                for (int i=0;i<photoPathList.size();i++){
-                    CreateEventParams cep=new CreateEventParams();
-                    cep.setURL(photoPathList.get(i));
-                    Long phId=new UploadFileOperation().execute(cep).get();
-                    photoIds.add(phId);
-                }
-            }
-            Long videoId=new Long(0);
-            if (mCurrentVideoPath!=null){
-                CreateEventParams cep=new CreateEventParams();
-                cep.setURL(mCurrentVideoPath);
-                videoId=new UploadFileOperation().execute(cep).get();
-            }
-
-            String serverURL = "http://188.227.16.166:8080/event/createEvent";//todo config
+            String serverURL = "http://192.168.1.33:8080/event/createEvent";
             EditText et=(EditText) findViewById(R.id.etEventText);
+            String street=eAddres.getThoroughfare();
+            CreateEventParams params=new CreateEventParams(serverURL,eLocation.getLongtitude(),eLocation.getLatitude(),et.getText().toString());
+
+//            Long audioId=new Long(0);
+//            if (mFileName!=null){
+//                CreateEventParams cep=new CreateEventParams();
+//                cep.setURL(mFileName);
+//                audioId=new UploadFileOperation().execute(cep).get();
+//            }
+            params.setAudioPath(mFileName);
+
+
+//            List<Long> photoIds=new ArrayList<Long>();
+//            if (photoPathList.size()>0){
+//                for (int i=0;i<photoPathList.size();i++){
+//                    CreateEventParams cep=new CreateEventParams();
+//                    cep.setURL(photoPathList.get(i));
+//                    Long phId=new UploadFileOperation().execute(cep).get();
+//                    photoIds.add(phId);
+//                }
+//            }
+            params.setPhotoPathList(photoPathList);
+
+//            Long videoId=new Long(0);
+//            if (mCurrentVideoPath!=null){
+//                CreateEventParams cep=new CreateEventParams();
+//                cep.setURL(mCurrentVideoPath);
+//                videoId=new UploadFileOperation().execute(cep).get();
+//            }
+            params.setVideoPath(mCurrentVideoPath);
 
             String registrationId =GCMRegistrationHelper.getRegistrationId(getApplicationContext());
 
-            String street=eAddres.getThoroughfare();
-            CreateEventParams params=new CreateEventParams(serverURL,eLocation.getLongtitude(),eLocation.getLatitude(),et.getText().toString());
-            params.setAudioId(audioId);
 
-            params.setVideoId(videoId);
+//            params.setAudioId(audioId);
+            params.setCreateDate(new Date());
+//            params.setVideoId(videoId);
             params.setStreetName(street);
             params.setSenderAppId(registrationId);
-            params.setPhotoIds(photoIds);
+//            params.setPhotoIds(photoIds);
 
             final SharedPreferences prefs = getApplicationContext().getSharedPreferences(
                     EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);
@@ -246,19 +254,29 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
 
             }
 
-            Boolean res= new CreateEventOperation().execute(params).get();
-            if (res){
-                finish();
-            } else{
-//                setProgressBarIndeterminateVisibility(false);
-                Toast toast = Toast.makeText(getApplicationContext(),
-                        "Проблемы с соединением.\n Повторите попытку позже.", Toast.LENGTH_LONG);
-                toast.show();
-                btnSend.setEnabled(true);
-            }
+            String queueEventsString = prefs.getString("queueEvents","[]");
+            Gson gson=new Gson();
+            Type listType = new TypeToken<ArrayList<CreateEventParams>>() {
+            }.getType();
+            ArrayList<CreateEventParams> queueEvents=gson.fromJson(queueEventsString,listType);
+            queueEvents.add(params);
+            SharedPreferences.Editor editor=prefs.edit();
+            editor.putString("queueEvents",gson.toJson(queueEvents));
+            editor.commit();
+
+            finish();
+//            Boolean res= new CreateEventOperation().execute(params).get();
+//            if (res){
+//                finish();
+//            } else{
+////                setProgressBarIndeterminateVisibility(false);
+//                Toast toast = Toast.makeText(getApplicationContext(),
+//                        "Проблемы с соединением.\n Повторите попытку позже.", Toast.LENGTH_LONG);
+//                toast.show();
+//                btnSend.setEnabled(true);
+//            }
         }catch (Exception e){
             e.printStackTrace();
-//            setProgressBarIndeterminateVisibility(false);
             Toast toast = Toast.makeText(getApplicationContext(),
                     "Проблемы с соединением.\n Повторите попытку позже.", Toast.LENGTH_LONG);
             toast.show();

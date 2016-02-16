@@ -6,19 +6,45 @@
               android:background="@color/white">
 
     <include layout="@layout/toolbar" />
-    <ScrollView
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:id="@+id/scrollView" android:layout_weight="1.02" android:background="@color/white">
-        <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:id="@+id/llEvents">
+    <!--<ScrollView-->
+            <!--android:layout_width="fill_parent"-->
+            <!--android:layout_height="fill_parent"-->
+            <!--android:id="@+id/scrollView" android:layout_weight="1.02" android:background="@color/white">-->
+        <!--<LinearLayout-->
+                <!--android:orientation="vertical"-->
+                <!--android:layout_width="fill_parent"-->
+                <!--android:layout_height="fill_parent"-->
+                <!--android:id="@+id/llEvents">-->
             <ListView
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
                     android:id="@+id/listViewEvents" android:scrollingCache="false" android:smoothScrollbar="false"/>
-        </LinearLayout>
-    </ScrollView>
+        <!--</LinearLayout>-->
+    <!--</ScrollView>-->
+    <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#3FA43A" android:id="@+id/trBottomButtons">
+        <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/ibRed"
+                android:src="@drawable/icon_red_new_event"
+                android:background="@null"
+                android:layout_weight="1" android:layout_marginTop="10dp" android:layout_marginBottom="10dp"/>
+        <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/ibYellow"
+                android:background="@null"
+                android:src="@drawable/icon_yellow_new_event"
+                android:layout_weight="1" android:layout_marginTop="10dp" android:layout_marginBottom="10dp"/>
+        <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/ibWhite"
+                android:background="@null"
+                android:src="@drawable/icon_white_new_event"
+                android:layout_weight="1" android:layout_marginTop="10dp" android:layout_marginBottom="10dp"/>
+    </TableRow>
 </LinearLayout>

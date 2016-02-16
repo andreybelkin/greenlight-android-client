@@ -24,10 +24,11 @@
 
     <application
             android:name=".Application"
-        android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+            android:allowBackup="true"
+            android:icon="@mipmap/ic_launcher"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme"
+            android:hardwareAccelerated="true">
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
@@ -90,6 +91,11 @@
         <provider android:authorities="com.facebook.app.FacebookContentProvider1505046203136521"
                   android:name="com.facebook.FacebookContentProvider"
                   android:exported="true" />
+        <receiver android:name=".services.NetworkChangeReceiver" >
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+        </receiver>
         <receiver
                 android:name="com.google.android.gms.gcm.GcmReceiver"
                 android:exported="true"

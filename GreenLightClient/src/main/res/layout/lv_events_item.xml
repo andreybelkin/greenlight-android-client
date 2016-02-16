@@ -132,7 +132,7 @@
                     android:layout_marginLeft="5dp">
                 <ImageView
                         android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
+                        android:layout_height="wrap_content"
                         android:id="@+id/ivCreateIcon" android:layout_gravity="center_vertical"
                         android:maxHeight="20dp" android:layout_marginBottom="1dp"/>
                 <TextView
@@ -140,7 +140,7 @@
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceMedium"
                         android:id="@+id/tvUserName" android:layout_marginLeft="1dp" android:textSize="14sp"
-                        android:layout_gravity="center_vertical"/>
+                        android:layout_gravity="center_vertical" android:textColor="#010101"/>
             </LinearLayout>
 
         </TableRow>

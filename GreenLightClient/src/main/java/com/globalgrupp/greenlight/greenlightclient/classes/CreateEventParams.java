@@ -1,6 +1,7 @@
 package com.globalgrupp.greenlight.greenlightclient.classes;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -26,6 +27,46 @@ public class CreateEventParams implements Serializable {
     private Long socialType;
 
     private String userName;
+
+    private List<String> photoPathList;
+
+    private String videoPath;
+
+    private Date createDate;
+
+    public Date getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
+    }
+
+    public String getVideoPath() {
+        return videoPath;
+    }
+
+    public void setVideoPath(String videoPath) {
+        this.videoPath = videoPath;
+    }
+
+    public String getAudioPath() {
+        return audioPath;
+    }
+
+    public void setAudioPath(String audioPath) {
+        this.audioPath = audioPath;
+    }
+
+    public List<String> getPhotoPathList() {
+        return photoPathList;
+    }
+
+    public void setPhotoPathList(List<String> photoPathList) {
+        this.photoPathList = photoPathList;
+    }
+
+    private String audioPath;
 
     public Long getSocialType() {
         return socialType;

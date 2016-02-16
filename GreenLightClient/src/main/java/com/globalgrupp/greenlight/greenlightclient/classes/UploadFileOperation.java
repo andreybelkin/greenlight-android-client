@@ -13,28 +13,13 @@ import java.net.URL;
 public class UploadFileOperation extends AsyncTask<CreateEventParams, Void, Long> {
     @Override
     protected Long doInBackground(CreateEventParams... params) {
-
-        String attachmentName = "audio";
-        String attachmentFileName = "audio.3gp";
-        String crlf = "\r\n";
-        String twoHyphens = "--";
         String boundary =  "*****";
-        /************ Make Post Call To Web Server ***********/
         BufferedReader reader=null;
-        Log.i("doInBackground service ","doInBackground service ");
-        // Send data
 
         try
         {
-
-            String urlString="http://188.227.16.166:8080/utils/uploadFile";
-
-
-
+            String urlString="http://192.168.1.33:8080/utils/uploadFile";
             URL url = new URL(urlString);
-
-            // Send POST data request
-
             HttpURLConnection conn =(HttpURLConnection) url.openConnection();
             conn.setDoOutput(true);
             conn.setDoInput(true);
@@ -98,7 +83,6 @@ public class UploadFileOperation extends AsyncTask<CreateEventParams, Void, Long
                 ex.printStackTrace();
             }
         }
-
         return null;
     }
 }
