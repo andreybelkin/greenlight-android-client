@@ -20,7 +20,6 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import com.globalgrupp.greenlight.greenlightclient.R;
@@ -187,7 +186,7 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
         try{
             Button btnSend=(Button)findViewById(R.id.btnCreateEvent);
             btnSend.setEnabled(false);
-            String serverURL = "http://192.168.1.33:8080/event/createEvent";
+            String serverURL = "http://192.168.1.38:8080/event/createEvent";
             EditText et=(EditText) findViewById(R.id.etEventText);
             String street=eAddres.getThoroughfare();
             CreateEventParams params=new CreateEventParams(serverURL,eLocation.getLongtitude(),eLocation.getLatitude(),et.getText().toString());

@@ -16,10 +16,12 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.*;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.WindowManager;
 import android.widget.*;
 import com.facebook.login.LoginManager;
-import com.globalgrupp.greenlight.greenlightclient.Application;
 import com.globalgrupp.greenlight.greenlightclient.R;
 import com.globalgrupp.greenlight.greenlightclient.classes.*;
 import com.google.android.gms.common.ConnectionResult;
@@ -63,74 +65,85 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
     private AsyncTask<List<Event>, Void, Void> newEventAsyncTask;
 
 
+    private class EventUploaderThread extends Thread {
 
-    Thread eventUploader=new Thread(){
+        public boolean shouldRefresh=false;
+        public boolean shouldContinue=true;
         @Override
         public void run() {
 
-            ConnectivityManager cm = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo info = cm.getActiveNetworkInfo();
-            if (info==null||!info.isConnected()){
-                return;
-            }
-            SharedPreferences prefs = getApplicationContext().getSharedPreferences(
-                    EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);
-            String queueString = prefs.getString("messageQueue","[]");
-            Gson gson = new Gson();
-            Type listType = new TypeToken<ArrayList<CreateEventParams>>() {
-            }.getType();
-            List<CreateEventParams> queueResults=gson.fromJson(queueString,listType);
-            String oldQueueString = prefs.getString("oldMessageQueue","[]");
-            queueResults.addAll((ArrayList<CreateEventParams>)gson.fromJson(queueString,listType));
-            Iterator<CreateEventParams> iter = queueResults.iterator();
-            while(iter.hasNext()){
-                CreateEventParams res=iter.next();
-                try{
-                    Long audioId=new Long(0);
-                    if (res.getAudioPath()!=null){
-                        CreateEventParams cep=new CreateEventParams();
-                        cep.setURL(res.getAudioPath());
-                        audioId=new UploadFileOperation().execute(cep).get();
-                    }
-                    res.setAudioId(audioId);
-
-
-                    List<Long> photoIds=new ArrayList<Long>();
-                    if (res.getPhotoPathList().size()>0){
-                        for (int i=0;i<res.getPhotoPathList().size();i++){
-                            CreateEventParams cep=new CreateEventParams();
-                            cep.setURL(res.getPhotoPathList().get(i));
-                            Long phId=new UploadFileOperation().execute(cep).get();
-                            photoIds.add(phId);
-                        }
-                    }
-                    res.setPhotoIds(photoIds);
-                    Long videoId=new Long(0);
-                    if (res.getVideoPath()!=null){
-                        CreateEventParams cep=new CreateEventParams();
-                        cep.setURL(res.getVideoPath());
-                        videoId=new UploadFileOperation().execute(cep).get();
-                    }
-                    res.setVideoId(videoId);
-                    Boolean result=new CreateEventOperation().execute(res).get();
-                    if (result){
-                        iter.remove();
-                    }else{
-
-                    }
-
-                }catch (Exception e){
-                    e.printStackTrace();
-                    break; //connection problem again?
+            while (shouldContinue){
+                ConnectivityManager cm = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+                NetworkInfo info = cm.getActiveNetworkInfo();
+                if (info==null||!info.isConnected()){
+                    return;
                 }
+                SharedPreferences prefs = getApplicationContext().getSharedPreferences(
+                        EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);
+                String queueString = prefs.getString("queueEvents","[]");
+                SharedPreferences.Editor prefsEditor = prefs.edit();
+                prefsEditor.putString("queueEvents", "[]");
+                prefsEditor.commit();
+
+                Gson gson = new Gson();
+                Type listType = new TypeToken<ArrayList<CreateEventParams>>() {
+                }.getType();
+                List<CreateEventParams> queueResults=gson.fromJson(queueString,listType);
+                String oldQueueString = prefs.getString("oldMessageQueue","[]");
+                queueResults.addAll((ArrayList<CreateEventParams>)gson.fromJson(queueString,listType));
+                Iterator<CreateEventParams> iter = queueResults.iterator();
+                while(iter.hasNext()&&!shouldRefresh){
+                    CreateEventParams res=iter.next();
+                    try{
+                        Long audioId=new Long(0);
+                        if (res.getAudioPath()!=null){
+                            CreateEventParams cep=new CreateEventParams();
+                            cep.setURL(res.getAudioPath());
+                            audioId=new UploadFileOperation().execute(cep).get();
+                        }
+                        res.setAudioId(audioId);
+
+
+                        List<Long> photoIds=new ArrayList<Long>();
+                        if (res.getPhotoPathList().size()>0){
+                            for (int i=0;i<res.getPhotoPathList().size();i++){
+                                CreateEventParams cep=new CreateEventParams();
+                                cep.setURL(res.getPhotoPathList().get(i));
+                                Long phId=new UploadFileOperation().execute(cep).get();
+                                photoIds.add(phId);
+                            }
+                        }
+                        res.setPhotoIds(photoIds);
+                        Long videoId=new Long(0);
+                        if (res.getVideoPath()!=null){
+                            CreateEventParams cep=new CreateEventParams();
+                            cep.setURL(res.getVideoPath());
+                            videoId=new UploadFileOperation().execute(cep).get();
+                        }
+                        res.setVideoId(videoId);
+                        Boolean result=new CreateEventOperation().execute(res).get();
+                        if (result){
+                            iter.remove();
+                        }else{
+
+                        }
+
+                    }catch (Exception e){
+                        e.printStackTrace();
+                        break; //connection problem again?
+                    }
+                }
+                SharedPreferences.Editor prefsEditor2 = prefs.edit();
+                String json = gson.toJson(queueResults);
+                prefsEditor2.putString("oldMessageQueue", json);
+                prefsEditor2.commit();
+                shouldRefresh=false;
             }
-            SharedPreferences.Editor prefsEditor = prefs.edit();
-            String json = gson.toJson(queueResults);
-            prefsEditor.putString("oldMessageQueue", json);
-            prefsEditor.commit();
+
         }
     };
 
+    EventUploaderThread eventUploader=new EventUploaderThread();
 
     @Override
     public void onClick(View v) {
@@ -192,9 +205,10 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                     }
                 });
             }
-            String root = Environment.getExternalStorageDirectory().getAbsolutePath();
-            File dir = new File(root + "/gl");
-            deleteFolder(dir);
+//            String root = Environment.getExternalStorageDirectory().getAbsolutePath();
+//            File dir = new File(root + "/gl");
+//            deleteFolder(dir);
+            eventUploader.start();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -202,7 +216,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
 
     public void initChannels() {
         try {
-            String url = "http://192.168.1.33:8080/channel/getBaseChannels";
+            String url = "http://192.168.1.38:8080/channel/getBaseChannels";
             List<Channel> channels = new AsyncTask<String, Void, List<Channel>>() {
                 @Override
                 protected List<Channel> doInBackground(String... params) {
@@ -317,8 +331,10 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
         }
         getApplicationContext().registerReceiver(mMessageReceiver, new IntentFilter("newEventBroadCast"));
         initChannels();
-        if (eventUploader.getState()== Thread.State.TERMINATED||eventUploader.getState()== Thread.State.NEW){
-            eventUploader.start();
+        try{
+            eventUploader.shouldRefresh=true;
+        }catch (Exception e){
+            e.printStackTrace();
         }
 
     }
@@ -397,9 +413,9 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
         try {
             GetEventParams params = new GetEventParams();
             if (channelId != null) {
-                params.setURL("http://192.168.1.33:8080/event/getEventsByChannel/" + channelId.toString());
+                params.setURL("http://192.168.1.38:8080/event/getEventsByChannel/" + channelId.toString());
             } else {
-                params.setURL("http://192.168.1.33:8080/event/getNearestEvents");
+                params.setURL("http://192.168.1.38:8080/event/getNearestEvents");
             }
 
             if (eLocation == null) {
@@ -560,7 +576,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                             } else {
                                 File file = null;
                                 try {
-                                    String DownloadUrl = "http://192.168.1.33:8080/utils/getFile/" + events.get(i).getAudioId().toString();
+                                    String DownloadUrl = "http://192.168.1.38:8080/utils/getFile/" + events.get(i).getAudioId().toString();
                                     String fileName = "newEventAudio.3gp";
                                     String root = Environment.getExternalStorageDirectory().getAbsolutePath();
 
@@ -850,7 +866,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
 
         try {
             GetEventParams params = new GetEventParams();
-            params.setURL("http://192.168.1.33:8080/event/getEvent");
+            params.setURL("http://192.168.1.38:8080/event/getEvent");
             params.setEventId(eventId);
             if (ApplicationSettings.getInstance().getChannelId() != null &&
                     !ApplicationSettings.getInstance().getChannelId().equals(new Long(0)))
@@ -898,7 +914,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                             } else {
                                 File file = null;
                                 try {
-                                    String DownloadUrl = "http://192.168.1.33:8080/utils/getFile/" + events.get(i).getAudioId().toString();
+                                    String DownloadUrl = "http://192.168.1.38:8080/utils/getFile/" + events.get(i).getAudioId().toString();
                                     String fileName = "newEventAudio.3gp";
                                     String root = Environment.getExternalStorageDirectory().getAbsolutePath();
 

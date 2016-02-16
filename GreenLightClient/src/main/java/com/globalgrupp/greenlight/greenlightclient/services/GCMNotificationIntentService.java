@@ -17,6 +17,7 @@ import android.util.Log;
 
 import com.globalgrupp.greenlight.greenlightclient.R;
 import com.globalgrupp.greenlight.greenlightclient.controller.EventDetailsActivity;
+import com.globalgrupp.greenlight.greenlightclient.utils.GCMRegistrationHelper;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 public class GCMNotificationIntentService extends IntentService {
@@ -61,7 +62,7 @@ public class GCMNotificationIntentService extends IntentService {
 
                 //todo fields from push notification
                 sendNotification("Новое событие: "
-                        + extras.get("message"),new Long(extras.get("eventId").toString()));
+                        + extras.get("message"),new Long(extras.get("eventId").toString()),extras.get("senderId").toString());
                 Log.i(TAG, "Received: " + extras.toString());
             }
         }
@@ -69,30 +70,34 @@ public class GCMNotificationIntentService extends IntentService {
         com.globalgrupp.greenlight.greenlightclient.services.GCMBroadcastReceiver.completeWakefulIntent(intent);
     }
 
-    private void sendNotification(String msg,Long id) {
+    private void sendNotification(String msg,Long id,String senderId) {
         Log.d(TAG, "Preparing to send notification...: " + msg);
-        mNotificationManager = (NotificationManager) this
-                .getSystemService(Context.NOTIFICATION_SERVICE);
-        Intent newEventIntent=new Intent(this, EventDetailsActivity.class);
-        newEventIntent.putExtra("eventId", id);
+        String registrationId =GCMRegistrationHelper.getRegistrationId(getApplicationContext());
+        if (senderId!=registrationId){
+            mNotificationManager = (NotificationManager) this
+                    .getSystemService(Context.NOTIFICATION_SERVICE);
+            Intent newEventIntent=new Intent(this, EventDetailsActivity.class);
+            newEventIntent.putExtra("eventId", id);
 //        newEventIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
 //                | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        newEventIntent.setAction(Long.toString(System.currentTimeMillis()));
+            newEventIntent.setAction(Long.toString(System.currentTimeMillis()));
 
 
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
-                newEventIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(
-                this).setSmallIcon(R.drawable.ic_launcher)
-                .setContentTitle("Greenlight")
-                .setStyle(new NotificationCompat.BigTextStyle().bigText(msg))
-                .setContentText(msg).setAutoCancel(true)
-                .setSound(notification);
+            PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
+                    newEventIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+            NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(
+                    this).setSmallIcon(R.drawable.ic_launcher)
+                    .setContentTitle("Greenlight")
+                    .setStyle(new NotificationCompat.BigTextStyle().bigText(msg))
+                    .setContentText(msg).setAutoCancel(true)
+                    .setSound(notification);
 
-        mBuilder.setContentIntent(contentIntent);
-        mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
-        Log.d(TAG, "Notification sent successfully.");
+            mBuilder.setContentIntent(contentIntent);
+            mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
+            Log.d(TAG, "Notification sent successfully.");
+        }
+
 
         Intent intent = new Intent("newEventBroadCast");
         //put whatever data you want to send, if any

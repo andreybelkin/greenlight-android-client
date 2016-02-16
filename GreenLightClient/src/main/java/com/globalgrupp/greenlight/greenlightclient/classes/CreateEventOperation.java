@@ -47,6 +47,7 @@ import java.net.URL;
             msg.put("userName",params[0].getUserName());
             JSONArray array=new JSONArray(params[0].getPhotoIds());
             msg.put("photoIds",array);
+            msg.put("createDate",params[0].getCreateDate().getTime());
 
 
             Log.i("message",msg.toString());
