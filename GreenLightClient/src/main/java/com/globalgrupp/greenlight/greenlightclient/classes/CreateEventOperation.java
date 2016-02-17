@@ -16,7 +16,7 @@ import java.net.URL;
  * Created by п on 21.12.2015.
  */
     // Class with extends AsyncTask class
-    public class CreateEventOperation extends AsyncTask<CreateEventParams, Void, Boolean> {
+    public class CreateEventOperation extends AsyncTask<Event, Void, Boolean> {
 
         // Required initialization
 
@@ -26,13 +26,14 @@ import java.net.URL;
         String data ="";
 
     @Override
-    protected Boolean doInBackground(CreateEventParams... params) {
+    protected Boolean doInBackground(Event... params) {
         /************ Make Post Call To Web Server ***********/
         BufferedReader reader=null;
         Log.i("doInBackground service ","doInBackground service ");
         // Send data
         try
         {
+            String serverURL = "http://192.168.100.16:8080/event/createEvent";
             // Defined URL  where to send data
             JSONObject msg=new JSONObject();
             msg.put("message",params[0].getMessage());
@@ -51,7 +52,7 @@ import java.net.URL;
 
 
             Log.i("message",msg.toString());
-            URL url = new URL(params[0].getURL());
+            URL url = new URL(serverURL);
 
             // Send POST data request
 
@@ -63,7 +64,7 @@ import java.net.URL;
             conn.setRequestProperty("Accept","*/*");
             conn.setRequestProperty("Content-Type","application/json");
             conn.setRequestProperty("charset", "utf-8");
-            conn.setConnectTimeout(20000);
+            conn.setConnectTimeout(5000);
             conn.setReadTimeout(20000);
             DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
             String str = msg.toString();

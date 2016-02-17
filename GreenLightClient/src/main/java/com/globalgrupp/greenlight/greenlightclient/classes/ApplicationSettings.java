@@ -25,6 +25,20 @@ public class ApplicationSettings {
         return instance;
     }
 
+    private List<String> oldGuidList;
+
+    public List<String> getOldGuidList() {
+        if (oldGuidList==null)
+        {
+            oldGuidList=new ArrayList<String>();
+        }
+        return oldGuidList;
+    }
+
+    public void setOldGuidList(List<String> oldGuidList) {
+        this.oldGuidList = oldGuidList;
+    }
+
     private AuthorizationType authorizationType;
 
     public AuthorizationType getAuthorizationType() {

@@ -1,9 +1,10 @@
 package com.globalgrupp.greenlight.greenlightclient.classes;
 
+import java.io.Serializable;
 import java.util.*;
 
 
-public class Event {
+public class Event implements Serializable{
 
     private Long id;
 
@@ -38,6 +39,56 @@ public class Event {
     private Long socialType;
 
     private String userName;
+
+    private List<String> photoPathList;
+
+    private String videoPath;
+
+    public String getSenderAppId() {
+        return senderAppId;
+    }
+
+    public void setSenderAppId(String senderAppId) {
+        this.senderAppId = senderAppId;
+    }
+
+    private String senderAppId;
+
+    public String getAudioPath() {
+        return audioPath;
+    }
+
+    public void setAudioPath(String audioPath) {
+        this.audioPath = audioPath;
+    }
+
+    public List<String> getPhotoPathList() {
+        return photoPathList;
+    }
+
+    public void setPhotoPathList(List<String> photoPathList) {
+        this.photoPathList = photoPathList;
+    }
+
+    public String getVideoPath() {
+        return videoPath;
+    }
+
+    public void setVideoPath(String videoPath) {
+        this.videoPath = videoPath;
+    }
+
+    private String audioPath;
+
+    public String getUniqueGUID() {
+        return uniqueGUID;
+    }
+
+    public void setUniqueGUID(String uniqueGUID) {
+        this.uniqueGUID = uniqueGUID;
+    }
+
+    private String uniqueGUID;
 
     public Long getSocialType() {
         return socialType;
@@ -142,6 +193,9 @@ public class Event {
     public void setMessage(String message) {
         this.message = message;
     }
+
+
+
 
     public Event() {
     }

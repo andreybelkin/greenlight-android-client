@@ -71,7 +71,7 @@ public class CommentsAdapter extends ArrayAdapter<Comment> {
 //            trAudioRow.getLayoutParams()
                 final ProgressBar progressBar=(ProgressBar)convertView.findViewById(R.id.pbAudio);
                 final ImageButton btnPlayAudioComment=(ImageButton)convertView.findViewById(R.id.btnPlayAudio);
-                final String audioFilePath= new FileDownloadTask().execute("http://192.168.1.38:8080/utils/getFile/"+commentsItem.getAudioId().toString(),"3gp").get();
+                final String audioFilePath= new FileDownloadTask().execute("http://192.168.100.16:8080/utils/getFile/"+commentsItem.getAudioId().toString(),"3gp").get();
                 btnPlayAudioComment.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -100,7 +100,7 @@ public class CommentsAdapter extends ArrayAdapter<Comment> {
                 List<Long> photoIds=commentsItem.getPhotoIds();
                 for (int i=0;i<photoIds.size();i++){
                     try{
-                        final String photoFilePath=new FileDownloadTask().execute("http://192.168.1.38:8080/utils/getFile/"+photoIds.get(i),"jpg").get();
+                        final String photoFilePath=new FileDownloadTask().execute("http://192.168.100.16:8080/utils/getFile/"+photoIds.get(i),"jpg").get();
 
 //                    ViewGroup.LayoutParams phLayoutParams = findViewById(R.id.trImageRow).getLayoutParams();
 //                    phLayoutParams.height =150;
@@ -144,7 +144,7 @@ public class CommentsAdapter extends ArrayAdapter<Comment> {
             }
             if (commentsItem.getVideoId()!=null && !commentsItem.getVideoId().equals(new Long(0))){
                 try{
-                    final String videoFilePath=new FileDownloadTask().execute("http://192.168.1.38:8080/utils/getFile/"+commentsItem.getVideoId().toString(),"3gp").get();
+                    final String videoFilePath=new FileDownloadTask().execute("http://192.168.100.16:8080/utils/getFile/"+commentsItem.getVideoId().toString(),"3gp").get();
 
 //            ViewGroup.LayoutParams phLayoutParams = findViewById(R.id.trImageRow).getLayoutParams();
 //            phLayoutParams.height = 150;

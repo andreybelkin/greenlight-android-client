@@ -2,6 +2,8 @@ package com.globalgrupp.greenlight.greenlightclient.classes;
 
 import android.os.AsyncTask;
 import android.util.Log;
+import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -9,6 +11,7 @@ import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -94,53 +97,67 @@ public class GetEventsOperation extends AsyncTask<GetEventParams, Void, List<Eve
                 sb.append(line + "\n");
             }
 
-            JSONArray jsonResponseArray=new JSONArray(sb.toString());
-            for (int i=0;i<jsonResponseArray.length();i++){
-                JSONObject jsonObject=jsonResponseArray.getJSONObject(i);
-                Event e=new Event();
-                e.setAltitude(jsonObject.getDouble("altitude"));
-                e.setLongitude(jsonObject.getDouble("longitude"));
-                e.setLatitude(jsonObject.getDouble("latitude"));
-                e.setMessage(jsonObject.getString("message"));
-                e.setId(jsonObject.getLong("id"));
-                e.setAudioId(!jsonObject.isNull("audioId")?jsonObject.getLong("audioId"):null);
-                e.setPhotoId(!jsonObject.isNull("photoId")?jsonObject.getLong("photoId"):null);
-                e.setVideoId(!jsonObject.isNull("videoId")?jsonObject.getLong("videoId"):null);
-                e.setStreetName(!jsonObject.isNull("streetName")?jsonObject.getString("streetName"):null);
-                e.setCreateDate(new Date(jsonObject.getLong("createDate")));
-                e.setSocialType(!jsonObject.isNull("socialType")?jsonObject.getLong("socialType"):null);
-                e.setUserName(!jsonObject.isNull("userName")?jsonObject.getString("userName"):"");
-                List<Long> photoIds=new ArrayList<Long>();
-                JSONArray photoArray=jsonObject.getJSONArray("photoIds");
-                for (int k=0;k<photoArray.length(); k++){
-                    Long photoId=photoArray.getLong(k);
-                    photoIds.add(photoId);
+
+            GsonBuilder builder=new GsonBuilder();
+            builder.registerTypeAdapter(Date.class, new JsonDeserializer<Date>() {
+                public Date deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+
+                    return new Date(json.getAsJsonPrimitive().getAsLong());
                 }
-                e.setPhotoIds(photoIds);
-                JSONArray jsonCommentsArray= jsonObject.getJSONArray("comments");
-                ArrayList<Comment> comments=new ArrayList<Comment>();
-                for (int k=0;k<jsonCommentsArray.length();k++){
-                    JSONObject comObject=jsonCommentsArray.getJSONObject(k);
-                    Comment com=new Comment();
-                    com.setId(comObject.getLong("id"));
-                    com.setMessage(comObject.getString("message"));
-                    com.setCreateDate(new Date(comObject.getLong("createDate")));
-                    com.setAudioId(!comObject.isNull("audioId")?comObject.getLong("audioId"):null);
-                    com.setVideoId(!comObject.isNull("videoId")?comObject.getLong("videoId"):null);
-                    com.setSocialType(!comObject.isNull("socialType")?comObject.getLong("socialType"):null);
-                    com.setUserName(!comObject.isNull("userName")?comObject.getString("userName"):"");
-                    List<Long> commentPhotoIds=new ArrayList<Long>();
-                    JSONArray commentPhotoArray=comObject.getJSONArray("photoIds");
-                    for (int z=0;z<commentPhotoArray.length(); z++){
-                        Long photoId=commentPhotoArray.getLong(z);
-                        commentPhotoIds.add(photoId);
-                    }
-                    com.setPhotoIds(commentPhotoIds);
-                    comments.add(com);
-                }
-                e.setComments(comments);
-                result.add(e);
-            }
+            });
+            Gson gson = builder.create();
+            Type listType = new TypeToken<ArrayList<Event>>() {
+            }.getType();
+            result=gson.fromJson(sb.toString(),listType);
+
+
+//            JSONArray jsonResponseArray=new JSONArray(sb.toString());
+//            for (int i=0;i<jsonResponseArray.length();i++){
+//                JSONObject jsonObject=jsonResponseArray.getJSONObject(i);
+//                Event e=new Event();
+//                e.setAltitude(jsonObject.getDouble("altitude"));
+//                e.setLongitude(jsonObject.getDouble("longitude"));
+//                e.setLatitude(jsonObject.getDouble("latitude"));
+//                e.setMessage(jsonObject.getString("message"));
+//                e.setId(jsonObject.getLong("id"));
+//                e.setAudioId(!jsonObject.isNull("audioId")?jsonObject.getLong("audioId"):null);
+//                e.setPhotoId(!jsonObject.isNull("photoId")?jsonObject.getLong("photoId"):null);
+//                e.setVideoId(!jsonObject.isNull("videoId")?jsonObject.getLong("videoId"):null);
+//                e.setStreetName(!jsonObject.isNull("streetName")?jsonObject.getString("streetName"):null);
+//                e.setCreateDate(new Date(jsonObject.getLong("createDate")));
+//                e.setSocialType(!jsonObject.isNull("socialType")?jsonObject.getLong("socialType"):null);
+//                e.setUserName(!jsonObject.isNull("userName")?jsonObject.getString("userName"):"");
+//                List<Long> photoIds=new ArrayList<Long>();
+//                JSONArray photoArray=jsonObject.getJSONArray("photoIds");
+//                for (int k=0;k<photoArray.length(); k++){
+//                    Long photoId=photoArray.getLong(k);
+//                    photoIds.add(photoId);
+//                }
+//                e.setPhotoIds(photoIds);
+//                JSONArray jsonCommentsArray= jsonObject.getJSONArray("comments");
+//                ArrayList<Comment> comments=new ArrayList<Comment>();
+//                for (int k=0;k<jsonCommentsArray.length();k++){
+//                    JSONObject comObject=jsonCommentsArray.getJSONObject(k);
+//                    Comment com=new Comment();
+//                    com.setId(comObject.getLong("id"));
+//                    com.setMessage(comObject.getString("message"));
+//                    com.setCreateDate(new Date(comObject.getLong("createDate")));
+//                    com.setAudioId(!comObject.isNull("audioId")?comObject.getLong("audioId"):null);
+//                    com.setVideoId(!comObject.isNull("videoId")?comObject.getLong("videoId"):null);
+//                    com.setSocialType(!comObject.isNull("socialType")?comObject.getLong("socialType"):null);
+//                    com.setUserName(!comObject.isNull("userName")?comObject.getString("userName"):"");
+//                    List<Long> commentPhotoIds=new ArrayList<Long>();
+//                    JSONArray commentPhotoArray=comObject.getJSONArray("photoIds");
+//                    for (int z=0;z<commentPhotoArray.length(); z++){
+//                        Long photoId=commentPhotoArray.getLong(z);
+//                        commentPhotoIds.add(photoId);
+//                    }
+//                    com.setPhotoIds(commentPhotoIds);
+//                    comments.add(com);
+//                }
+//                e.setComments(comments);
+//                result.add(e);
+//            }
         }
         catch(Exception ex)
         {

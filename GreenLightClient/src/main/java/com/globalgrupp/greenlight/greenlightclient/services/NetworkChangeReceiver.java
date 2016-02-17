@@ -45,13 +45,13 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
                 EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);
         String queueString = prefs.getString("messageQueue","[]");
         Gson gson = new Gson();
-        Type listType = new TypeToken<ArrayList<CreateEventParams>>() {
+        Type listType = new TypeToken<ArrayList<Event>>() {
         }.getType();
-        List<CreateEventParams> queueResults=gson.fromJson(queueString,listType);
+        List<Event> queueResults=gson.fromJson(queueString,listType);
 
-        Iterator<CreateEventParams> iter = queueResults.iterator();
+        Iterator<Event> iter = queueResults.iterator();
         while(iter.hasNext()){
-            CreateEventParams res=iter.next();
+            Event res=iter.next();
             try{
                 Long audioId=new Long(0);
                 if (res.getAudioPath()!=null){

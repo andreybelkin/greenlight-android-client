@@ -114,6 +114,7 @@ public class EventsAdapter  extends ArrayAdapter<Event> {
                 ViewHolder holder=(ViewHolder)view.getTag();
                 Intent startIntent = new Intent(getContext(), EventDetailsActivity.class);
                 startIntent.putExtra("eventId", holder.eventId);
+                startIntent.putExtra("eventObject",commentsItem);
                 startIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 getContext().startActivity(startIntent);
 

@@ -186,10 +186,14 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
         try{
             Button btnSend=(Button)findViewById(R.id.btnCreateEvent);
             btnSend.setEnabled(false);
-            String serverURL = "http://192.168.1.38:8080/event/createEvent";
+            String serverURL = "http://192.168.100.16:8080/event/createEvent";
             EditText et=(EditText) findViewById(R.id.etEventText);
             String street=eAddres.getThoroughfare();
-            CreateEventParams params=new CreateEventParams(serverURL,eLocation.getLongtitude(),eLocation.getLatitude(),et.getText().toString());
+            //CreateEventParams params=new CreateEventParams(serverURL,eLocation.getLongtitude(),eLocation.getLatitude(),et.getText().toString());
+            Event params=new Event();
+            params.setLongitude(eLocation.getLongtitude());
+            params.setLatitude(eLocation.getLatitude());
+            params.setMessage(et.getText().toString());
 
 //            Long audioId=new Long(0);
 //            if (mFileName!=null){
@@ -255,9 +259,9 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
 
             String queueEventsString = prefs.getString("queueEvents","[]");
             Gson gson=new Gson();
-            Type listType = new TypeToken<ArrayList<CreateEventParams>>() {
+            Type listType = new TypeToken<ArrayList<Event>>() {
             }.getType();
-            ArrayList<CreateEventParams> queueEvents=gson.fromJson(queueEventsString,listType);
+            ArrayList<Event> queueEvents=gson.fromJson(queueEventsString,listType);
             queueEvents.add(params);
             SharedPreferences.Editor editor=prefs.edit();
             editor.putString("queueEvents",gson.toJson(queueEvents));
@@ -506,7 +510,7 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
     }
     private void dispatchTakeVideoIntent() {
         Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-        takeVideoIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 0);
+        takeVideoIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
         takeVideoIntent.putExtra(MediaStore.EXTRA_SIZE_LIMIT, 5491520L);
 
         if (takeVideoIntent.resolveActivity(getPackageManager()) != null) {
@@ -629,6 +633,12 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
                 e.printStackTrace();
             }
         }else if (requestCode == REQUEST_VIDEO_CAPTURE && resultCode == RESULT_OK){
+            try{
+                setVideo();
+            }catch ( Exception e){
+                e.printStackTrace();
+            }
+        } else if (resultCode==RESULT_CANCELED ){
             try{
                 setVideo();
             }catch (Exception e){

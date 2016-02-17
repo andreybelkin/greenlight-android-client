@@ -15,6 +15,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -43,10 +44,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by п on 31.12.2015.
@@ -76,7 +74,11 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                 ConnectivityManager cm = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
                 NetworkInfo info = cm.getActiveNetworkInfo();
                 if (info==null||!info.isConnected()){
-                    return;
+                    try {
+                        Thread.sleep(10000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
                 SharedPreferences prefs = getApplicationContext().getSharedPreferences(
                         EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);
@@ -86,14 +88,18 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                 prefsEditor.commit();
 
                 Gson gson = new Gson();
-                Type listType = new TypeToken<ArrayList<CreateEventParams>>() {
+                Type listType = new TypeToken<ArrayList<Event>>() {
                 }.getType();
-                List<CreateEventParams> queueResults=gson.fromJson(queueString,listType);
+                List<Event> queueResults=gson.fromJson(queueString,listType);
                 String oldQueueString = prefs.getString("oldMessageQueue","[]");
-                queueResults.addAll((ArrayList<CreateEventParams>)gson.fromJson(queueString,listType));
-                Iterator<CreateEventParams> iter = queueResults.iterator();
+                queueResults.addAll((ArrayList<Event>)gson.fromJson(oldQueueString,listType));
+                prefsEditor = prefs.edit();
+                prefsEditor.putString("oldMessageQueue",gson.toJson(queueResults));
+                prefsEditor.commit();
+
+                Iterator<Event> iter = queueResults.iterator();
                 while(iter.hasNext()&&!shouldRefresh){
-                    CreateEventParams res=iter.next();
+                    Event res=iter.next();
                     try{
                         Long audioId=new Long(0);
                         if (res.getAudioPath()!=null){
@@ -121,12 +127,10 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                             videoId=new UploadFileOperation().execute(cep).get();
                         }
                         res.setVideoId(videoId);
-                        Boolean result=new CreateEventOperation().execute(res).get();
-                        if (result){
-                            iter.remove();
-                        }else{
-
-                        }
+//                        Boolean result=new CreateEventOperation().execute(res).get();
+//                        if (result){
+//                            iter.remove();
+//                        }
 
                     }catch (Exception e){
                         e.printStackTrace();
@@ -216,7 +220,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
 
     public void initChannels() {
         try {
-            String url = "http://192.168.1.38:8080/channel/getBaseChannels";
+            String url = "http://192.168.100.16:8080/channel/getBaseChannels";
             List<Channel> channels = new AsyncTask<String, Void, List<Channel>>() {
                 @Override
                 protected List<Channel> doInBackground(String... params) {
@@ -352,9 +356,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                 }catch (Exception e){
                     e.printStackTrace();
                 }
-
             }
-
         }
         super.onPause();
         getApplicationContext().unregisterReceiver(mMessageReceiver);
@@ -413,9 +415,9 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
         try {
             GetEventParams params = new GetEventParams();
             if (channelId != null) {
-                params.setURL("http://192.168.1.38:8080/event/getEventsByChannel/" + channelId.toString());
+                params.setURL("http://192.168.100.16:8080/event/getEventsByChannel/" + channelId.toString());
             } else {
-                params.setURL("http://192.168.1.38:8080/event/getNearestEvents");
+                params.setURL("http://192.168.100.16:8080/event/getNearestEvents");
             }
 
             if (eLocation == null) {
@@ -473,7 +475,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                         conn.setRequestProperty("Accept","*/*");
                         conn.setRequestProperty("Content-Type","application/json");
                         conn.setRequestProperty("charset", "utf-8");
-                        conn.setConnectTimeout(20000);
+                        conn.setConnectTimeout(5000);
                         conn.setReadTimeout(20000);
 
                         DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
@@ -537,7 +539,30 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
             }.execute(params).get();
 
 
+            SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(
+                    EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);
+            String queueString = sharedPreferences.getString("queueEvents","[]");
 
+            Gson gson = new Gson();
+            Type listType = new TypeToken<ArrayList<Event>>() {
+            }.getType();
+            List<Event> queueResults=gson.fromJson(queueString,listType);
+            String oldQueueString = prefs.getString("oldMessageQueue","[]");
+            queueResults.addAll((ArrayList<Event>)gson.fromJson(oldQueueString,listType));
+
+            for(int q=0;q<queueResults.size();q++){
+                Event param=queueResults.get(q);
+                //вставляем очередь в список
+                int position=0;
+                for(int k=0;k<events.size();k++){
+                    if (events.get(k).getCreateDate().compareTo(param.getCreateDate())==-1 ){
+                        position=k;
+                        break;
+                    }
+                    position=k;
+                }
+                events.add(position,param);
+            }
             allEvents=events;
 
             eventsAdapter=new EventsAdapter(getApplicationContext(),events);
@@ -550,22 +575,24 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
 
                 @Override
                 protected Void doInBackground(List<Event>... lists) {
-
+                    SharedPreferences prefs = getApplicationContext().getSharedPreferences(
+                            EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);
+                    String sharedGuids=prefs.getString("oldEventGuid","");
+                    String sharedIds=prefs.getString("oldEventsId","");
                     List<Event> events = lists[0];
-                    List<Long> oldId = ApplicationSettings.getInstance().getOldEventsId();
+                    List<String> oldId = Arrays.asList(sharedIds.split(","));
+
+                    List<String> oldGuids= Arrays.asList(sharedGuids.split(","));
                     for (int i = events.size() - 1; i >= 0; i--) {
-                        if (!oldId.contains(events.get(i).getId())) {
-//                        if (true) {
-                            oldId.add(events.get(i).getId());
-                            ApplicationSettings.getInstance().setOldEventsId(oldId);
-                            String listString = "";
-                            for (Long s : oldId) {
-                                listString += s.toString() + ",";
-                            }
-                            SharedPreferences prefs = getApplicationContext().getSharedPreferences(
-                                    EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);
+                        String guid=events.get(i).getUniqueGUID()!=null?events.get(i).getUniqueGUID().toString():"";
+                        String id=events.get(i).getId()!=null?events.get(i).getId().toString():"";
+                        if (!oldId.contains(id) &&(!oldGuids.contains(guid))) {
+                            oldId.add(events.get(i).getId().toString());
+                            String listString = TextUtils.join(",",oldId);
+                            String oldEventsGuid=TextUtils.join(",",oldGuids);
                             SharedPreferences.Editor editor = prefs.edit();
                             editor.putString("oldEventsId", listString);
+                            editor.putString("oldEventGuid",oldEventsGuid);
                             editor.commit();
 
 
@@ -576,7 +603,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                             } else {
                                 File file = null;
                                 try {
-                                    String DownloadUrl = "http://192.168.1.38:8080/utils/getFile/" + events.get(i).getAudioId().toString();
+                                    String DownloadUrl = "http://192.168.100.16:8080/utils/getFile/" + events.get(i).getAudioId().toString();
                                     String fileName = "newEventAudio.3gp";
                                     String root = Environment.getExternalStorageDirectory().getAbsolutePath();
 
@@ -678,12 +705,6 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
             e.printStackTrace();
         }
     }
-
-
-
-
-
-
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -862,11 +883,9 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                 return;
             }
         }
-
-
         try {
             GetEventParams params = new GetEventParams();
-            params.setURL("http://192.168.1.38:8080/event/getEvent");
+            params.setURL("http://192.168.100.16:8080/event/getEvent");
             params.setEventId(eventId);
             if (ApplicationSettings.getInstance().getChannelId() != null &&
                     !ApplicationSettings.getInstance().getChannelId().equals(new Long(0)))
@@ -875,10 +894,15 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
             List<Event> events = new GetEventsOperation().execute(params).get();
             if (events.size() == 0) return;
             final Event newEvent = events.get(0);
-//            newEvent.setMessage("!!!!!!!!!!");
-            allEvents.add(newEvent);
 
-            eventsAdapter.insert(newEvent,0);
+            for (int k=0;k<allEvents.size();k++){
+                if (allEvents.get(k).getUniqueGUID()!=null&&allEvents.get(k).getUniqueGUID().equals(newEvent.getUniqueGUID())){
+                    allEvents.remove(k);
+                    allEvents.add(k,newEvent);
+                    eventsAdapter.remove(eventsAdapter.getItem(k));
+                    break;
+                }
+            }
 
             if (newEventAsyncTask!=null){
                 newEventAsyncTask.cancel(true);
@@ -890,21 +914,24 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
 
                 @Override
                 protected Void doInBackground(List<Event>... lists) {
-
+                    SharedPreferences prefs = getApplicationContext().getSharedPreferences(
+                            EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);
+                    String sharedGuids=prefs.getString("oldEventGuid","");
+                    String sharedIds=prefs.getString("oldEventsId","");
                     List<Event> events = lists[0];
-                    List<Long> oldId = ApplicationSettings.getInstance().getOldEventsId();
+                    List<String> oldId = Arrays.asList(sharedIds.split(","));
+
+                    List<String> oldGuids= Arrays.asList(sharedGuids.split(","));
                     for (int i = events.size() - 1; i >= 0; i--) {
-                        if (!oldId.contains(events.get(i).getId())) {
-                            oldId.add(events.get(i).getId());
-                            ApplicationSettings.getInstance().setOldEventsId(oldId);
-                            String listString = "";
-                            for (Long s : oldId) {
-                                listString += s.toString() + ",";
-                            }
-                            SharedPreferences prefs = getApplicationContext().getSharedPreferences(
-                                    EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);
+                        String guid=events.get(i).getUniqueGUID()!=null?events.get(i).getUniqueGUID().toString():"";
+                        String id=events.get(i).getId()!=null?events.get(i).getId().toString():"";
+                        if (!oldId.contains(id) &&(!oldGuids.contains(guid))) {
+                            oldId.add(events.get(i).getId().toString());
+                            String listString = TextUtils.join(",",oldId);
+                            String oldEventsGuid=TextUtils.join(",",oldGuids);
                             SharedPreferences.Editor editor = prefs.edit();
                             editor.putString("oldEventsId", listString);
+                            editor.putString("oldEventGuid",oldEventsGuid);
                             editor.commit();
 
                             if (events.get(i).getAudioId() == null || events.get(i).getAudioId().equals(new Long(0))) {
@@ -914,7 +941,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                             } else {
                                 File file = null;
                                 try {
-                                    String DownloadUrl = "http://192.168.1.38:8080/utils/getFile/" + events.get(i).getAudioId().toString();
+                                    String DownloadUrl = "http://192.168.100.16:8080/utils/getFile/" + events.get(i).getAudioId().toString();
                                     String fileName = "newEventAudio.3gp";
                                     String root = Environment.getExternalStorageDirectory().getAbsolutePath();
 
