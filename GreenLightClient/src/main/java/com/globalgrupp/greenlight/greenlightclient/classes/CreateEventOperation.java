@@ -49,6 +49,7 @@ import java.net.URL;
             JSONArray array=new JSONArray(params[0].getPhotoIds());
             msg.put("photoIds",array);
             msg.put("createDate",params[0].getCreateDate().getTime());
+            msg.put("uniqueGUID",params[0].getUniqueGUID());
 
 
             Log.i("message",msg.toString());

@@ -173,8 +173,12 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
 //                    public void run() {
                         try{
                             if (currentEvent.getAudioId()!=null&&!currentEvent.getAudioId().equals(new Long(0)) ){
+                                if (currentEvent.getAudioId().equals(new Long(-1))){
+                                        audioFilePath=currentEvent.getAudioPath();
+                                }else{
+                                    audioFilePath=new FileDownloadTask().execute("http://192.168.100.16:8080/utils/getFile/"+currentEvent.getAudioId().toString(),"3gp").get();
+                                }
 
-                                audioFilePath=new FileDownloadTask().execute("http://192.168.100.16:8080/utils/getFile/"+currentEvent.getAudioId().toString(),"3gp").get();
                                 llAudioparams.height=ViewGroup.LayoutParams.WRAP_CONTENT;
                                 trAudiorow.setLayoutParams(llAudioparams);
                                 final ImageButton btnPlayAudio=(ImageButton)findViewById(R.id.btnPlayAudio);
@@ -208,7 +212,13 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                             if (currentEvent.getPhotoIds()!=null&&currentEvent.getPhotoIds().size()>0){
                                 List<Long> photoIds=currentEvent.getPhotoIds();
                                 for (int i=0;i<photoIds.size();i++){
-                                    final String photoFilePath=new FileDownloadTask().execute("http://192.168.100.16:8080/utils/getFile/"+photoIds.get(i),"jpg").get();
+                                    String photoFilePath="";
+                                    if (photoIds.get(i).equals(new Long(-1))){
+                                        photoFilePath=currentEvent.getPhotoPathList().get(i);
+                                    }else{
+                                        photoFilePath=new FileDownloadTask().execute("http://192.168.100.16:8080/utils/getFile/"+photoIds.get(i),"jpg").get();
+                                    }
+
 
                                     ViewGroup.LayoutParams phLayoutParams = findViewById(R.id.trImageRow).getLayoutParams();
                                     phLayoutParams.height =150;
@@ -241,7 +251,11 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
 
                             }
                             if (currentEvent.getVideoId()!=null&&!currentEvent.getVideoId().equals(new Long(0))){
-                                videoFilePath=new FileDownloadTask().execute("http://192.168.100.16:8080/utils/getFile/"+currentEvent.getVideoId().toString(),"3gp").get();
+                                if (currentEvent.getVideoId().equals(new Long(-1))){
+                                    videoFilePath=currentEvent.getVideoPath();
+                                }else{
+                                    videoFilePath=new FileDownloadTask().execute("http://192.168.100.16:8080/utils/getFile/"+currentEvent.getVideoId().toString(),"3gp").get();
+                                }
 
                                 ViewGroup.LayoutParams phLayoutParams = findViewById(R.id.trImageRow).getLayoutParams();
                                 phLayoutParams.height = 150;
@@ -340,6 +354,8 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                 currentEvent=events.get(0);
             }else{
                 currentEvent=(Event)getIntent().getExtras().getSerializable("eventObject");
+                ImageButton commentButton=(ImageButton)findViewById(R.id.ibComment);
+                commentButton.setVisibility(View.INVISIBLE);
             }
 
             TextView eventMessageTV=(TextView)findViewById(R.id.eventMessage);
@@ -715,6 +731,7 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
             conn.setRequestProperty("Cache-Control", "no-cache");
             conn.setRequestProperty(
                     "Content-Type", "multipart/form-data;boundary=" + boundary);
+            conn.setConnectTimeout(5000);
 
             DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
             File file=new File(filePath);

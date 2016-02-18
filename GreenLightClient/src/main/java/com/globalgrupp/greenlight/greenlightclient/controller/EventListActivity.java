@@ -71,6 +71,9 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
         public void run() {
 
             while (shouldContinue){
+                try{
+
+
                 ConnectivityManager cm = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
                 NetworkInfo info = cm.getActiveNetworkInfo();
                 if (info==null||!info.isConnected()){
@@ -102,35 +105,41 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                     Event res=iter.next();
                     try{
                         Long audioId=new Long(0);
-                        if (res.getAudioPath()!=null){
+                        if (res.getAudioPath()!=null && res.getAudioId().equals(new Long(-1))){
                             CreateEventParams cep=new CreateEventParams();
                             cep.setURL(res.getAudioPath());
                             audioId=new UploadFileOperation().execute(cep).get();
+                            res.setAudioId(audioId);
                         }
-                        res.setAudioId(audioId);
+
 
 
                         List<Long> photoIds=new ArrayList<Long>();
                         if (res.getPhotoPathList().size()>0){
                             for (int i=0;i<res.getPhotoPathList().size();i++){
-                                CreateEventParams cep=new CreateEventParams();
-                                cep.setURL(res.getPhotoPathList().get(i));
-                                Long phId=new UploadFileOperation().execute(cep).get();
-                                photoIds.add(phId);
+                                if (res.getPhotoIds().get(i).equals(new Long(-1))){
+                                    CreateEventParams cep=new CreateEventParams();
+                                    cep.setURL(res.getPhotoPathList().get(i));
+                                    Long phId=new UploadFileOperation().execute(cep).get();
+                                    photoIds.add(phId);
+                                }else{
+                                    photoIds.add(res.getPhotoIds().get(i));
+                                }
                             }
                         }
                         res.setPhotoIds(photoIds);
                         Long videoId=new Long(0);
-                        if (res.getVideoPath()!=null){
+                        if (res.getVideoPath()!=null && (res.getVideoId().equals(new Long(-1)))){
                             CreateEventParams cep=new CreateEventParams();
                             cep.setURL(res.getVideoPath());
                             videoId=new UploadFileOperation().execute(cep).get();
+                            res.setVideoId(videoId);
                         }
-                        res.setVideoId(videoId);
-//                        Boolean result=new CreateEventOperation().execute(res).get();
-//                        if (result){
-//                            iter.remove();
-//                        }
+
+                        Boolean result=new CreateEventOperation().execute(res).get();
+                        if (result){
+                            iter.remove();
+                        }
 
                     }catch (Exception e){
                         e.printStackTrace();
@@ -142,6 +151,15 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                 prefsEditor2.putString("oldMessageQueue", json);
                 prefsEditor2.commit();
                 shouldRefresh=false;
+                }catch (Exception e){
+                    e.printStackTrace();
+                    //wtf
+                }
+            }
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
 
         }
@@ -239,6 +257,8 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                         conn.setRequestProperty("Accept", "*/*");
                         conn.setRequestProperty("Content-Type", "application/json");
                         conn.setRequestProperty("charset", "utf-8");
+                        conn.setConnectTimeout(5000);
+                        conn.setReadTimeout(20000);
 
                         DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
                         String str = msg.toString();
@@ -575,107 +595,118 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
 
                 @Override
                 protected Void doInBackground(List<Event>... lists) {
-                    SharedPreferences prefs = getApplicationContext().getSharedPreferences(
-                            EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);
-                    String sharedGuids=prefs.getString("oldEventGuid","");
-                    String sharedIds=prefs.getString("oldEventsId","");
-                    List<Event> events = lists[0];
-                    List<String> oldId = Arrays.asList(sharedIds.split(","));
+                    try{
+                        SharedPreferences prefs = getApplicationContext().getSharedPreferences(
+                                EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);
+                        String sharedGuids=prefs.getString("oldEventGuid","");
+                        String sharedIds=prefs.getString("oldEventsId","");
+                        List<Event> events = lists[0];
+                        List<String> oldId = new ArrayList<String>(Arrays.asList(sharedIds.split(",")));
+                        if (oldId==null){
+                            oldId=new ArrayList<String>();
+                        }
+                        List<String> oldGuids= new ArrayList<String>(Arrays.asList(sharedGuids.split(",")));
+                        if (oldGuids==null){
+                            oldGuids=new ArrayList<String>();
+                        }
+                        for (int i = events.size() - 1; i >= 0; i--) {
+                            String guid=events.get(i).getUniqueGUID()!=null?events.get(i).getUniqueGUID().toString():"";
+                            String id=events.get(i).getId()!=null?events.get(i).getId().toString():"";
+                            if (!oldId.contains(id) &&(!oldGuids.contains(guid))) {
+                                oldId.add(id);
+                                oldGuids.add(guid);
+                                String listString = TextUtils.join(",",oldId);
+                                String oldEventsGuid=TextUtils.join(",",oldGuids);
+                                SharedPreferences.Editor editor = prefs.edit();
+                                editor.putString("oldEventsId", listString);
+                                editor.putString("oldEventGuid",oldEventsGuid);
+                                editor.commit();
 
-                    List<String> oldGuids= Arrays.asList(sharedGuids.split(","));
-                    for (int i = events.size() - 1; i >= 0; i--) {
-                        String guid=events.get(i).getUniqueGUID()!=null?events.get(i).getUniqueGUID().toString():"";
-                        String id=events.get(i).getId()!=null?events.get(i).getId().toString():"";
-                        if (!oldId.contains(id) &&(!oldGuids.contains(guid))) {
-                            oldId.add(events.get(i).getId().toString());
-                            String listString = TextUtils.join(",",oldId);
-                            String oldEventsGuid=TextUtils.join(",",oldGuids);
-                            SharedPreferences.Editor editor = prefs.edit();
-                            editor.putString("oldEventsId", listString);
-                            editor.putString("oldEventGuid",oldEventsGuid);
-                            editor.commit();
 
+                                if (events.get(i).getAudioId() == null || events.get(i).getAudioId().equals(new Long(0))) {
+                                    Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                    Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
+                                    r.play();
+                                } else {
+                                    File file = null;
+                                    try {
+                                        String DownloadUrl = "http://192.168.100.16:8080/utils/getFile/" + events.get(i).getAudioId().toString();
+                                        String fileName = "newEventAudio.3gp";
+                                        String root = Environment.getExternalStorageDirectory().getAbsolutePath();
 
-                            if (events.get(i).getAudioId() == null || events.get(i).getAudioId().equals(new Long(0))) {
-                                Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                                Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
-                                r.play();
-                            } else {
-                                File file = null;
-                                try {
-                                    String DownloadUrl = "http://192.168.100.16:8080/utils/getFile/" + events.get(i).getAudioId().toString();
-                                    String fileName = "newEventAudio.3gp";
-                                    String root = Environment.getExternalStorageDirectory().getAbsolutePath();
-
-                                    File dir = new File(root + "/gl");
-                                    if (dir.exists() == false) {
-                                        dir.mkdirs();
-                                    }
-                                    URL url = new URL(DownloadUrl);
-                                    file = new File(dir, fileName);
-
-                                    URLConnection ucon = url.openConnection();
-                                    InputStream is = ucon.getInputStream();
-                                    ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-                                    int nRead;
-                                    byte[] data = new byte[16384];
-
-                                    while ((nRead = is.read(data, 0, data.length)) != -1) {
-                                        buffer.write(data, 0, nRead);
-                                    }
-                                    buffer.flush();
-
-                                    byte[] dataFile = buffer.toByteArray();
-                                    FileOutputStream fos = new FileOutputStream(file);
-                                    fos.write(dataFile);
-                                    fos.flush();
-                                    fos.close();
-                                    String audioPath = file.toString();
-                                    mPlayer = new MediaPlayer();
-
-                                    mPlayer.setDataSource(audioPath);
-                                    mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                                        @Override
-                                        public void onCompletion(MediaPlayer mediaPlayer) {
-                                            isplayed = false;
+                                        File dir = new File(root + "/gl");
+                                        if (dir.exists() == false) {
+                                            dir.mkdirs();
                                         }
-                                    });
-                                    mPlayer.prepare();
-                                    isplayed = true;
-                                    mPlayer.start();
+                                        URL url = new URL(DownloadUrl);
+                                        file = new File(dir, fileName);
 
-                                    while (isplayed && !isCancelled()) {
-                                        if (isCancelled()) break;
-                                    }
-                                    isplayed = false;
-                                    if (isCancelled()) {
-                                        try{
-                                            mPlayer.stop();
-                                            mPlayer.release();
-                                        }catch (Exception e){
-                                            e.printStackTrace();
+                                        URLConnection ucon = url.openConnection();
+                                        InputStream is = ucon.getInputStream();
+                                        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+                                        int nRead;
+                                        byte[] data = new byte[16384];
+
+                                        while ((nRead = is.read(data, 0, data.length)) != -1) {
+                                            buffer.write(data, 0, nRead);
+                                        }
+                                        buffer.flush();
+
+                                        byte[] dataFile = buffer.toByteArray();
+                                        FileOutputStream fos = new FileOutputStream(file);
+                                        fos.write(dataFile);
+                                        fos.flush();
+                                        fos.close();
+                                        String audioPath = file.toString();
+                                        mPlayer = new MediaPlayer();
+
+                                        mPlayer.setDataSource(audioPath);
+                                        mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                                            @Override
+                                            public void onCompletion(MediaPlayer mediaPlayer) {
+                                                isplayed = false;
+                                            }
+                                        });
+                                        mPlayer.prepare();
+                                        isplayed = true;
+                                        mPlayer.start();
+
+                                        while (isplayed && !isCancelled()) {
+                                            if (isCancelled()) break;
+                                        }
+                                        isplayed = false;
+                                        if (isCancelled()) {
+                                            try{
+                                                mPlayer.stop();
+                                                mPlayer.release();
+                                            }catch (Exception e){
+                                                e.printStackTrace();
+                                            }
+
+                                            break;
                                         }
 
-                                        break;
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
                                     }
-
-                                } catch (Exception e) {
-                                    e.printStackTrace();
                                 }
+
+                            }
+                        }
+                        if (mPlayer!=null){
+                            try{
+                                mPlayer.stop();
+                                mPlayer.release();
+                                mPlayer=null;
+                            }catch (Exception e){
+                                e.printStackTrace();
                             }
 
                         }
+                    }catch (Exception e){
+                        e.printStackTrace();
                     }
-                    if (mPlayer!=null){
-                        try{
-                            mPlayer.stop();
-                            mPlayer.release();
-                            mPlayer=null;
-                        }catch (Exception e){
-                            e.printStackTrace();
-                        }
 
-                    }
 
                     return null;
                 }
@@ -894,12 +925,13 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
             List<Event> events = new GetEventsOperation().execute(params).get();
             if (events.size() == 0) return;
             final Event newEvent = events.get(0);
-
+//            Thread.sleep(1000);
             for (int k=0;k<allEvents.size();k++){
                 if (allEvents.get(k).getUniqueGUID()!=null&&allEvents.get(k).getUniqueGUID().equals(newEvent.getUniqueGUID())){
                     allEvents.remove(k);
                     allEvents.add(k,newEvent);
                     eventsAdapter.remove(eventsAdapter.getItem(k));
+                    eventsAdapter.insert(newEvent,k);
                     break;
                 }
             }
@@ -919,14 +951,15 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                     String sharedGuids=prefs.getString("oldEventGuid","");
                     String sharedIds=prefs.getString("oldEventsId","");
                     List<Event> events = lists[0];
-                    List<String> oldId = Arrays.asList(sharedIds.split(","));
+                    List<String> oldId = new ArrayList<String>(Arrays.asList(sharedIds.split(",")));
 
-                    List<String> oldGuids= Arrays.asList(sharedGuids.split(","));
+                    List<String> oldGuids=new ArrayList<String>(Arrays.asList(sharedGuids.split(",")));
                     for (int i = events.size() - 1; i >= 0; i--) {
                         String guid=events.get(i).getUniqueGUID()!=null?events.get(i).getUniqueGUID().toString():"";
                         String id=events.get(i).getId()!=null?events.get(i).getId().toString():"";
                         if (!oldId.contains(id) &&(!oldGuids.contains(guid))) {
-                            oldId.add(events.get(i).getId().toString());
+                            oldId.add(id);
+                            oldGuids.add(guid);
                             String listString = TextUtils.join(",",oldId);
                             String oldEventsGuid=TextUtils.join(",",oldGuids);
                             SharedPreferences.Editor editor = prefs.edit();

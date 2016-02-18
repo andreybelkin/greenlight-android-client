@@ -33,10 +33,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -201,18 +198,18 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
 //                cep.setURL(mFileName);
 //                audioId=new UploadFileOperation().execute(cep).get();
 //            }
+            if (mFileName!=null){
+                params.setAudioId(new Long(-1));
+            }
             params.setAudioPath(mFileName);
 
-
-//            List<Long> photoIds=new ArrayList<Long>();
-//            if (photoPathList.size()>0){
-//                for (int i=0;i<photoPathList.size();i++){
-//                    CreateEventParams cep=new CreateEventParams();
-//                    cep.setURL(photoPathList.get(i));
-//                    Long phId=new UploadFileOperation().execute(cep).get();
-//                    photoIds.add(phId);
-//                }
-//            }
+            List<Long> photoIds=new ArrayList<Long>();
+            if (photoPathList.size()>0){
+                for (int i=0;i<photoPathList.size();i++){
+                    photoIds.add(new Long(-1));
+                }
+            }
+            params.setPhotoIds(photoIds);
             params.setPhotoPathList(photoPathList);
 
 //            Long videoId=new Long(0);
@@ -221,6 +218,9 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
 //                cep.setURL(mCurrentVideoPath);
 //                videoId=new UploadFileOperation().execute(cep).get();
 //            }
+            if (mCurrentVideoPath!=null){
+                params.setVideoId(new Long(-1));
+            }
             params.setVideoPath(mCurrentVideoPath);
 
             String registrationId =GCMRegistrationHelper.getRegistrationId(getApplicationContext());
@@ -256,7 +256,7 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
                 params.setSocialType(new Long(AuthorizationType.GREENLIGHT.getValue()));
 
             }
-
+            params.setUniqueGUID(UUID.randomUUID().toString());
             String queueEventsString = prefs.getString("queueEvents","[]");
             Gson gson=new Gson();
             Type listType = new TypeToken<ArrayList<Event>>() {
@@ -510,7 +510,7 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
     }
     private void dispatchTakeVideoIntent() {
         Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-        takeVideoIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
+        takeVideoIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 0);
         takeVideoIntent.putExtra(MediaStore.EXTRA_SIZE_LIMIT, 5491520L);
 
         if (takeVideoIntent.resolveActivity(getPackageManager()) != null) {

@@ -30,6 +30,7 @@ public class UploadFileOperation extends AsyncTask<CreateEventParams, Void, Long
             conn.setRequestProperty("Cache-Control", "no-cache");
             conn.setRequestProperty(
                     "Content-Type", "multipart/form-data;boundary=" + boundary);
+            conn.setConnectTimeout(5000);
 
             DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
             File file=new File(params[0].getURL());

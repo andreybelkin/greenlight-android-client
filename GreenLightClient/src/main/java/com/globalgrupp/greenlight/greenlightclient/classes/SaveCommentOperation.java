@@ -48,6 +48,7 @@ public class SaveCommentOperation extends AsyncTask<Comment,Void,Void> {
             conn.setRequestProperty("Accept","*/*");
             conn.setRequestProperty("Content-Type","application/json");
             conn.setRequestProperty("charset", "utf-8");
+            conn.setConnectTimeout(5000);
 
             DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
             String str = msg.toString();

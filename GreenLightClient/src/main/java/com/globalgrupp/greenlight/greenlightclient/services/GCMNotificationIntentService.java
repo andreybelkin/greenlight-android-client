@@ -73,7 +73,7 @@ public class GCMNotificationIntentService extends IntentService {
     private void sendNotification(String msg,Long id,String senderId) {
         Log.d(TAG, "Preparing to send notification...: " + msg);
         String registrationId =GCMRegistrationHelper.getRegistrationId(getApplicationContext());
-        if (senderId!=registrationId){
+        if (!senderId.equals(registrationId)){
             mNotificationManager = (NotificationManager) this
                     .getSystemService(Context.NOTIFICATION_SERVICE);
             Intent newEventIntent=new Intent(this, EventDetailsActivity.class);
