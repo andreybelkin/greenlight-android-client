@@ -33,7 +33,7 @@ import java.net.URL;
         // Send data
         try
         {
-            String serverURL = "http://192.168.100.16:8080/event/createEvent";
+            String serverURL = "http://192.168.1.38:8080/event/createEvent";
             // Defined URL  where to send data
             JSONObject msg=new JSONObject();
             msg.put("message",params[0].getMessage());

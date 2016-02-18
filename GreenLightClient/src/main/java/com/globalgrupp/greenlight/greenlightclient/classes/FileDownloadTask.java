@@ -10,7 +10,6 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.UUID;
 
 /**
  * Created by Lenovo on 15.01.2016.
@@ -20,24 +19,25 @@ public class FileDownloadTask extends AsyncTask<String,Void,String> {
     protected String doInBackground(String... params) {
         File file=null;
         try {
-            String DownloadUrl=params[0];
-            String fileName= UUID.randomUUID().toString()+"."+params[1];
+            String DownloadUrl="http://192.168.1.38:8080/utils/getFile/"+params[0];
+            String fileName= params[1]+"_"+params[0]+"."+params[2];
             String root = Environment.getExternalStorageDirectory().getAbsolutePath();
 
             File dir = new File (root + "/gl");
             if(dir.exists()==false) {
                 dir.mkdirs();
             }
-            URL url = new URL(DownloadUrl); //you can write here any link
+            URL url = new URL(DownloadUrl);
             file = new File(dir, fileName);
-
-            long startTime = System.currentTimeMillis();
+            if (file.exists()){
+                return file.toString();//файл уже есть, можно не качать.
+            }
             Log.d("DownloadManager", "download begining");
             Log.d("DownloadManager", "download url:" + url);
             Log.d("DownloadManager", "downloaded file name:" + fileName);
 
             URLConnection ucon = url.openConnection();
-            ucon.setConnectTimeout(20000);
+            ucon.setConnectTimeout(5000);
             ucon.setReadTimeout(20000);
             InputStream is = ucon.getInputStream();
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();

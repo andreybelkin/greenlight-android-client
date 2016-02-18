@@ -2,6 +2,9 @@ package com.globalgrupp.greenlight.greenlightclient.classes;
 
 import android.content.Context;
 import android.content.Intent;
+import android.media.MediaPlayer;
+import android.os.Environment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +16,7 @@ import com.globalgrupp.greenlight.greenlightclient.controller.MainActivity;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by п on 31.12.2015.
@@ -30,6 +34,8 @@ public class EventsAdapter  extends ArrayAdapter<Event> {
         TextView tvAuthor;
         ImageView ivSocNet;
         Long eventId;
+        TableRow trAudioRow;
+        ProgressBar audioProgress;
     }
 
     public  EventsAdapter(Context context, ArrayList<Event> commentsItems){
@@ -53,19 +59,17 @@ public class EventsAdapter  extends ArrayAdapter<Event> {
             viewHolder.ivAudio=(ImageView) convertView.findViewById(R.id.ivHasAudio);
             viewHolder.ivPhoto=(ImageView) convertView.findViewById(R.id.ivHasPhoto);
             viewHolder.ivVideo=(ImageView) convertView.findViewById(R.id.ivHasVideo);
+            viewHolder.trAudioRow=(TableRow)convertView.findViewById(R.id.trAudioRow);
+            viewHolder.audioProgress=(ProgressBar)convertView.findViewById(R.id.pbAudio);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
         viewHolder.eventId=commentsItem.getId();
-//        ((TextView) convertView.findViewById(R.id.tvEventsTitle)).setText(commentsItem.getMessage());
-//        ((TextView) convertView.findViewById(R.id.tvEventsDate)).setText(df.format(commentsItem.getCreateDate()));
-//        ((TextView) convertView.findViewById(R.id.tvEventsStreet)).setText(commentsItem.getStreetName());
         viewHolder.tvTitle.setText(commentsItem.getMessage());
         viewHolder.tvDate.setText(df.format(commentsItem.getCreateDate()));
         viewHolder.tvStreetName.setText(commentsItem.getStreetName());
         if (commentsItem.getUserName()!=null && !commentsItem.getUserName().isEmpty()){
-//            ((TextView)convertView.findViewById(R.id.tvUserName)).setText(commentsItem.getUserName());
             viewHolder.tvAuthor.setText(commentsItem.getUserName());
         } else{
             viewHolder.tvAuthor.setText("");
@@ -85,11 +89,75 @@ public class EventsAdapter  extends ArrayAdapter<Event> {
 
         if (commentsItem.getAudioId() == null || commentsItem.getAudioId().equals(new Long(0))) {
             viewHolder.ivAudio.setVisibility(View.GONE);
+            viewHolder.trAudioRow.setVisibility(View.GONE);
 //            ViewGroup.LayoutParams qwe = convertView.findViewById(R.id.ivHasAudio).getLayoutParams();
 //            qwe.width = 0;
 //            convertView.findViewById(R.id.ivHasAudio).setLayoutParams(qwe);
         } else {
+            viewHolder.trAudioRow.setVisibility(View.VISIBLE);
             viewHolder.ivAudio.setVisibility(View.VISIBLE);
+            ImageButton ibPlayAudio= (ImageButton)viewHolder.trAudioRow.findViewById(R.id.btnPlayAudio);
+            if (!commentsItem.getAudioId().equals(new Long(-1))){
+                new FileDownloadTask().execute(commentsItem.getAudioId().toString(),commentsItem.getUniqueGUID(),"3gp");
+            }
+            final ProgressBar audioProgres=viewHolder.audioProgress;
+            ibPlayAudio.setOnClickListener(new View.OnClickListener() {
+                class MediaObserver implements Runnable {
+                    private AtomicBoolean stop = new AtomicBoolean(false);
+
+                    public void stop() {
+                        stop.set(true);
+                    }
+
+                    @Override
+                    public void run() {
+                        try{
+                            while (!stop.get()) {
+                                try{
+                                    audioProgres.setProgress(mPlayer.getCurrentPosition());
+                                    Thread.sleep(200);
+                                }catch (Exception e){
+                                    e.printStackTrace();
+                                }
+                            }
+                        }catch (Exception e){
+                            Log.e("",e.getMessage());
+                        }
+
+                    }
+                }
+                MediaPlayer mPlayer;
+                MediaObserver observer;
+                @Override
+                public void onClick(View v) {
+                    try{
+                        mPlayer = new MediaPlayer();
+                        String audioPath=commentsItem.getAudioPath();
+                        if (commentsItem.getAudioPath()==null||commentsItem.getAudioPath().isEmpty()){
+                            audioPath=Environment.getExternalStorageDirectory().getAbsolutePath()+"/gl/"+commentsItem.getUniqueGUID()+"_"+commentsItem.getAudioId().toString()+".3gp";
+                        }
+                        mPlayer.setDataSource(audioPath);
+                        mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                            @Override
+                            public void onCompletion(MediaPlayer mediaPlayer) {
+                                observer.stop();
+                                mPlayer=null;
+
+                            }
+                        });
+                        mPlayer.prepare();
+                        observer=new MediaObserver();
+                        audioProgres.setMax(mPlayer.getDuration());
+                        mPlayer.start();
+                        new Thread(observer).start();
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+
+                }
+            });
+
+
         }
         if (commentsItem.getPhotoIds() == null || commentsItem.getPhotoIds().size() == 0) {
             viewHolder.ivPhoto.setVisibility(View.GONE);
@@ -163,6 +231,9 @@ public class EventsAdapter  extends ArrayAdapter<Event> {
             ibShare.setEnabled(false);
             //ibShare.setVisibility(View.INVISIBLE);
         }
+
+
+
         convertView.setTag(viewHolder);
         return convertView;
     }

@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
-import android.media.Image;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.media.ThumbnailUtils;
@@ -38,7 +37,6 @@ import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterFactory;
 import twitter4j.conf.ConfigurationBuilder;
-
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -176,7 +174,7 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                                 if (currentEvent.getAudioId().equals(new Long(-1))){
                                         audioFilePath=currentEvent.getAudioPath();
                                 }else{
-                                    audioFilePath=new FileDownloadTask().execute("http://192.168.100.16:8080/utils/getFile/"+currentEvent.getAudioId().toString(),"3gp").get();
+                                    audioFilePath=new FileDownloadTask().execute(currentEvent.getAudioId().toString(),currentEvent.getUniqueGUID(),"3gp").get();
                                 }
 
                                 llAudioparams.height=ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -216,7 +214,7 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                                     if (photoIds.get(i).equals(new Long(-1))){
                                         photoFilePath=currentEvent.getPhotoPathList().get(i);
                                     }else{
-                                        photoFilePath=new FileDownloadTask().execute("http://192.168.100.16:8080/utils/getFile/"+photoIds.get(i),"jpg").get();
+                                        photoFilePath=new FileDownloadTask().execute(photoIds.get(i).toString(),currentEvent.getUniqueGUID(),"jpg").get();
                                     }
 
 
@@ -254,7 +252,7 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                                 if (currentEvent.getVideoId().equals(new Long(-1))){
                                     videoFilePath=currentEvent.getVideoPath();
                                 }else{
-                                    videoFilePath=new FileDownloadTask().execute("http://192.168.100.16:8080/utils/getFile/"+currentEvent.getVideoId().toString(),"3gp").get();
+                                    videoFilePath=new FileDownloadTask().execute(currentEvent.getVideoId().toString(),currentEvent.getUniqueGUID(),"3gp").get();
                                 }
 
                                 ViewGroup.LayoutParams phLayoutParams = findViewById(R.id.trImageRow).getLayoutParams();
@@ -346,7 +344,7 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
     private void refreshFields(){
         try{
             GetEventParams params=new GetEventParams();
-            params.setURL("http://192.168.100.16:8080/event/getEvent");
+            params.setURL("http://192.168.1.38:8080/event/getEvent");
             Long id=(Long)getIntent().getExtras().getSerializable("eventId");
             params.setEventId(id );
             if (id!=null){
@@ -400,7 +398,7 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                                     if (commentsItem.getAudioId()!=null &&!commentsItem.getAudioId().equals(new Long(0))){
                                         final ProgressBar progressBar=(ProgressBar)convertView.findViewById(R.id.pbAudio);
                                         final ImageButton btnPlayAudioComment=(ImageButton)convertView.findViewById(R.id.btnPlayAudio);
-                                        final String audioFilePath= new FileDownloadTask().execute("http://192.168.100.16:8080/utils/getFile/"+commentsItem.getAudioId().toString(),"3gp").get();
+                                        final String audioFilePath= new FileDownloadTask().execute(commentsItem.getAudioId().toString(),"ci","3gp").get();
                                         btnPlayAudioComment.setOnClickListener(new View.OnClickListener() {
 
                                             @Override
@@ -442,7 +440,7 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                                         List<Long> photoIds=commentsItem.getPhotoIds();
                                         for (int i=0;i<photoIds.size();i++){
                                             try{
-                                                final String photoFilePath=new FileDownloadTask().execute("http://192.168.100.16:8080/utils/getFile/"+photoIds.get(i),"jpg").get();
+                                                final String photoFilePath=new FileDownloadTask().execute(photoIds.get(i).toString(),"ci","jpg").get();
                                                 LinearLayout llImages=(LinearLayout)convertView.findViewById(R.id.llImages);
                                                 ImageView ivNew=new ImageView(getApplicationContext());
                                                 LinearLayout.LayoutParams layoutParams=new LinearLayout.LayoutParams(150,150);
@@ -477,7 +475,7 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                                     }
                                     if (commentsItem.getVideoId()!=null && !commentsItem.getVideoId().equals(new Long(0))){
                                         try{
-                                            final String videoFilePath=new FileDownloadTask().execute("http://192.168.100.16:8080/utils/getFile/"+commentsItem.getVideoId().toString(),"3gp").get();
+                                            final String videoFilePath=new FileDownloadTask().execute(commentsItem.getVideoId().toString(),"ci","3gp").get();
                                             Bitmap thumbnail = ThumbnailUtils.createVideoThumbnail(videoFilePath,
                                                     MediaStore.Images.Thumbnails.MINI_KIND);
                                             if (thumbnail!=null){
@@ -719,7 +717,7 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
 
         try
         {
-            String urlString="http://192.168.100.16:8080/utils/uploadFile";
+            String urlString="http://192.168.1.38:8080/utils/uploadFile";
             URL url = new URL(urlString);
             HttpURLConnection conn =(HttpURLConnection) url.openConnection();
             conn.setDoOutput(true);

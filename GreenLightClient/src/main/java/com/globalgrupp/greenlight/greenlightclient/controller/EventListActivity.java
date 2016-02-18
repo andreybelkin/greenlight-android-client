@@ -238,7 +238,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
 
     public void initChannels() {
         try {
-            String url = "http://192.168.100.16:8080/channel/getBaseChannels";
+            String url = "http://192.168.1.38:8080/channel/getBaseChannels";
             List<Channel> channels = new AsyncTask<String, Void, List<Channel>>() {
                 @Override
                 protected List<Channel> doInBackground(String... params) {
@@ -435,9 +435,9 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
         try {
             GetEventParams params = new GetEventParams();
             if (channelId != null) {
-                params.setURL("http://192.168.100.16:8080/event/getEventsByChannel/" + channelId.toString());
+                params.setURL("http://192.168.1.38:8080/event/getEventsByChannel/" + channelId.toString());
             } else {
-                params.setURL("http://192.168.100.16:8080/event/getNearestEvents");
+                params.setURL("http://192.168.1.38:8080/event/getNearestEvents");
             }
 
             if (eLocation == null) {
@@ -630,8 +630,8 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                                 } else {
                                     File file = null;
                                     try {
-                                        String DownloadUrl = "http://192.168.100.16:8080/utils/getFile/" + events.get(i).getAudioId().toString();
-                                        String fileName = "newEventAudio.3gp";
+                                        String DownloadUrl = "http://192.168.1.38:8080/utils/getFile/" + events.get(i).getAudioId().toString();
+                                        String fileName = events.get(i).getUniqueGUID()+"_"+events.get(i).getAudioId().toString()+".3gp";
                                         String root = Environment.getExternalStorageDirectory().getAbsolutePath();
 
                                         File dir = new File(root + "/gl");
@@ -640,23 +640,24 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                                         }
                                         URL url = new URL(DownloadUrl);
                                         file = new File(dir, fileName);
+                                        if (!file.exists()){
+                                            URLConnection ucon = url.openConnection();
+                                            InputStream is = ucon.getInputStream();
+                                            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+                                            int nRead;
+                                            byte[] data = new byte[16384];
 
-                                        URLConnection ucon = url.openConnection();
-                                        InputStream is = ucon.getInputStream();
-                                        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-                                        int nRead;
-                                        byte[] data = new byte[16384];
+                                            while ((nRead = is.read(data, 0, data.length)) != -1) {
+                                                buffer.write(data, 0, nRead);
+                                            }
+                                            buffer.flush();
 
-                                        while ((nRead = is.read(data, 0, data.length)) != -1) {
-                                            buffer.write(data, 0, nRead);
+                                            byte[] dataFile = buffer.toByteArray();
+                                            FileOutputStream fos = new FileOutputStream(file);
+                                            fos.write(dataFile);
+                                            fos.flush();
+                                            fos.close();
                                         }
-                                        buffer.flush();
-
-                                        byte[] dataFile = buffer.toByteArray();
-                                        FileOutputStream fos = new FileOutputStream(file);
-                                        fos.write(dataFile);
-                                        fos.flush();
-                                        fos.close();
                                         String audioPath = file.toString();
                                         mPlayer = new MediaPlayer();
 
@@ -916,7 +917,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
         }
         try {
             GetEventParams params = new GetEventParams();
-            params.setURL("http://192.168.100.16:8080/event/getEvent");
+            params.setURL("http://192.168.1.38:8080/event/getEvent");
             params.setEventId(eventId);
             if (ApplicationSettings.getInstance().getChannelId() != null &&
                     !ApplicationSettings.getInstance().getChannelId().equals(new Long(0)))
@@ -974,8 +975,8 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                             } else {
                                 File file = null;
                                 try {
-                                    String DownloadUrl = "http://192.168.100.16:8080/utils/getFile/" + events.get(i).getAudioId().toString();
-                                    String fileName = "newEventAudio.3gp";
+                                    String DownloadUrl = "http://192.168.1.38:8080/utils/getFile/" + events.get(i).getAudioId().toString();
+                                    String fileName = events.get(i).getUniqueGUID()+"_"+events.get(i).getAudioId().toString()+".3gp";
                                     String root = Environment.getExternalStorageDirectory().getAbsolutePath();
 
                                     File dir = new File(root + "/gl");
@@ -985,22 +986,25 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                                     URL url = new URL(DownloadUrl); //you can write here any link
                                     file = new File(dir, fileName);
 
-                                    URLConnection ucon = url.openConnection();
-                                    InputStream is = ucon.getInputStream();
-                                    ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-                                    int nRead;
-                                    byte[] data = new byte[16384];
+                                    if (!file.exists()){
+                                        URLConnection ucon = url.openConnection();
+                                        InputStream is = ucon.getInputStream();
+                                        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+                                        int nRead;
+                                        byte[] data = new byte[16384];
 
-                                    while ((nRead = is.read(data, 0, data.length)) != -1) {
-                                        buffer.write(data, 0, nRead);
+                                        while ((nRead = is.read(data, 0, data.length)) != -1) {
+                                            buffer.write(data, 0, nRead);
+                                        }
+                                        buffer.flush();
+
+                                        byte[] dataFile = buffer.toByteArray();
+                                        FileOutputStream fos = new FileOutputStream(file);
+                                        fos.write(dataFile);
+                                        fos.flush();
+                                        fos.close();
                                     }
-                                    buffer.flush();
 
-                                    byte[] dataFile = buffer.toByteArray();
-                                    FileOutputStream fos = new FileOutputStream(file);
-                                    fos.write(dataFile);
-                                    fos.flush();
-                                    fos.close();
                                     String audioPath = file.toString();
                                     mPlayer = new MediaPlayer();
 
