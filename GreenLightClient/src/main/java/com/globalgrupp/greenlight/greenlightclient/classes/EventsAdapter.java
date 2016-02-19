@@ -6,6 +6,7 @@ import android.graphics.*;
 import android.media.MediaPlayer;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -17,7 +18,12 @@ import com.globalgrupp.greenlight.greenlightclient.R;
 import com.globalgrupp.greenlight.greenlightclient.controller.EventDetailsActivity;
 import com.globalgrupp.greenlight.greenlightclient.controller.MainActivity;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -175,46 +181,122 @@ public class EventsAdapter  extends ArrayAdapter<Event> {
         } else {
             viewHolder.ivPhoto.setVisibility(View.VISIBLE);
             viewHolder.trPhotoRow.setVisibility(View.VISIBLE);
-            LinearLayout llImages=(LinearLayout) viewHolder.trPhotoRow.findViewById(R.id.llImages);
-            for (int z=1;z<llImages.getChildCount();z++){
-                llImages.removeViewAt(z);
-            }
+            final LinearLayout llPhotos=(LinearLayout) viewHolder.trPhotoRow.findViewById(R.id.llPhotos);
+            llPhotos.removeAllViews();
 
             for (int i=0;i<commentsItem.getPhotoIds().size();i++ ){
                 try{
                     String mCurrentPhotoPath="";
                     if (commentsItem.getPhotoIds().get(i).equals(new Long(-1))){
                         mCurrentPhotoPath=commentsItem.getPhotoPathList().get(i);
-                    }else{
-                        mCurrentPhotoPath=Environment.getExternalStorageDirectory().getAbsolutePath()+"/gl/"+commentsItem.getUniqueGUID()+"_"+commentsItem.getPhotoIds().get(i).toString()+".jpg";
-                        new FileDownloadTask().execute(commentsItem.getPhotoIds().get(i).toString(),commentsItem.getUniqueGUID().toString(),"jpg");
+                        File photoFile=new File(mCurrentPhotoPath);
+                        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+                        bmOptions.inSampleSize=4;
+                        Bitmap bitmap = BitmapFactory.decodeFile(photoFile.getAbsolutePath(), bmOptions);
+                        Bitmap bmPhoto= Bitmap.createScaledBitmap(bitmap, 100, 100, true);
+
+                        ImageView ivNew=new ImageView(getContext());
+                        LinearLayout.LayoutParams layoutParams=new LinearLayout.LayoutParams(90,90);
+                        ivNew.setLayoutParams(layoutParams);
+                        //ivNew.setBackgroundColor(Color.parseColor("#D8D8DA"));
+                        ivNew.setPadding(5,5,5,5);
+                        llPhotos.addView(ivNew);
+                        ivNew.setImageBitmap( getRoundedCornerBitmap(bmPhoto));
+                        ivNew.setClickable(true);
+
+                        final String path=mCurrentPhotoPath;
+                        ivNew.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                Intent intent = new Intent();
+                                intent.setAction(Intent.ACTION_VIEW);
+                                intent.setDataAndType(Uri.parse("file://"+path), "image/*");
+                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                getContext().startActivity(intent);
+                            }
+                        });
+                    }else {
+                        mCurrentPhotoPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/gl/" + commentsItem.getUniqueGUID() + "_" + commentsItem.getPhotoIds().get(i).toString() + ".jpg";
+                       // new FileDownloadTask().execute(commentsItem.getPhotoIds().get(i).toString(), commentsItem.getUniqueGUID().toString(), "jpg");
+                        new AsyncTask<String, Void, String>() {
+                            @Override
+                            protected String doInBackground(String... params) {
+                                File file = null;
+                                try {
+                                    String DownloadUrl = "http://46.146.171.6:8080/utils/getFile/" + params[0];
+                                    String fileName = params[1] + "_" + params[0] + "." + params[2];
+                                    String root = Environment.getExternalStorageDirectory().getAbsolutePath();
+
+                                    File dir = new File(root + "/gl");
+                                    if (dir.exists() == false) {
+                                        dir.mkdirs();
+                                    }
+                                    URL url = new URL(DownloadUrl);
+                                    file = new File(dir, fileName);
+                                    if (file.exists()) {
+                                        return file.toString();//файл уже есть, можно не качать.
+                                    }
+                                    Log.d("DownloadManager", "download begining");
+                                    Log.d("DownloadManager", "download url:" + url);
+                                    Log.d("DownloadManager", "downloaded file name:" + fileName);
+
+                                    URLConnection ucon = url.openConnection();
+                                    ucon.setConnectTimeout(5000);
+                                    ucon.setReadTimeout(20000);
+                                    InputStream is = ucon.getInputStream();
+                                    ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+                                    int nRead;
+                                    byte[] data = new byte[16384];
+
+                                    while ((nRead = is.read(data, 0, data.length)) != -1) {
+                                        buffer.write(data, 0, nRead);
+                                    }
+                                    buffer.flush();
+
+                                    byte[] dataFile = buffer.toByteArray();
+                                    FileOutputStream fos = new FileOutputStream(file);
+                                    fos.write(dataFile);
+                                    fos.flush();
+                                    fos.close();
+                                } catch (Exception e) {
+                                    Log.d("DownloadManager", "Error: " + e);
+                                }
+                                return file.toString();
+                            }
+
+                            @Override
+                            protected void onPostExecute(String s) {
+                                super.onPostExecute(s);
+                                File photoFile=new File(s);
+                                BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+                                bmOptions.inSampleSize=4;
+                                Bitmap bitmap = BitmapFactory.decodeFile(photoFile.getAbsolutePath(), bmOptions);
+                                Bitmap bmPhoto= Bitmap.createScaledBitmap(bitmap, 100, 100, true);
+
+                                ImageView ivNew=new ImageView(getContext());
+                                LinearLayout.LayoutParams layoutParams=new LinearLayout.LayoutParams(90,90);
+                                ivNew.setLayoutParams(layoutParams);
+                                //ivNew.setBackgroundColor(Color.parseColor("#D8D8DA"));
+                                ivNew.setPadding(5,5,5,5);
+                                llPhotos.addView(ivNew);
+                                ivNew.setImageBitmap( getRoundedCornerBitmap(bmPhoto));
+                                ivNew.setClickable(true);
+
+                                final String path=s;
+                                ivNew.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        Intent intent = new Intent();
+                                        intent.setAction(Intent.ACTION_VIEW);
+                                        intent.setDataAndType(Uri.parse("file://"+path), "image/*");
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                        getContext().startActivity(intent);
+                                    }
+                                });
+                            }
+                        }.execute(commentsItem.getPhotoIds().get(i).toString(), commentsItem.getUniqueGUID().toString(), "jpg");
                     }
-                    File photoFile=new File(mCurrentPhotoPath);
-                    BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-                    bmOptions.inSampleSize=4;
-                    Bitmap bitmap = BitmapFactory.decodeFile(photoFile.getAbsolutePath(), bmOptions);
-                    Bitmap bmPhoto= Bitmap.createScaledBitmap(bitmap, 100, 100, true);
 
-                    ImageView ivNew=new ImageView(getContext());
-                    LinearLayout.LayoutParams layoutParams=new LinearLayout.LayoutParams(90,90);
-                    ivNew.setLayoutParams(layoutParams);
-                    //ivNew.setBackgroundColor(Color.parseColor("#D8D8DA"));
-                    ivNew.setPadding(5,5,5,5);
-                    llImages.addView(ivNew);
-                    ivNew.setImageBitmap( getRoundedCornerBitmap(bmPhoto));
-                    ivNew.setClickable(true);
-
-                    final String path=mCurrentPhotoPath;
-                    ivNew.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            Intent intent = new Intent();
-                            intent.setAction(Intent.ACTION_VIEW);
-                            intent.setDataAndType(Uri.parse("file://"+path), "image/*");
-                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            getContext().startActivity(intent);
-                        }
-                    });
                 }catch (Exception e){
                     e.printStackTrace();
                 }
@@ -234,40 +316,116 @@ public class EventsAdapter  extends ArrayAdapter<Event> {
                 viewHolder.trPhotoRow.setVisibility(View.VISIBLE);
                 viewHolder.trPhotoRow.findViewById(R.id.rlVideo).setVisibility(View.VISIBLE);
                 String mCurrentVideoPath="";
-                if (commentsItem.getVideoId().equals(new Long(-1))){
-                    mCurrentVideoPath=commentsItem.getVideoPath();
-                }else{
-                    mCurrentVideoPath=Environment.getExternalStorageDirectory().getAbsolutePath()+"/gl/"+commentsItem.getUniqueGUID()+"_"+commentsItem.getVideoId().toString()+".jpg";
-                    new FileDownloadTask().execute(commentsItem.getVideoId().toString(),commentsItem.getUniqueGUID().toString(),"jpg");
-                }
-
-
                 ViewGroup.LayoutParams layoutParams=viewHolder.trPhotoRow.findViewById(R.id.ivForVideo).getLayoutParams();
                 layoutParams.height=90;
                 layoutParams.width=90;
                 viewHolder.trPhotoRow.findViewById(R.id.ivForVideo).setLayoutParams(layoutParams);
+                if (commentsItem.getVideoId().equals(new Long(-1))){
+                    mCurrentVideoPath=commentsItem.getVideoPath();
 
 
-                Bitmap thumbnail = ThumbnailUtils.createVideoThumbnail(mCurrentVideoPath,
-                        MediaStore.Images.Thumbnails.MINI_KIND);
-                Bitmap bmPhoto= Bitmap.createScaledBitmap(thumbnail, 90, 90, true);
-                ImageView ivVideoPreview=(ImageView) viewHolder.trPhotoRow.findViewById(R.id.ivForVideo);
-                ivVideoPreview.setPadding(5,5,5,5);
-                //ivVideoPreview.setBackgroundColor(Color.parseColor("#D8D8DA"));
-                ivVideoPreview.setImageBitmap(getRoundedCornerBitmap(bmPhoto));
-                ImageButton btnPlayVideo=(ImageButton)viewHolder.trPhotoRow.findViewById(R.id.btnVideoPlay);
-                btnPlayVideo.setImageResource(R.drawable.icon_audio_play);
-                final String path=mCurrentVideoPath;
-                btnPlayVideo.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Intent intent = new Intent();
-                        intent.setAction(Intent.ACTION_VIEW);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        intent.setDataAndType(Uri.parse("file://"+path), "video/*");
-                        getContext().startActivity(intent);
-                    }
-                });
+
+                    Bitmap thumbnail = ThumbnailUtils.createVideoThumbnail(mCurrentVideoPath,
+                            MediaStore.Images.Thumbnails.MINI_KIND);
+                    Bitmap bmPhoto= Bitmap.createScaledBitmap(thumbnail, 90, 90, true);
+                    ImageView ivVideoPreview=(ImageView) viewHolder.trPhotoRow.findViewById(R.id.ivForVideo);
+                    ivVideoPreview.setPadding(5,5,5,5);
+                    //ivVideoPreview.setBackgroundColor(Color.parseColor("#D8D8DA"));
+                    ivVideoPreview.setImageBitmap(getRoundedCornerBitmap(bmPhoto));
+                    ImageButton btnPlayVideo=(ImageButton)viewHolder.trPhotoRow.findViewById(R.id.btnVideoPlay);
+                    btnPlayVideo.setImageResource(R.drawable.icon_audio_play);
+                    final String path=mCurrentVideoPath;
+                    btnPlayVideo.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Intent intent = new Intent();
+                            intent.setAction(Intent.ACTION_VIEW);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            intent.setDataAndType(Uri.parse("file://"+path), "video/*");
+                            getContext().startActivity(intent);
+                        }
+                    });
+                }else{
+                    mCurrentVideoPath=Environment.getExternalStorageDirectory().getAbsolutePath()+"/gl/"+commentsItem.getUniqueGUID()+"_"+commentsItem.getVideoId().toString()+".3gp";
+                    //new FileDownloadTask().execute(commentsItem.getVideoId().toString(),commentsItem.getUniqueGUID().toString(),"3gp");
+                    final ImageView ivVideoPreview=(ImageView) viewHolder.trPhotoRow.findViewById(R.id.ivForVideo);
+                    final ImageButton btnPlayVideo=(ImageButton)viewHolder.trPhotoRow.findViewById(R.id.btnVideoPlay);
+                    new AsyncTask<String, Void, String>() {
+                        @Override
+                        protected String doInBackground(String... params) {
+                            File file = null;
+                            try {
+                                String DownloadUrl = "http://46.146.171.6:8080/utils/getFile/" + params[0];
+                                String fileName = params[1] + "_" + params[0] + "." + params[2];
+                                String root = Environment.getExternalStorageDirectory().getAbsolutePath();
+
+                                File dir = new File(root + "/gl");
+                                if (dir.exists() == false) {
+                                    dir.mkdirs();
+                                }
+                                URL url = new URL(DownloadUrl);
+                                file = new File(dir, fileName);
+                                if (file.exists()) {
+                                    return file.toString();//файл уже есть, можно не качать.
+                                }
+                                Log.d("DownloadManager", "download begining");
+                                Log.d("DownloadManager", "download url:" + url);
+                                Log.d("DownloadManager", "downloaded file name:" + fileName);
+
+                                URLConnection ucon = url.openConnection();
+                                ucon.setConnectTimeout(5000);
+                                ucon.setReadTimeout(20000);
+                                InputStream is = ucon.getInputStream();
+                                ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+                                int nRead;
+                                byte[] data = new byte[16384];
+
+                                while ((nRead = is.read(data, 0, data.length)) != -1) {
+                                    buffer.write(data, 0, nRead);
+                                }
+                                buffer.flush();
+
+                                byte[] dataFile = buffer.toByteArray();
+                                FileOutputStream fos = new FileOutputStream(file);
+                                fos.write(dataFile);
+                                fos.flush();
+                                fos.close();
+                            } catch (Exception e) {
+                                Log.d("DownloadManager", "Error: " + e);
+                            }
+                            return file.toString();
+                        }
+
+                        @Override
+                        protected void onPostExecute(String s) {
+                            super.onPostExecute(s);
+
+                            Bitmap thumbnail = ThumbnailUtils.createVideoThumbnail(s,
+                                    MediaStore.Images.Thumbnails.MINI_KIND);
+                            Bitmap bmPhoto= Bitmap.createScaledBitmap(thumbnail, 90, 90, true);
+
+                            ivVideoPreview.setPadding(5,5,5,5);
+                            //ivVideoPreview.setBackgroundColor(Color.parseColor("#D8D8DA"));
+                            ivVideoPreview.setImageBitmap(getRoundedCornerBitmap(bmPhoto));
+
+                            btnPlayVideo.setImageResource(R.drawable.icon_audio_play);
+                            final String path=s;
+                            btnPlayVideo.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    Intent intent = new Intent();
+                                    intent.setAction(Intent.ACTION_VIEW);
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    intent.setDataAndType(Uri.parse("file://"+path), "video/*");
+                                    getContext().startActivity(intent);
+                                }
+                            });
+                        }
+                    }.execute(commentsItem.getVideoId().toString(),commentsItem.getUniqueGUID().toString(),"3gp");
+                }
+
+
+
             }catch (Exception e){
                 e.printStackTrace();
             }

@@ -196,8 +196,15 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
             ibIconUp.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    ScrollView scrollView = (ScrollView) findViewById(R.id.scrollView);
-                    scrollView.fullScroll(ScrollView.FOCUS_UP);
+                    try{
+//                        ScrollView scrollView = (ScrollView) findViewById(R.id.scrollView);
+//                        scrollView.fullScroll(ScrollView.FOCUS_UP);
+                        ((ListView)findViewById(R.id.listViewEvents)).setSelectionAfterHeaderView();
+
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+
                 }
             });
 
