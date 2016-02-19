@@ -4,8 +4,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.*;
 import android.media.MediaPlayer;
+import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -164,9 +166,9 @@ public class EventsAdapter  extends ArrayAdapter<Event> {
 
 
         }
+        viewHolder.trPhotoRow.setVisibility(View.GONE);
         if (commentsItem.getPhotoIds() == null || commentsItem.getPhotoIds().size() == 0) {
             viewHolder.ivPhoto.setVisibility(View.GONE);
-            viewHolder.trPhotoRow.setVisibility(View.GONE);
 //            ViewGroup.LayoutParams qwe = convertView.findViewById(R.id.ivHasPhoto).getLayoutParams();
 //            qwe.width = 0;
 //            convertView.findViewById(R.id.ivHasPhoto).setLayoutParams(qwe);
@@ -174,7 +176,10 @@ public class EventsAdapter  extends ArrayAdapter<Event> {
             viewHolder.ivPhoto.setVisibility(View.VISIBLE);
             viewHolder.trPhotoRow.setVisibility(View.VISIBLE);
             LinearLayout llImages=(LinearLayout) viewHolder.trPhotoRow.findViewById(R.id.llImages);
-            llImages.removeAllViews();
+            for (int z=1;z<llImages.getChildCount();z++){
+                llImages.removeViewAt(z);
+            }
+
             for (int i=0;i<commentsItem.getPhotoIds().size();i++ ){
                 try{
                     String mCurrentPhotoPath="";
@@ -221,8 +226,52 @@ public class EventsAdapter  extends ArrayAdapter<Event> {
 //            ViewGroup.LayoutParams qwe = convertView.findViewById(R.id.ivHasVideo).getLayoutParams();
 //            qwe.width = 0;
 //            convertView.findViewById(R.id.ivHasVideo).setLayoutParams(qwe);
+            viewHolder.trPhotoRow.findViewById(R.id.rlVideo).setVisibility(View.GONE);
         } else {
-            viewHolder.ivVideo.setVisibility(View.VISIBLE);
+            try{
+
+                viewHolder.ivVideo.setVisibility(View.VISIBLE);
+                viewHolder.trPhotoRow.setVisibility(View.VISIBLE);
+                viewHolder.trPhotoRow.findViewById(R.id.rlVideo).setVisibility(View.VISIBLE);
+                String mCurrentVideoPath="";
+                if (commentsItem.getVideoId().equals(new Long(-1))){
+                    mCurrentVideoPath=commentsItem.getVideoPath();
+                }else{
+                    mCurrentVideoPath=Environment.getExternalStorageDirectory().getAbsolutePath()+"/gl/"+commentsItem.getUniqueGUID()+"_"+commentsItem.getVideoId().toString()+".jpg";
+                    new FileDownloadTask().execute(commentsItem.getVideoId().toString(),commentsItem.getUniqueGUID().toString(),"jpg");
+                }
+
+
+                ViewGroup.LayoutParams layoutParams=viewHolder.trPhotoRow.findViewById(R.id.ivForVideo).getLayoutParams();
+                layoutParams.height=90;
+                layoutParams.width=90;
+                viewHolder.trPhotoRow.findViewById(R.id.ivForVideo).setLayoutParams(layoutParams);
+
+
+                Bitmap thumbnail = ThumbnailUtils.createVideoThumbnail(mCurrentVideoPath,
+                        MediaStore.Images.Thumbnails.MINI_KIND);
+                Bitmap bmPhoto= Bitmap.createScaledBitmap(thumbnail, 90, 90, true);
+                ImageView ivVideoPreview=(ImageView) viewHolder.trPhotoRow.findViewById(R.id.ivForVideo);
+                ivVideoPreview.setPadding(5,5,5,5);
+                //ivVideoPreview.setBackgroundColor(Color.parseColor("#D8D8DA"));
+                ivVideoPreview.setImageBitmap(getRoundedCornerBitmap(bmPhoto));
+                ImageButton btnPlayVideo=(ImageButton)viewHolder.trPhotoRow.findViewById(R.id.btnVideoPlay);
+                btnPlayVideo.setImageResource(R.drawable.icon_audio_play);
+                final String path=mCurrentVideoPath;
+                btnPlayVideo.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent();
+                        intent.setAction(Intent.ACTION_VIEW);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        intent.setDataAndType(Uri.parse("file://"+path), "video/*");
+                        getContext().startActivity(intent);
+                    }
+                });
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
 
 
         }

@@ -257,7 +257,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                         conn.setRequestProperty("Accept", "*/*");
                         conn.setRequestProperty("Content-Type", "application/json");
                         conn.setRequestProperty("charset", "utf-8");
-                        conn.setConnectTimeout(5000);
+                        conn.setConnectTimeout(10000);
                         conn.setReadTimeout(20000);
 
                         DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
