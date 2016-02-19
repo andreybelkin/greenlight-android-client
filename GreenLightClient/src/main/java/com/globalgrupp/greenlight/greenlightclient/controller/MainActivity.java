@@ -91,12 +91,12 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
                 mMap.animateCamera(cameraUpdate);
 
                 GetEventParams params=new GetEventParams();
-                //params.setURL("http://192.168.1.38:8080/event/getNearestEvents");
+                //params.setURL("http://46.146.171.6:8080/event/getNearestEvents");
                 Long channelId= ApplicationSettings.getInstance().getChannelId();
                 if (channelId!=null && !channelId.equals(new Long(0))){
-                    params.setURL("http://192.168.1.38:8080/event/getEventsByChannel/"+channelId.toString());
+                    params.setURL("http://46.146.171.6:8080/event/getEventsByChannel/"+channelId.toString());
                 }else{
-                    params.setURL("http://192.168.1.38:8080/event/getNearestEvents");
+                    params.setURL("http://46.146.171.6:8080/event/getNearestEvents");
                 }
                 SharedPreferences prefs=getApplicationContext().getSharedPreferences(
                         EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);

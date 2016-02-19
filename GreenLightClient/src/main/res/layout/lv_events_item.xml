@@ -133,6 +133,41 @@
         </TableRow>
         <TableRow
                 android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/trImageRow" android:layout_marginLeft="50dp">
+
+                <HorizontalScrollView
+                        android:layout_width="fill_parent"
+                        android:layout_height="fill_parent"
+                        android:id="@+id/horizontalScrollView">
+                    <LinearLayout
+                            android:orientation="horizontal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="fill_parent"
+                            android:id="@+id/llImages"
+                            android:layout_marginBottom="10dp">
+                        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                        android:orientation="vertical"
+                                        android:layout_width="fill_parent"
+                                        android:layout_height="fill_parent">
+
+                            <ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+                                       android:id="@+id/ivForVideo"
+                                       android:layout_width="wrap_content"
+                                       android:layout_height="wrap_content"
+                            />
+                            <ImageButton android:id="@+id/btnVideoPlay"
+                                         android:layout_width="wrap_content"
+                                         android:layout_height="wrap_content"
+                                         android:background="@null"
+                                         android:layout_centerInParent="true"
+                            />
+                        </RelativeLayout>
+                    </LinearLayout>
+                </HorizontalScrollView>
+        </TableRow>
+        <TableRow
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:layout_marginLeft="20dp" android:minHeight="29dp">
             <LinearLayout
                     android:orientation="horizontal"

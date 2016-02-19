@@ -183,7 +183,7 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
         try{
             Button btnSend=(Button)findViewById(R.id.btnCreateEvent);
             btnSend.setEnabled(false);
-            String serverURL = "http://192.168.1.38:8080/event/createEvent";
+            String serverURL = "http://46.146.171.6:8080/event/createEvent";
             EditText et=(EditText) findViewById(R.id.etEventText);
             String street=eAddres.getThoroughfare();
             //CreateEventParams params=new CreateEventParams(serverURL,eLocation.getLongtitude(),eLocation.getLatitude(),et.getText().toString());
