@@ -266,7 +266,7 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
                                 ivVideoPreview.setPadding(0,5,0,0);
                                 ivVideoPreview.setImageBitmap(bmPhoto);
                                 ImageButton btnPlayVideo=(ImageButton)findViewById(R.id.btnVideoPlay);
-                                btnPlayVideo.setImageResource(R.drawable.icon_audio_play);
+                                btnPlayVideo.setImageResource(R.drawable.video_wh);
                                 final String path=videoFilePath;
                                 btnPlayVideo.setOnClickListener(new View.OnClickListener() {
                                     @Override

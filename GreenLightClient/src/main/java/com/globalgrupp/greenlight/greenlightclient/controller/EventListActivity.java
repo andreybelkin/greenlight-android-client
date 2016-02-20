@@ -934,14 +934,25 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
             if (events.size() == 0) return;
             final Event newEvent = events.get(0);
 //            Thread.sleep(1000);
+            boolean isMyEvent=false;
             for (int k=0;k<allEvents.size();k++){
                 if (allEvents.get(k).getUniqueGUID()!=null&&allEvents.get(k).getUniqueGUID().equals(newEvent.getUniqueGUID())){
                     allEvents.remove(k);
                     allEvents.add(k,newEvent);
                     eventsAdapter.remove(eventsAdapter.getItem(k));
                     eventsAdapter.insert(newEvent,k);
+                    isMyEvent=true;
                     break;
                 }
+            }
+            if (!isMyEvent){
+                for (int i = 0; i < allEvents.size(); i++) {
+                    if (eventId.equals(allEvents.get(i).getId())) {
+                        return;
+                    }
+                }
+//                allEvents.add(0,newEvent);
+                eventsAdapter.insert(newEvent,0);
             }
 
             if (newEventAsyncTask!=null){

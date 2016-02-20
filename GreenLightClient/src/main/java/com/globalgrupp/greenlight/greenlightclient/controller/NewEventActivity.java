@@ -662,7 +662,7 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
             //ivVideoPreview.setBackgroundColor(Color.parseColor("#D8D8DA"));
             ivVideoPreview.setImageBitmap(bmPhoto);
             ImageButton btnPlayVideo=(ImageButton)findViewById(R.id.btnVideoPlay);
-            btnPlayVideo.setImageResource(R.drawable.icon_audio_play);
+            btnPlayVideo.setImageResource(R.drawable.video_wh);
             final String path=mCurrentVideoPath;
             btnPlayVideo.setOnClickListener(new View.OnClickListener() {
                 @Override

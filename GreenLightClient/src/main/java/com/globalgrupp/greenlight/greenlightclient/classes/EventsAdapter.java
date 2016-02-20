@@ -58,7 +58,7 @@ public class EventsAdapter  extends ArrayAdapter<Event> {
     public View getView(int position, View convertView, ViewGroup parent) {
         final Event commentsItem=getItem(position);
 
-        ViewHolder viewHolder;
+        final ViewHolder viewHolder;
         if (convertView == null) {
             viewHolder = new ViewHolder();
             if (inflater==null) inflater = LayoutInflater.from(getContext());
@@ -217,6 +217,7 @@ public class EventsAdapter  extends ArrayAdapter<Event> {
                         });
                     }else {
                         mCurrentPhotoPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/gl/" + commentsItem.getUniqueGUID() + "_" + commentsItem.getPhotoIds().get(i).toString() + ".jpg";
+                        final Long id=commentsItem.getPhotoIds().get(i);
                        // new FileDownloadTask().execute(commentsItem.getPhotoIds().get(i).toString(), commentsItem.getUniqueGUID().toString(), "jpg");
                         new AsyncTask<String, Void, String>() {
                             @Override
@@ -278,7 +279,11 @@ public class EventsAdapter  extends ArrayAdapter<Event> {
                                 ivNew.setLayoutParams(layoutParams);
                                 //ivNew.setBackgroundColor(Color.parseColor("#D8D8DA"));
                                 ivNew.setPadding(5,5,5,5);
-                                llPhotos.addView(ivNew);
+                                ivNew.setId(id.intValue());
+                                if (llPhotos.findViewById(id.intValue())==null){
+                                    llPhotos.addView(ivNew);
+                                }
+
                                 ivNew.setImageBitmap( getRoundedCornerBitmap(bmPhoto));
                                 ivNew.setClickable(true);
 
@@ -333,7 +338,7 @@ public class EventsAdapter  extends ArrayAdapter<Event> {
                     //ivVideoPreview.setBackgroundColor(Color.parseColor("#D8D8DA"));
                     ivVideoPreview.setImageBitmap(getRoundedCornerBitmap(bmPhoto));
                     ImageButton btnPlayVideo=(ImageButton)viewHolder.trPhotoRow.findViewById(R.id.btnVideoPlay);
-                    btnPlayVideo.setImageResource(R.drawable.icon_audio_play);
+                    btnPlayVideo.setImageResource(R.drawable.video_wh);
                     final String path=mCurrentVideoPath;
                     btnPlayVideo.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -408,7 +413,7 @@ public class EventsAdapter  extends ArrayAdapter<Event> {
                             //ivVideoPreview.setBackgroundColor(Color.parseColor("#D8D8DA"));
                             ivVideoPreview.setImageBitmap(getRoundedCornerBitmap(bmPhoto));
 
-                            btnPlayVideo.setImageResource(R.drawable.icon_audio_play);
+                            btnPlayVideo.setImageResource(R.drawable.video_wh);
                             final String path=s;
                             btnPlayVideo.setOnClickListener(new View.OnClickListener() {
                                 @Override

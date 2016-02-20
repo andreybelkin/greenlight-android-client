@@ -60,10 +60,17 @@ public class GCMNotificationIntentService extends IntentService {
                 }
                 Log.i(TAG, "Completed work @ " + SystemClock.elapsedRealtime());
 
-                //todo fields from push notification
-                sendNotification("Новое событие: "
-                        + extras.get("message"),new Long(extras.get("eventId").toString()),extras.get("senderId").toString());
-                Log.i(TAG, "Received: " + extras.toString());
+                try{
+                    //todo fields from push notification
+                    String  senderId=extras.get("senderId")!=null?extras.get("senderId").toString():"";
+                    sendNotification("Новое событие: "
+                            + extras.get("message"),new Long(extras.get("eventId").toString()),senderId);
+                    Log.i(TAG, "Received: " + extras.toString());
+                }catch (Exception e){
+
+                    e.printStackTrace();
+                }
+
             }
         }
 
