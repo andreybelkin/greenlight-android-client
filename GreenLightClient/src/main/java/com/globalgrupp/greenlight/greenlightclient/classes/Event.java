@@ -84,6 +84,16 @@ public class Event implements Serializable{
         return uniqueGUID;
     }
 
+    private User user;
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
     public void setUniqueGUID(String uniqueGUID) {
         this.uniqueGUID = uniqueGUID;
     }

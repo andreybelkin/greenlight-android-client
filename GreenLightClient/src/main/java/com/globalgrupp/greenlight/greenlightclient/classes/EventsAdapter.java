@@ -2,6 +2,7 @@ package com.globalgrupp.greenlight.greenlightclient.classes;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.*;
 import android.media.MediaPlayer;
 import android.media.ThumbnailUtils;
@@ -16,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.*;
 import com.globalgrupp.greenlight.greenlightclient.R;
 import com.globalgrupp.greenlight.greenlightclient.controller.EventDetailsActivity;
+import com.globalgrupp.greenlight.greenlightclient.controller.EventListActivity;
 import com.globalgrupp.greenlight.greenlightclient.controller.MainActivity;
 
 import java.io.*;
@@ -103,7 +105,12 @@ public class EventsAdapter  extends ArrayAdapter<Event> {
             }
         }
 
-        if (true){//тут должна быть проверка, что может удалять
+        final SharedPreferences prefs = getContext().getSharedPreferences(
+                EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);
+        String registrationId = prefs.getString("regId", "");
+//        if (true){//тут должна быть проверка, что может удалять
+        if (registrationId.equals(commentsItem.getUser().getPushAppId())){
+            viewHolder.ivDelete.setVisibility(View.VISIBLE);
             viewHolder.ivDelete.setOnClickListener(new View.OnClickListener() {
                 Long eventId=commentsItem.getId();
                 @Override
