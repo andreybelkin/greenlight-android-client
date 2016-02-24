@@ -18,16 +18,17 @@ import com.globalgrupp.greenlight.greenlightclient.R;
 import com.globalgrupp.greenlight.greenlightclient.controller.EventDetailsActivity;
 import com.globalgrupp.greenlight.greenlightclient.controller.MainActivity;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
+import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static com.google.android.gms.internal.zzir.runOnUiThread;
 
 /**
  * Created by п on 31.12.2015.
@@ -48,6 +49,7 @@ public class EventsAdapter  extends ArrayAdapter<Event> {
         TableRow trAudioRow;
         ProgressBar audioProgress;
         TableRow trPhotoRow;
+        ImageButton ivDelete;
     }
 
     public  EventsAdapter(Context context, ArrayList<Event> commentsItems){
@@ -55,7 +57,7 @@ public class EventsAdapter  extends ArrayAdapter<Event> {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         final Event commentsItem=getItem(position);
 
         final ViewHolder viewHolder;
@@ -74,6 +76,7 @@ public class EventsAdapter  extends ArrayAdapter<Event> {
             viewHolder.trAudioRow=(TableRow)convertView.findViewById(R.id.trAudioRow);
             viewHolder.audioProgress=(ProgressBar)convertView.findViewById(R.id.pbAudio);
             viewHolder.trPhotoRow=(TableRow) convertView.findViewById(R.id.trImageRow);
+            viewHolder.ivDelete=(ImageButton) convertView.findViewById(R.id.ibDelete);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
@@ -99,6 +102,92 @@ public class EventsAdapter  extends ArrayAdapter<Event> {
                 viewHolder.ivSocNet.setImageResource(R.drawable.icon_greenlight_event);
             }
         }
+
+        if (true){//тут должна быть проверка, что может удалять
+            viewHolder.ivDelete.setOnClickListener(new View.OnClickListener() {
+                Long eventId=commentsItem.getId();
+                @Override
+                public void onClick(View view) {
+                    new AsyncTask<Long, Void, Void>() {
+                        @Override
+                        protected Void doInBackground(Long... params) {
+                            BufferedReader reader=null;
+                            Log.i("doInBackground service ","doInBackground service ");
+                            // Send data
+                            List<Event> result=new ArrayList<Event>();
+                            try
+                            {
+                                String urlString="http://192.168.1.33:8080/event/delete/"+params[0].toString();
+                                URL url = new URL(urlString);
+
+                                HttpURLConnection conn =(HttpURLConnection) url.openConnection();
+                                conn.setDoOutput(true);
+                                conn.setDoInput(true);
+                                conn.setRequestMethod("POST");
+                                conn.setRequestProperty("User-Agent","Mozilla/5.0");
+                                conn.setRequestProperty("Accept","*/*");
+                                conn.setRequestProperty("Content-Type","application/json");
+                                conn.setRequestProperty("charset", "utf-8");
+                                conn.setConnectTimeout(5000);
+                                conn.setReadTimeout(10000);
+
+                                DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
+                                String str = "";
+                                byte[] data=str.getBytes("UTF-8");
+                                wr.write(data);
+                                wr.flush();
+                                wr.close();
+                                InputStream is; //todo conn.getResponseCode() for errors
+                                try{
+                                    is= conn.getInputStream();
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            EventsAdapter.this.remove(getItem(position));
+                                            EventsAdapter.this.notifyDataSetChanged();
+                                        }
+                                    });
+
+                                }
+                                catch (Exception e){
+                                    e.printStackTrace();
+                                    is=conn.getErrorStream();
+                                }
+                                reader = new BufferedReader(new InputStreamReader(is));
+                                StringBuilder sb = new StringBuilder();
+                                String line = null;
+
+                                // Read Server Response
+                                while((line = reader.readLine()) != null)
+                                {
+                                    // Append server response in string
+                                    sb.append(line + "\n");
+                                }
+                            }
+                            catch(Exception ex)
+                            {
+                                Log.d(ex.getMessage(),ex.getMessage());
+                                ex.printStackTrace();
+                            }
+                            finally
+                            {
+                                try
+                                {
+                                    reader.close();
+                                }
+                                catch(Exception ex) {
+                                    ex.printStackTrace();
+                                }
+                            }
+                            return null;
+                        }
+                    }.execute(eventId);
+                }
+            });
+        } else{
+            viewHolder.ivDelete.setVisibility(View.GONE);
+        }
+
 
         if (commentsItem.getAudioId() == null || commentsItem.getAudioId().equals(new Long(0))) {
             viewHolder.ivAudio.setVisibility(View.GONE);
@@ -224,7 +313,7 @@ public class EventsAdapter  extends ArrayAdapter<Event> {
                             protected String doInBackground(String... params) {
                                 File file = null;
                                 try {
-                                    String DownloadUrl = "http://46.146.171.6:8080/utils/getFile/" + params[0];
+                                    String DownloadUrl = "http://192.168.1.33:8080/utils/getFile/" + params[0];
                                     String fileName = params[1] + "_" + params[0] + "." + params[2];
                                     String root = Environment.getExternalStorageDirectory().getAbsolutePath();
 
@@ -360,7 +449,7 @@ public class EventsAdapter  extends ArrayAdapter<Event> {
                         protected String doInBackground(String... params) {
                             File file = null;
                             try {
-                                String DownloadUrl = "http://46.146.171.6:8080/utils/getFile/" + params[0];
+                                String DownloadUrl = "http://192.168.1.33:8080/utils/getFile/" + params[0];
                                 String fileName = params[1] + "_" + params[0] + "." + params[2];
                                 String root = Environment.getExternalStorageDirectory().getAbsolutePath();
 

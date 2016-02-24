@@ -344,7 +344,7 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
     private void refreshFields(){
         try{
             GetEventParams params=new GetEventParams();
-            params.setURL("http://46.146.171.6:8080/event/getEvent");
+            params.setURL("http://192.168.1.33:8080/event/getEvent");
             Long id=(Long)getIntent().getExtras().getSerializable("eventId");
             params.setEventId(id );
             if (id!=null){
@@ -717,7 +717,7 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
 
         try
         {
-            String urlString="http://46.146.171.6:8080/utils/uploadFile";
+            String urlString="http://192.168.1.33:8080/utils/uploadFile";
             URL url = new URL(urlString);
             HttpURLConnection conn =(HttpURLConnection) url.openConnection();
             conn.setDoOutput(true);

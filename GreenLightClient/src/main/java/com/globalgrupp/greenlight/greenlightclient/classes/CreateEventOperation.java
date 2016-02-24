@@ -33,7 +33,7 @@ import java.net.URL;
         // Send data
         try
         {
-            String serverURL = "http://46.146.171.6:8080/event/createEvent";
+            String serverURL = "http://192.168.1.33:8080/event/createEvent";
             // Defined URL  where to send data
             JSONObject msg=new JSONObject();
             msg.put("message",params[0].getMessage());
@@ -76,28 +76,23 @@ import java.net.URL;
             // Get the server response
             InputStream is; //todo conn.getResponseCode() for errors
             try{
-
                 is= conn.getInputStream();
             }
             catch (Exception e){
                 e.printStackTrace();
                 is=conn.getErrorStream();
                 return false;
-
             }
 
             reader = new BufferedReader(new InputStreamReader(is));
             StringBuilder sb = new StringBuilder();
             String line = null;
 
-            // Read Server Response
             while((line = reader.readLine()) != null)
             {
-                // Append server response in string
                 sb.append(line + "\n");
             }
 
-            // Append Server Response To Content String
             Content = sb.toString();
             return true;
         }
@@ -114,7 +109,6 @@ import java.net.URL;
             {
                 reader.close();
             }
-
             catch(Exception ex) {
                 ex.printStackTrace();
             }

@@ -74,7 +74,7 @@ public class RegistrationActivity extends ActionBarActivity {
                                 msg.put("password",params[0].getPassword());
                                 msg.put("newUser",params[0].isNewUser());
 
-                                URL url = new URL("http://46.146.171.6:8080/utils/authorize");
+                                URL url = new URL("http://192.168.1.33:8080/utils/authorize");
 
                                 // Send POST data request
 

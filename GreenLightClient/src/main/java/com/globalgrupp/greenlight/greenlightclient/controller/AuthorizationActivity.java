@@ -327,7 +327,7 @@ public class AuthorizationActivity extends ActionBarActivity implements View.OnC
                                         msg.put("password",params[0].getPassword());
                                         msg.put("newUser",params[0].isNewUser());
 
-                                        URL url = new URL("http://46.146.171.6:8080/utils/authorize");
+                                        URL url = new URL("http://192.168.1.33:8080/utils/authorize");
 
                                         // Send POST data request
 
@@ -594,6 +594,10 @@ public class AuthorizationActivity extends ActionBarActivity implements View.OnC
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
-        int i=0;
+        if (connectionResult.getErrorCode()==ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED){
+            Toast toast = Toast.makeText(getApplicationContext(),
+                    "Для корректной работы необходимо обновить Google Play Services", Toast.LENGTH_LONG);
+            toast.show();
+        }
     }
 }

@@ -245,7 +245,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
 
     public void initChannels() {
         try {
-            String url = "http://46.146.171.6:8080/channel/getBaseChannels";
+            String url = "http://192.168.1.33:8080/channel/getBaseChannels";
             List<Channel> channels = new AsyncTask<String, Void, List<Channel>>() {
                 @Override
                 protected List<Channel> doInBackground(String... params) {
@@ -442,9 +442,9 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
         try {
             GetEventParams params = new GetEventParams();
             if (channelId != null) {
-                params.setURL("http://46.146.171.6:8080/event/getEventsByChannel/" + channelId.toString());
+                params.setURL("http://192.168.1.33:8080/event/getEventsByChannel/" + channelId.toString());
             } else {
-                params.setURL("http://46.146.171.6:8080/event/getNearestEvents");
+                params.setURL("http://192.168.1.33:8080/event/getNearestEvents");
             }
 
             if (eLocation == null) {
@@ -515,6 +515,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                         InputStream is; //todo conn.getResponseCode() for errors
                         try{
                             is= conn.getInputStream();
+
                         }
                         catch (Exception e){
                             e.printStackTrace();
@@ -637,7 +638,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                                 } else {
                                     File file = null;
                                     try {
-                                        String DownloadUrl = "http://46.146.171.6:8080/utils/getFile/" + events.get(i).getAudioId().toString();
+                                        String DownloadUrl = "http://192.168.1.33:8080/utils/getFile/" + events.get(i).getAudioId().toString();
                                         String fileName = events.get(i).getUniqueGUID()+"_"+events.get(i).getAudioId().toString()+".3gp";
                                         String root = Environment.getExternalStorageDirectory().getAbsolutePath();
 
@@ -869,7 +870,11 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
+        if (connectionResult.getErrorCode()==ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED){
+            Toast toast = Toast.makeText(getApplicationContext(),
+                    "Для корректной работы необходимо обновить Google Play Services", Toast.LENGTH_LONG);
+            toast.show();
+        }
     }
 
     @Override
@@ -924,7 +929,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
         }
         try {
             GetEventParams params = new GetEventParams();
-            params.setURL("http://46.146.171.6:8080/event/getEvent");
+            params.setURL("http://192.168.1.33:8080/event/getEvent");
             params.setEventId(eventId);
             if (ApplicationSettings.getInstance().getChannelId() != null &&
                     !ApplicationSettings.getInstance().getChannelId().equals(new Long(0)))
@@ -993,7 +998,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                             } else {
                                 File file = null;
                                 try {
-                                    String DownloadUrl = "http://46.146.171.6:8080/utils/getFile/" + events.get(i).getAudioId().toString();
+                                    String DownloadUrl = "http://192.168.1.33:8080/utils/getFile/" + events.get(i).getAudioId().toString();
                                     String fileName = events.get(i).getUniqueGUID()+"_"+events.get(i).getAudioId().toString()+".3gp";
                                     String root = Environment.getExternalStorageDirectory().getAbsolutePath();
 
@@ -1102,5 +1107,10 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
         }
         folder.delete();
     }
+
+    public void deleteEvent(Long eventId){
+
+    }
+
 }
 

@@ -19,7 +19,7 @@ public class FileDownloadTask extends AsyncTask<String,Void,String> {
     protected String doInBackground(String... params) {
         File file=null;
         try {
-            String DownloadUrl="http://46.146.171.6:8080/utils/getFile/"+params[0];
+            String DownloadUrl="http://192.168.1.33:8080/utils/getFile/"+params[0];
             String fileName= params[1]+"_"+params[0]+"."+params[2];
             String root = Environment.getExternalStorageDirectory().getAbsolutePath();
 

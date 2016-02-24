@@ -100,20 +100,30 @@
 
         <TableRow
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-            <TextView
-                android:id="@+id/tvEventsTitle"
-                android:layout_marginLeft="50dp"
-                android:layout_marginTop="7dp"
-                android:paddingRight="7dp"
-                android:maxLines="3"
-                android:ellipsize="end"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:textColor="@color/symbol_black"
-                fontPath="fonts/Roboto-Regular.ttf"
-                android:text="Some text" />
+                android:layout_height="wrap_content" android:minHeight="35dp">
+            <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                <ImageButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/ibDelete" android:src="@drawable/icon_toolbar_remove_green"
+                        android:background="@null" android:layout_marginLeft="10dp"
+                        android:duplicateParentState="true"/>
+                <TextView
+                    android:id="@+id/tvEventsTitle"
+                    android:layout_marginLeft="50dp"
+                    android:layout_marginTop="7dp"
+                    android:paddingRight="7dp"
+                    android:maxLines="3"
+                    android:ellipsize="end"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:textColor="@color/symbol_black"
+                    fontPath="fonts/Roboto-Regular.ttf"
+                    android:text="Some text" />
+            </RelativeLayout>
         </TableRow>
         <TableRow
                 android:layout_width="match_parent"
