@@ -34,6 +34,11 @@
         android:icon="@drawable/icon_menu"
         yourapp:showAsAction="never" />
     <item
+        android:id="@+id/action_channels"
+        android:title="@string/map"
+        android:icon="@drawable/icon_menu"
+        yourapp:showAsAction="never" />
+    <item
             android:id="@+id/action_settings"
             android:title="Настройки"
             android:icon="@drawable/ic_setting_dark"

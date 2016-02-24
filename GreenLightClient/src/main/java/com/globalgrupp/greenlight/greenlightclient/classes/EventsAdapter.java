@@ -154,7 +154,6 @@ public class EventsAdapter  extends ArrayAdapter<Event> {
                                             EventsAdapter.this.notifyDataSetChanged();
                                         }
                                     });
-
                                 }
                                 catch (Exception e){
                                     e.printStackTrace();
@@ -262,18 +261,12 @@ public class EventsAdapter  extends ArrayAdapter<Event> {
                     }catch (Exception e){
                         e.printStackTrace();
                     }
-
                 }
             });
-
-
         }
         viewHolder.trPhotoRow.setVisibility(View.GONE);
         if (commentsItem.getPhotoIds() == null || commentsItem.getPhotoIds().size() == 0) {
             viewHolder.ivPhoto.setVisibility(View.GONE);
-//            ViewGroup.LayoutParams qwe = convertView.findViewById(R.id.ivHasPhoto).getLayoutParams();
-//            qwe.width = 0;
-//            convertView.findViewById(R.id.ivHasPhoto).setLayoutParams(qwe);
         } else {
             viewHolder.ivPhoto.setVisibility(View.VISIBLE);
             viewHolder.trPhotoRow.setVisibility(View.VISIBLE);

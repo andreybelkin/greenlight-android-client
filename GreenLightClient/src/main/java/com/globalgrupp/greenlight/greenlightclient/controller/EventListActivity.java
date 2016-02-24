@@ -257,20 +257,20 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                         JSONObject msg = new JSONObject();
                         URL url = new URL(urlString);
                         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                        conn.setDoOutput(true);
-                        conn.setDoInput(true);
-                        conn.setRequestMethod("POST");
+//                        conn.setDoOutput(true);
+//                        conn.setDoInput(true);
+                        conn.setRequestMethod("GET");
                         conn.setRequestProperty("User-Agent", "Mozilla/5.0");
                         conn.setRequestProperty("Accept", "*/*");
                         conn.setRequestProperty("Content-Type", "application/json");
                         conn.setRequestProperty("charset", "utf-8");
-                        conn.setConnectTimeout(10000);
+                        conn.setConnectTimeout(5000);
                         conn.setReadTimeout(20000);
 
                         DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
                         String str = msg.toString();
                         byte[] data = str.getBytes("UTF-8");
-                        wr.write(data);
+                        wr.write(null);
                         wr.flush();
                         wr.close();
                         InputStream is; //todo conn.getResponseCode() for errors
@@ -297,7 +297,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                             result.add(e);
                         }
                     } catch (Exception ex) {
-                        ex.printStackTrace();
+                         ex.printStackTrace();
                     } finally {
                         try {
                             reader.close();
@@ -787,6 +787,8 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
         logoutItem.setOnMenuItemClickListener(this);
         MenuItem settingItem = menu.findItem(R.id.action_settings);
         settingItem.setOnMenuItemClickListener(this);
+        MenuItem channelsItem=menu.findItem(R.id.action_channels);
+        channelsItem.setOnMenuItemClickListener(this);
         return true;
     }
 
@@ -812,6 +814,9 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
             Intent startIntent;
             if (menuItem.getItemId() == R.id.action_new_event) {
                 startNewEventActivity();
+            } else if (menuItem.getItemId() == R.id.action_channels) {
+                startIntent=new Intent(this,ChannelListActivity.class);
+                startActivity(startIntent);
             } else if (menuItem.getItemId() == R.id.action_event_list) {
                 startIntent = new Intent(this, EventListActivity.class);
 //                startIntent.putExtra("location", coords);

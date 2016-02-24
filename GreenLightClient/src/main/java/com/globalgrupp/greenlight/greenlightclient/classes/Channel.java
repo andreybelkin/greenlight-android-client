@@ -1,5 +1,8 @@
 package com.globalgrupp.greenlight.greenlightclient.classes;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by Lenovo on 18.01.2016.
  */
@@ -22,6 +25,8 @@ public class Channel {
     public void setId(Long id) {
         this.id = id;
     }
+
+    private List<Street> streets = new ArrayList<Street>(0);
 
     public Channel() {
     }
