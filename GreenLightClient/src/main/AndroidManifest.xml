@@ -77,7 +77,13 @@
                 android:name=".controller.EventListActivity"
                 android:label="" />
         <activity
-                android:name=".controller.ChannelListActivity"
+                android:name=".controller.GroupListActivity"
+                android:label="" />
+        <activity
+                android:name=".controller.GroupEditActivity"
+                android:label="" />
+        <activity
+                android:name=".controller.SearchUserActivity"
                 android:label="" />
         <activity
                 android:name=".controller.SettingsActivity"

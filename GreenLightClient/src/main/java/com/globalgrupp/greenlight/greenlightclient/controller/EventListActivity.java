@@ -209,7 +209,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
             });
 
             if (ApplicationSettings.getInstance().getAuthorizationType()==AuthorizationType.NONE){
-                TableRow trBottomButtons=(TableRow)findViewById(R.id.trBottomButtons);
+                LinearLayout trBottomButtons=(LinearLayout)findViewById(R.id.trBottomButtons);
                 trBottomButtons.setVisibility(View.GONE);
             } else{
                 ImageButton ibRed=(ImageButton)findViewById(R.id.ibRed);
@@ -257,9 +257,9 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                         JSONObject msg = new JSONObject();
                         URL url = new URL(urlString);
                         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-//                        conn.setDoOutput(true);
-//                        conn.setDoInput(true);
-                        conn.setRequestMethod("GET");
+                        conn.setDoOutput(true);
+                        conn.setDoInput(true);
+                        conn.setRequestMethod("POST");
                         conn.setRequestProperty("User-Agent", "Mozilla/5.0");
                         conn.setRequestProperty("Accept", "*/*");
                         conn.setRequestProperty("Content-Type", "application/json");
@@ -270,7 +270,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                         DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
                         String str = msg.toString();
                         byte[] data = str.getBytes("UTF-8");
-                        wr.write(null);
+                        wr.write(data);
                         wr.flush();
                         wr.close();
                         InputStream is; //todo conn.getResponseCode() for errors
@@ -532,7 +532,6 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                             sb.append(line + "\n");
                         }
 
-                        JSONArray jsonResponseArray=new JSONArray(sb.toString());
                         GsonBuilder builder=new GsonBuilder();
                         builder.registerTypeAdapter(Date.class, new JsonDeserializer<Date>() {
                             public Date deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
@@ -787,7 +786,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
         logoutItem.setOnMenuItemClickListener(this);
         MenuItem settingItem = menu.findItem(R.id.action_settings);
         settingItem.setOnMenuItemClickListener(this);
-        MenuItem channelsItem=menu.findItem(R.id.action_channels);
+        MenuItem channelsItem=menu.findItem(R.id.action_groups);
         channelsItem.setOnMenuItemClickListener(this);
         return true;
     }
@@ -814,8 +813,8 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
             Intent startIntent;
             if (menuItem.getItemId() == R.id.action_new_event) {
                 startNewEventActivity();
-            } else if (menuItem.getItemId() == R.id.action_channels) {
-                startIntent=new Intent(this,ChannelListActivity.class);
+            } else if (menuItem.getItemId() == R.id.action_groups) {
+                startIntent=new Intent(this,GroupListActivity.class);
                 startActivity(startIntent);
             } else if (menuItem.getItemId() == R.id.action_event_list) {
                 startIntent = new Intent(this, EventListActivity.class);

@@ -23,13 +23,12 @@ import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.globalgrupp.greenlight.greenlightclient.R;
-import com.globalgrupp.greenlight.greenlightclient.classes.ApplicationSettings;
-import com.globalgrupp.greenlight.greenlightclient.classes.AuthorizationType;
-import com.globalgrupp.greenlight.greenlightclient.classes.TopExceptionHandler;
-import com.globalgrupp.greenlight.greenlightclient.classes.UserCredentials;
+import com.globalgrupp.greenlight.greenlightclient.classes.*;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
 import com.vk.sdk.VKAccessToken;
 import com.vk.sdk.VKCallback;
 import com.vk.sdk.VKSdk;
@@ -49,9 +48,13 @@ import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Created by Lenovo on 14.01.2016.
@@ -91,6 +94,73 @@ public class AuthorizationActivity extends ActionBarActivity implements View.OnC
         }
     }
 
+    void sendUserInfo(SocialNetworkUser user){
+        new AsyncTask<SocialNetworkUser, Void, Void>() {
+            @Override
+            protected Void doInBackground(SocialNetworkUser... users) {
+                BufferedReader reader=null;
+                Log.i("doInBackground service ","doInBackground service ");
+                try
+                {
+                    String urlString="http://192.168.1.33:8080/group/saveUser";
+                    URL url = new URL(urlString);
+
+                    HttpURLConnection conn =(HttpURLConnection) url.openConnection();
+                    conn.setDoOutput(true);
+                    conn.setDoInput(true);
+                    conn.setRequestMethod("POST");
+                    conn.setRequestProperty("User-Agent","Mozilla/5.0");
+                    conn.setRequestProperty("Accept","*/*");
+                    conn.setRequestProperty("Content-Type","application/json");
+                    conn.setRequestProperty("charset", "utf-8");
+                    conn.setConnectTimeout(5000);
+                    conn.setReadTimeout(20000);
+
+                    Gson gson=new Gson();
+                    String str = gson.toJson(users[0]);;
+                    DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
+                    byte[] data=str.getBytes("UTF-8");
+                    wr.write(data);
+                    wr.flush();
+                    wr.close();
+                    // Get the server response
+                    InputStream is; //todo conn.getResponseCode() for errors
+                    try{
+                        is= conn.getInputStream();
+                    }
+                    catch (Exception e){
+                        e.printStackTrace();
+                        is=conn.getErrorStream();
+                    }
+                    reader = new BufferedReader(new InputStreamReader(is));
+                    StringBuilder sb = new StringBuilder();
+                    String line = null;
+
+                    while((line = reader.readLine()) != null)
+                    {
+                        sb.append(line + "\n");
+                    }
+                }
+                catch(Exception ex)
+                {
+                    Log.d(ex.getMessage(),ex.getMessage());
+                    ex.printStackTrace();
+                }
+                finally
+                {
+                    try
+                    {
+                        reader.close();
+                    }
+                    catch(Exception ex) {
+                        ex.printStackTrace();
+                    }
+                }
+                return null;
+            }
+        }.execute(user);
+    }
+
     CallbackManager callbackManager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,16 +187,22 @@ public class AuthorizationActivity extends ActionBarActivity implements View.OnC
                             public void onCompleted(JSONObject jsonObject, GraphResponse graphResponse) {
                                 try {
                                     String userName=jsonObject.getString("name");
+                                    String userId=jsonObject.getString("id");
+                                    SocialNetworkUser socialNetworkUser=new SocialNetworkUser();
+                                    socialNetworkUser.setSocialNetworkId(new Long(2));
+                                    socialNetworkUser.setUserName(userName);
+                                    socialNetworkUser.setSocialNetworkuserId(new Long(userId));
                                     SharedPreferences.Editor editor = prefs.edit();
                                     editor.putString("FacebookUserName",userName);
                                     editor.commit();
+                                    sendUserInfo(socialNetworkUser);
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
                             }
                         });
                         Bundle parameters = new Bundle();
-                        parameters.putString("fields", "id,name,email");
+                        parameters.putString("fields", "id,name,email,link");
                         request.setParameters(parameters);
                         request.executeAsync();
                         ApplicationSettings.getInstance().setAuthorizationType(authorizationType);
@@ -479,6 +555,11 @@ public class AuthorizationActivity extends ActionBarActivity implements View.OnC
                 editor.putString("TwitterToken",mAccessToken.getToken());
                 editor.putString("TwitterUserName",userName);
                 editor.commit();
+                SocialNetworkUser socialNetworkUser=new SocialNetworkUser();
+                socialNetworkUser.setUserName(userName);
+                socialNetworkUser.setSocialNetworkuserId(new Long(mAccessToken.getUserId()));
+                socialNetworkUser.setSocialNetworkId(new Long(3));
+                sendUserInfo(socialNetworkUser);
                 // Add code here to save the OAuth AccessToken and AccessTokenSecret into  SharedPreferences
             } catch (Exception e) {
                 e.printStackTrace();
@@ -509,9 +590,15 @@ public class AuthorizationActivity extends ActionBarActivity implements View.OnC
                                 try {
                                     String firstName= response.json.getJSONArray("response").getJSONObject(0).getString("first_name");
                                     String lastName=response.json.getJSONArray("response").getJSONObject(0).getString("last_name");
+                                    String id= response.json.getJSONArray("response").getJSONObject(0).getString("id");
                                     SharedPreferences.Editor editor = prefs.edit();
                                     editor.putString("VKUserName",firstName+" "+lastName);
                                     editor.commit();
+                                    SocialNetworkUser socialNetworkUser=new SocialNetworkUser();
+                                    socialNetworkUser.setUserName(firstName+" "+lastName);
+                                    socialNetworkUser.setSocialNetworkuserId(new Long(id));
+                                    socialNetworkUser.setSocialNetworkId(new Long(1));
+                                    sendUserInfo(socialNetworkUser);
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }

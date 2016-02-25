@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="MissingPrefix"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp">
+
+    <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/ivSocialNetworkIcon" android:src="@drawable/icon_greenlight_event"/>
+        <TextView
+                fontPath="fonts/Roboto-Regular.ttf"
+                android:id="@+id/tvGroupName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:gravity="center_vertical"
+                android:textColor="@color/sliding_menu_text_color"
+                android:text="Line 1"
+                android:textStyle="bold"
+                android:layout_centerVertical="true" android:layout_gravity="center_vertical"
+                android:layout_marginLeft="10dp"/>
+    </TableRow>
+
+
+</RelativeLayout>

@@ -12,7 +12,7 @@
         <ListView
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/listViewChannels" android:scrollingCache="false" android:smoothScrollbar="false"
+                android:id="@+id/listViewGroups" android:scrollingCache="false" android:smoothScrollbar="false"
         />
     </TableRow>
 </RelativeLayout>

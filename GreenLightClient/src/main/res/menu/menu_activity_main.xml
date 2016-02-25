@@ -34,8 +34,8 @@
         android:icon="@drawable/icon_menu"
         yourapp:showAsAction="never" />
     <item
-        android:id="@+id/action_channels"
-        android:title="@string/map"
+        android:id="@+id/action_groups"
+        android:title="Группы"
         android:icon="@drawable/icon_menu"
         yourapp:showAsAction="never" />
     <item
@@ -49,16 +49,4 @@
         android:icon="@drawable/logout"
         yourapp:showAsAction="never" />
 
-
-    <!--<item-->
-        <!--android:id="@+id/action_remove"-->
-        <!--android:title="@string/remove"-->
-        <!--android:icon="@drawable/icon_toolbar_remove"-->
-        <!--yourapp:showAsAction="always" />-->
-
-    <!--<item-->
-        <!--android:id="@+id/action_sort"-->
-        <!--android:title="@string/sort_ab"-->
-        <!--android:icon="@drawable/icon_toolbal_sort"-->
-        <!--yourapp:showAsAction="always" />-->
 </menu>
