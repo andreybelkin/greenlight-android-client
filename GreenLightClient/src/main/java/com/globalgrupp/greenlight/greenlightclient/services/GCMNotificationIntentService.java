@@ -3,22 +3,29 @@ package com.globalgrupp.greenlight.greenlightclient.services;
 /**
  * Created by Lenovo on 19.01.2016.
  */
+
 import android.app.IntentService;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
+import android.text.TextUtils;
 import android.util.Log;
-
 import com.globalgrupp.greenlight.greenlightclient.R;
 import com.globalgrupp.greenlight.greenlightclient.controller.EventDetailsActivity;
+import com.globalgrupp.greenlight.greenlightclient.controller.EventListActivity;
 import com.globalgrupp.greenlight.greenlightclient.utils.GCMRegistrationHelper;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class GCMNotificationIntentService extends IntentService {
 
@@ -80,6 +87,19 @@ public class GCMNotificationIntentService extends IntentService {
     private void sendNotification(String msg,Long id,String senderId) {
         Log.d(TAG, "Preparing to send notification...: " + msg);
         String registrationId =GCMRegistrationHelper.getRegistrationId(getApplicationContext());
+        SharedPreferences prefs = getApplicationContext().getSharedPreferences(
+                EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);
+        String gettedIds=prefs.getString("eventIdsFromPush","");
+        List<String> oldId = new ArrayList<String>(Arrays.asList(gettedIds.split(",")));
+        if (oldId.contains(id.toString())){
+            return;
+        }else {
+            oldId.add(id.toString());
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString("eventIdsFromPush",TextUtils.join(",",oldId));
+            editor.commit();
+        }
+
         if (!senderId.equals(registrationId)){
             mNotificationManager = (NotificationManager) this
                     .getSystemService(Context.NOTIFICATION_SERVICE);

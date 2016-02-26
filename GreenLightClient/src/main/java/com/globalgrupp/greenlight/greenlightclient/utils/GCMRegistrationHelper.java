@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
-import android.text.TextUtils;
 import android.util.Log;
 import com.globalgrupp.greenlight.greenlightclient.controller.EventListActivity;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
@@ -37,12 +36,12 @@ public class GCMRegistrationHelper {
         gcm = GoogleCloudMessaging.getInstance(context);
         regId = getRegistrationId(context);
 
-        if (TextUtils.isEmpty(regId)) {
-            registerInBackground(context);
-            Log.d("RegisterActivity",
-                    "registerGCM - regId: "
-                            + regId);
-        }
+//        if (TextUtils.isEmpty(regId)) {
+//            registerInBackground(context);
+//            Log.d("RegisterActivity",
+//                    "registerGCM - regId: "
+//                            + regId);
+//        }
         return regId;
     }
 
@@ -52,18 +51,18 @@ public class GCMRegistrationHelper {
         String registrationId = prefs.getString(REG_ID, "");
         if (registrationId.isEmpty()) {
             Log.i(TAG, "Registration not found.");
-            GCMRegistrationHelper.registerInBackground(context);
+            GCMRegistrationHelper.registerInBackground(context,"");
             return "";
         }
         int registeredVersion = prefs.getInt(APP_VERSION, Integer.MIN_VALUE);
         int currentVersion = getAppVersion(context);
         if (registeredVersion != currentVersion) {
             Log.i(TAG, "App version changed.");
-            GCMRegistrationHelper.registerInBackground(context);
+            GCMRegistrationHelper.registerInBackground(context,registrationId);
             return "";
         }
         if (!prefs.getBoolean("IS_PUSH_ID_SENDED",false)){
-            GCMRegistrationHelper.registerInBackground(context);
+            GCMRegistrationHelper.registerInBackground(context,registrationId);
         }
         return registrationId;
     }
@@ -80,15 +79,22 @@ public class GCMRegistrationHelper {
         }
     }
 
-    private static void registerInBackground(Context context) {
+    private static void registerInBackground(final Context context, final String oldId) {
         new AsyncTask<Context,Void,String>() {
             @Override
             protected String doInBackground(Context... params) {
                 String msg = "";
                 try {
                     GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(params[0]);
+                    //InstanceID.getInstance(context).deleteInstanceID();
+                    try{
+                        gcm.unregister();
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
 
                     String regId = gcm.register("364386966248");
+                    //regId=InstanceID.getInstance(context).getToken("364386966248",GoogleCloudMessaging.INSTANCE_ID_SCOPE);
                     Log.d("RegisterActivity", "registerInBackground - regId: "
                             + regId);
                     msg = "Device registered, registration ID=" + regId;
@@ -99,7 +105,7 @@ public class GCMRegistrationHelper {
                     int appVersion = getAppVersion(params[0]);
                     Log.i(TAG, "Saving regId on app version " + appVersion);
                     SharedPreferences.Editor editor = prefs.edit();
-                    editor.putBoolean("IS_PUSH_ID_SENDED",sendRegId(regId));
+                    editor.putBoolean("IS_PUSH_ID_SENDED",sendRegId(regId,oldId));
                     editor.commit();
 
 
@@ -126,8 +132,8 @@ public class GCMRegistrationHelper {
         editor.putInt(APP_VERSION, appVersion);
         editor.commit();
     }
-    private static Boolean sendRegId(String regId) throws Exception {
-        String urlString="http://192.168.1.33:8080/utils/savePushAppId/"+regId;
+    private static Boolean sendRegId(String regId,String oldId) throws Exception {
+        String urlString="http://192.168.1.38:8080/utils/savePushAppId/oldId="+oldId+"&newId="+regId;
         URL url = new URL(urlString);
         // Send POST data request
         HttpURLConnection conn =(HttpURLConnection) url.openConnection();
