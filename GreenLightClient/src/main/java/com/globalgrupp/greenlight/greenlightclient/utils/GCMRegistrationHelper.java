@@ -132,8 +132,9 @@ public class GCMRegistrationHelper {
         editor.putInt(APP_VERSION, appVersion);
         editor.commit();
     }
+
     private static Boolean sendRegId(String regId,String oldId) throws Exception {
-        String urlString="http://192.168.1.38:8080/utils/savePushAppId/oldId="+oldId+"&newId="+regId;
+        String urlString="http://192.168.1.33:8080/utils/savePushAppId/oldId="+oldId+"&newId="+regId;
         URL url = new URL(urlString);
         // Send POST data request
         HttpURLConnection conn =(HttpURLConnection) url.openConnection();
