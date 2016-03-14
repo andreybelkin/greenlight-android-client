@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.globalgrupp.greenlight.greenlightclient" >
+    package="com.globalgrupp.greenlight.androidclient" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -23,7 +23,7 @@
     <uses-feature android:name="android.hardware.camera"  android:required="false" />
 
     <application
-            android:name=".Application"
+            android:name="com.globalgrupp.greenlight.androidclient.Application"
             android:allowBackup="true"
             android:icon="@mipmap/ic_launcher"
             android:label="@string/app_name"
@@ -42,7 +42,7 @@
         <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_id"/>
 <!--RegistrationGCMActivity    AuthorizationActivity-->
         <activity
-            android:name=".controller.AuthorizationActivity"
+            android:name="com.globalgrupp.greenlight.androidclient.controller.AuthorizationActivity"
             android:label="@string/title_activity_main" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -56,37 +56,37 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".controller.NewEventActivity"
+            android:name="com.globalgrupp.greenlight.androidclient.controller.NewEventActivity"
             android:windowSoftInputMode="adjustPan"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:screenOrientation="portrait"
             android:label="@string/create_new_event" />
         <activity
-                android:name=".controller.EventDetailsActivity"
+                android:name="com.globalgrupp.greenlight.androidclient.controller.EventDetailsActivity"
                 android:label=""
                 android:windowSoftInputMode="adjustPan"
                 android:configChanges="orientation|keyboardHidden|screenSize"
                 android:screenOrientation="portrait"/>
         <activity
-                android:name=".controller.MainActivity"
+                android:name="com.globalgrupp.greenlight.androidclient.controller.MainActivity"
                 android:label="" />
         <activity
-                android:name=".controller.RegistrationActivity"
+                android:name="com.globalgrupp.greenlight.androidclient.controller.RegistrationActivity"
                 android:label="Регистрация" />
         <activity
-                android:name=".controller.EventListActivity"
+                android:name="com.globalgrupp.greenlight.androidclient.controller.EventListActivity"
                 android:label="" />
         <activity
-                android:name=".controller.GroupListActivity"
+                android:name="com.globalgrupp.greenlight.androidclient.controller.GroupListActivity"
                 android:label="" />
         <activity
-                android:name=".controller.GroupEditActivity"
+                android:name="com.globalgrupp.greenlight.androidclient.controller.GroupEditActivity"
                 android:label="" />
         <activity
-                android:name=".controller.SearchUserActivity"
+                android:name="com.globalgrupp.greenlight.androidclient.controller.SearchUserActivity"
                 android:label="" />
         <activity
-                android:name=".controller.SettingsActivity"
+                android:name="com.globalgrupp.greenlight.androidclient.controller.SettingsActivity"
                 android:label="Настройки" />
         <activity android:name="com.vk.sdk.VKServiceActivity" android:label="ServiceActivity" android:theme="@style/VK.Transparent" />
         <activity android:name="com.facebook.FacebookActivity"
@@ -100,7 +100,7 @@
         <provider android:authorities="com.facebook.app.FacebookContentProvider1505046203136521"
                   android:name="com.facebook.FacebookContentProvider"
                   android:exported="true" />
-        <receiver android:name=".services.NetworkChangeReceiver" >
+        <receiver android:name="com.globalgrupp.greenlight.androidclient.service.NetworkChangeReceiver" >
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
             </intent-filter>
@@ -115,7 +115,7 @@
             </intent-filter>
         </receiver>
         <receiver
-                android:name=".services.GCMBroadcastReceiver"
+                android:name="com.globalgrupp.greenlight.androidclient.service.GCMBroadcastReceiver"
                 android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
@@ -124,13 +124,13 @@
                 <category android:name="com.globalgrupp.greenlight.greenlightclient" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".services.GCMUpdateReceiver">
+        <receiver android:name="com.globalgrupp.greenlight.androidclient.service.GCMUpdateReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.PACKAGE_REPLACED" />
                 <data android:scheme="package" android:path="com.globalgrupp.greenlight.greenlightclient"  />
             </intent-filter>
         </receiver>
-        <service android:name="com.globalgrupp.greenlight.greenlightclient.services.GCMNotificationIntentService" />
+        <service android:name="com.globalgrupp.greenlight.androidclient.service.GCMNotificationIntentService" />
 
     </application>
 

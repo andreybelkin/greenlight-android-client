@@ -26,7 +26,7 @@
                     <TableRow
                             android:layout_width="match_parent"
                             android:layout_height="match_parent" android:background="@null">
-                        <com.globalgrupp.greenlight.greenlightclient.classes.CustomDigitalClock
+                        <com.globalgrupp.greenlight.androidclient.model.CustomDigitalClock
                                 android:id="@+id/fragment_clock_digital"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"

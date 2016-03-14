@@ -37,6 +37,7 @@
         android:id="@+id/action_groups"
         android:title="Группы"
         android:icon="@drawable/icon_menu"
+        android:enabled="false"
         yourapp:showAsAction="never" />
     <item
             android:id="@+id/action_settings"
