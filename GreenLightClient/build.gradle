@@ -20,7 +20,7 @@ android {
     useLibrary 'org.apache.http.legacy'
 
     defaultConfig {
-        applicationId "com.globalgrupp.greenlight.greenlightclient"
+        applicationId "com.globalgrupp.greenlight.androidclient"
         minSdkVersion 15
         targetSdkVersion 23
         versionCode 2

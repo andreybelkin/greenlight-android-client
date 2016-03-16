@@ -2,6 +2,7 @@ package com.globalgrupp.greenlight.androidclient.model;
 
 import android.os.AsyncTask;
 import android.util.Log;
+import com.globalgrupp.greenlight.androidclient.util.ApplicationSettings;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -18,7 +19,7 @@ public class UploadFileOperation extends AsyncTask<CreateEventParams, Void, Long
 
         try
         {
-            String urlString="http://188.227.16.166:8080/utils/uploadFile";
+            String urlString = ApplicationSettings.getServerURL() + "/utils/uploadFile";
             URL url = new URL(urlString);
             HttpURLConnection conn =(HttpURLConnection) url.openConnection();
             conn.setDoOutput(true);

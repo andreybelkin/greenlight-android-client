@@ -2,6 +2,7 @@ package com.globalgrupp.greenlight.androidclient.model;
 
 import android.os.AsyncTask;
 import android.util.Log;
+import com.globalgrupp.greenlight.androidclient.util.ApplicationSettings;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -36,7 +37,7 @@ public class SaveCommentOperation extends AsyncTask<Comment,Void,Void> {
             JSONArray array=new JSONArray(params[0].getPhotoIds());
             msg.put("photoIds",array);
             Log.i("message",msg.toString());
-            URL url = new URL("http://188.227.16.166:8080/event/addComment");
+            URL url = new URL(ApplicationSettings.getServerURL() + "/event/addComment");
 
             // Send POST data request
 

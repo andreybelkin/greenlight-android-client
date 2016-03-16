@@ -24,6 +24,7 @@ import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.globalgrupp.greenlight.androidclient.R;
 import com.globalgrupp.greenlight.androidclient.model.*;
+import com.globalgrupp.greenlight.androidclient.util.ApplicationSettings;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
@@ -97,7 +98,7 @@ public class AuthorizationActivity extends ActionBarActivity implements View.OnC
                 Log.i("doInBackground service ","doInBackground service ");
                 try
                 {
-                    String urlString="http://188.227.16.166:8080/group/saveUser";
+                    String urlString = ApplicationSettings.getServerURL() + "/group/saveUser";
                     URL url = new URL(urlString);
 
                     HttpURLConnection conn =(HttpURLConnection) url.openConnection();
@@ -161,6 +162,7 @@ public class AuthorizationActivity extends ActionBarActivity implements View.OnC
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+        ApplicationSettings.setApplicationContext(getApplicationContext());
         Thread.setDefaultUncaughtExceptionHandler(new TopExceptionHandler(this));
         try{
             setContentView( R.layout.authorize_list);
@@ -398,7 +400,7 @@ public class AuthorizationActivity extends ActionBarActivity implements View.OnC
                                         msg.put("password",params[0].getPassword());
                                         msg.put("newUser",params[0].isNewUser());
 
-                                        URL url = new URL("http://188.227.16.166:8080/utils/authorize");
+                                        URL url = new URL(ApplicationSettings.getServerURL() + "/utils/authorize");
 
                                         // Send POST data request
 

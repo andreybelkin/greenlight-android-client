@@ -17,6 +17,7 @@ import android.widget.ListView;
 import com.facebook.login.LoginManager;
 import com.globalgrupp.greenlight.androidclient.R;
 import com.globalgrupp.greenlight.androidclient.model.*;
+import com.globalgrupp.greenlight.androidclient.util.ApplicationSettings;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import com.vk.sdk.VKSdk;
@@ -87,7 +88,7 @@ public class GroupListActivity extends ActionBarActivity implements MenuItem.OnM
                 List<Group> result=new ArrayList<Group>();
                 try
                 {
-                    String urlString="http://188.227.16.166:8080/group/getAllGroups";
+                    String urlString = ApplicationSettings.getServerURL() + "/group/getAllGroups";
                     JSONObject msg=new JSONObject();
                     URL url = new URL(urlString);
                     HttpURLConnection conn =(HttpURLConnection) url.openConnection();

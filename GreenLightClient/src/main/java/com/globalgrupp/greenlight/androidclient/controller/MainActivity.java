@@ -17,6 +17,7 @@ import android.widget.AdapterView;
 import com.facebook.login.LoginManager;
 import com.globalgrupp.greenlight.androidclient.R;
 import com.globalgrupp.greenlight.androidclient.model.*;
+import com.globalgrupp.greenlight.androidclient.util.ApplicationSettings;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
@@ -45,6 +46,8 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ApplicationSettings.setApplicationContext(getApplicationContext());
+        ApplicationSettings.setApplicationContext(this);
         if (ApplicationSettings.getMGoogleApiClient()==null){
             ApplicationSettings.setMGoogleApiClient(new GoogleApiClient.Builder(this)
 //                    .addConnectionCallbacks(this)
@@ -91,12 +94,12 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
                 mMap.animateCamera(cameraUpdate);
 
                 GetEventParams params=new GetEventParams();
-                //params.setURL("http://188.227.16.166:8080/event/getNearestEvents");
+                //params.setURL(ApplicationSettings.getServerURL() + "/event/getNearestEvents");
                 Long channelId= ApplicationSettings.getChannelId();
                 if (channelId!=null && !channelId.equals(new Long(0))){
-                    params.setURL("http://188.227.16.166:8080/event/getEventsByChannel/"+channelId.toString());
+                    params.setURL(ApplicationSettings.getServerURL() + "/event/getEventsByChannel/"+channelId.toString());
                 }else{
-                    params.setURL("http://188.227.16.166:8080/event/getNearestEvents");
+                    params.setURL(ApplicationSettings.getServerURL() + "/event/getNearestEvents");
                 }
                 SharedPreferences prefs=getApplicationContext().getSharedPreferences(
                         EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);

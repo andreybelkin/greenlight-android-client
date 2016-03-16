@@ -19,6 +19,7 @@ import com.globalgrupp.greenlight.androidclient.R;
 import com.globalgrupp.greenlight.androidclient.controller.EventDetailsActivity;
 import com.globalgrupp.greenlight.androidclient.controller.EventListActivity;
 import com.globalgrupp.greenlight.androidclient.controller.MainActivity;
+import com.globalgrupp.greenlight.androidclient.util.ApplicationSettings;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -124,7 +125,7 @@ public class EventsAdapter  extends ArrayAdapter<Event> {
                             List<Event> result=new ArrayList<Event>();
                             try
                             {
-                                String urlString="http://188.227.16.166:8080/event/delete/"+params[0].toString();
+                                String urlString=ApplicationSettings.getServerURL() + "/event/delete/"+params[0].toString();
                                 URL url = new URL(urlString);
 
                                 HttpURLConnection conn =(HttpURLConnection) url.openConnection();
@@ -313,7 +314,7 @@ public class EventsAdapter  extends ArrayAdapter<Event> {
                             protected String doInBackground(String... params) {
                                 File file = null;
                                 try {
-                                    String DownloadUrl = "http://188.227.16.166:8080/utils/getFile/" + params[0];
+                                    String DownloadUrl = ApplicationSettings.getServerURL() + "/utils/getFile/" + params[0];
                                     String fileName = params[1] + "_" + params[0] + "." + params[2];
                                     String root = Environment.getExternalStorageDirectory().getAbsolutePath();
 
@@ -449,7 +450,7 @@ public class EventsAdapter  extends ArrayAdapter<Event> {
                         protected String doInBackground(String... params) {
                             File file = null;
                             try {
-                                String DownloadUrl = "http://188.227.16.166:8080/utils/getFile/" + params[0];
+                                String DownloadUrl = ApplicationSettings.getServerURL() + "/utils/getFile/" + params[0];
                                 String fileName = params[1] + "_" + params[0] + "." + params[2];
                                 String root = Environment.getExternalStorageDirectory().getAbsolutePath();
 

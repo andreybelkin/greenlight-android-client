@@ -2,6 +2,7 @@ package com.globalgrupp.greenlight.androidclient.model;
 
 import android.os.AsyncTask;
 import android.util.Log;
+import com.globalgrupp.greenlight.androidclient.util.ApplicationSettings;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -33,7 +34,7 @@ import java.net.URL;
         // Send data
         try
         {
-            String serverURL = "http://188.227.16.166:8080/event/createEvent";
+            String serverURL = ApplicationSettings.getServerURL() + "/event/createEvent";
             // Defined URL  where to send data
             JSONObject msg=new JSONObject();
             msg.put("message",params[0].getMessage());

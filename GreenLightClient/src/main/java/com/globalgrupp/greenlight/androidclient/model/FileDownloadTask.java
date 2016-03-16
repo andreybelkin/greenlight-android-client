@@ -3,6 +3,7 @@ package com.globalgrupp.greenlight.androidclient.model;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
+import com.globalgrupp.greenlight.androidclient.util.ApplicationSettings;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -19,7 +20,7 @@ public class FileDownloadTask extends AsyncTask<String,Void,String> {
     protected String doInBackground(String... params) {
         File file=null;
         try {
-            String DownloadUrl="http://188.227.16.166:8080/utils/getFile/"+params[0];
+            String DownloadUrl = ApplicationSettings.getServerURL() + "/utils/getFile/"+params[0];
             String fileName= params[1]+"_"+params[0]+"."+params[2];
             String root = Environment.getExternalStorageDirectory().getAbsolutePath();
 

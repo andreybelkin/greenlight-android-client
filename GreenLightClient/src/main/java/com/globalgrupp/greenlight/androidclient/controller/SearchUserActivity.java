@@ -14,6 +14,7 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import com.globalgrupp.greenlight.androidclient.R;
 import com.globalgrupp.greenlight.androidclient.model.*;
+import com.globalgrupp.greenlight.androidclient.util.ApplicationSettings;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -84,7 +85,7 @@ public class SearchUserActivity extends ActionBarActivity implements MenuItem.On
                 List<SocialNetworkUser> result=new ArrayList<SocialNetworkUser>();
                 try
                 {
-                    String urlString="http://188.227.16.166:8080/group/getUsers";
+                    String urlString= ApplicationSettings.getServerURL() + "/group/getUsers";
 
 
                     URL url = new URL(urlString);

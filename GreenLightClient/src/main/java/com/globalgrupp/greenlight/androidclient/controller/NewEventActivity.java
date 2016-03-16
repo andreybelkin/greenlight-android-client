@@ -22,8 +22,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
+import com.globalgrupp.greenlight.androidclient.Application;
 import com.globalgrupp.greenlight.androidclient.R;
 import com.globalgrupp.greenlight.androidclient.model.*;
+import com.globalgrupp.greenlight.androidclient.util.ApplicationSettings;
 import com.globalgrupp.greenlight.androidclient.util.GCMRegistrationHelper;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -183,7 +185,7 @@ public class NewEventActivity extends ActionBarActivity implements AdapterView.O
         try{
             Button btnSend=(Button)findViewById(R.id.btnCreateEvent);
             btnSend.setEnabled(false);
-            String serverURL = "http://188.227.16.166:8080/event/createEvent";
+            String serverURL = ApplicationSettings.getServerURL() + "/event/createEvent";
             EditText et=(EditText) findViewById(R.id.etEventText);
             String street=eAddres.getThoroughfare();
             //CreateEventParams params=new CreateEventParams(serverURL,eLocation.getLongtitude(),eLocation.getLatitude(),et.getText().toString());

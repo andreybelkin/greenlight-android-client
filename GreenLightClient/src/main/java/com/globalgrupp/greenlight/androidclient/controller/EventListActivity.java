@@ -25,6 +25,7 @@ import android.widget.*;
 import com.facebook.login.LoginManager;
 import com.globalgrupp.greenlight.androidclient.R;
 import com.globalgrupp.greenlight.androidclient.model.*;
+import com.globalgrupp.greenlight.androidclient.util.ApplicationSettings;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
@@ -180,6 +181,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ApplicationSettings.setApplicationContext(getApplicationContext());
         Thread.setDefaultUncaughtExceptionHandler(new TopExceptionHandler(this));
         try {
             setContentView(R.layout.event_list);
@@ -245,7 +247,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
 
     public void initChannels() {
         try {
-            String url = "http://188.227.16.166:8080/channel/getBaseChannels";
+            String url = ApplicationSettings.getServerURL() + "/channel/getBaseChannels";
             List<Channel> channels = new AsyncTask<String, Void, List<Channel>>() {
                 @Override
                 protected List<Channel> doInBackground(String... params) {
@@ -350,6 +352,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
     @Override
     public void onResume() {
         super.onResume();
+        ApplicationSettings.setApplicationContext(getApplicationContext());
         if (ApplicationSettings.getMGoogleApiClient() == null) {
             ApplicationSettings.setMGoogleApiClient(new GoogleApiClient.Builder(this)
                     .addApi(LocationServices.API)
@@ -442,9 +445,9 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
         try {
             GetEventParams params = new GetEventParams();
             if (channelId != null) {
-                params.setURL("http://188.227.16.166:8080/event/getEventsByChannel/" + channelId.toString());
+                params.setURL(ApplicationSettings.getServerURL() + "/event/getEventsByChannel/" + channelId.toString());
             } else {
-                params.setURL("http://188.227.16.166:8080/event/getNearestEvents");
+                params.setURL(ApplicationSettings.getServerURL() + "/event/getNearestEvents");
             }
 
             if (eLocation == null) {
@@ -637,7 +640,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                                 } else {
                                     File file = null;
                                     try {
-                                        String DownloadUrl = "http://188.227.16.166:8080/utils/getFile/" + events.get(i).getAudioId().toString();
+                                        String DownloadUrl = ApplicationSettings.getServerURL() + "/utils/getFile/" + events.get(i).getAudioId().toString();
                                         String fileName = events.get(i).getUniqueGUID()+"_"+events.get(i).getAudioId().toString()+".3gp";
                                         String root = Environment.getExternalStorageDirectory().getAbsolutePath();
 
@@ -933,7 +936,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
         }
         try {
             GetEventParams params = new GetEventParams();
-            params.setURL("http://188.227.16.166:8080/event/getEvent");
+            params.setURL(ApplicationSettings.getServerURL() + "/event/getEvent");
             params.setEventId(eventId);
             if (ApplicationSettings.getChannelId() != null &&
                     !ApplicationSettings.getChannelId().equals(new Long(0)))
@@ -1002,7 +1005,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                             } else {
                                 File file = null;
                                 try {
-                                    String DownloadUrl = "http://188.227.16.166:8080/utils/getFile/" + events.get(i).getAudioId().toString();
+                                    String DownloadUrl = ApplicationSettings.getServerURL() + "/utils/getFile/" + events.get(i).getAudioId().toString();
                                     String fileName = events.get(i).getUniqueGUID()+"_"+events.get(i).getAudioId().toString()+".3gp";
                                     String root = Environment.getExternalStorageDirectory().getAbsolutePath();
 

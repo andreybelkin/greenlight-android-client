@@ -14,6 +14,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 import com.globalgrupp.greenlight.androidclient.R;
 import com.globalgrupp.greenlight.androidclient.model.UserCredentials;
+import com.globalgrupp.greenlight.androidclient.util.ApplicationSettings;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -74,7 +75,7 @@ public class RegistrationActivity extends ActionBarActivity {
                                 msg.put("password",params[0].getPassword());
                                 msg.put("newUser",params[0].isNewUser());
 
-                                URL url = new URL("http://188.227.16.166:8080/utils/authorize");
+                                URL url = new URL(ApplicationSettings.getServerURL() + "/utils/authorize");
 
                                 // Send POST data request
 

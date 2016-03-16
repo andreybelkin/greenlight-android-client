@@ -29,8 +29,10 @@ import com.facebook.share.ShareApi;
 import com.facebook.share.Sharer;
 import com.facebook.share.model.SharePhoto;
 import com.facebook.share.model.SharePhotoContent;
+import com.globalgrupp.greenlight.androidclient.Application;
 import com.globalgrupp.greenlight.androidclient.R;
 import com.globalgrupp.greenlight.androidclient.model.*;
+import com.globalgrupp.greenlight.androidclient.util.ApplicationSettings;
 import com.globalgrupp.greenlight.androidclient.util.GCMRegistrationHelper;
 import com.vk.sdk.api.*;
 import twitter4j.Status;
@@ -344,7 +346,7 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
     private void refreshFields(){
         try{
             GetEventParams params=new GetEventParams();
-            params.setURL("http://188.227.16.166:8080/event/getEvent");
+            params.setURL(ApplicationSettings.getServerURL() + "/event/getEvent");
             Long id=(Long)getIntent().getExtras().getSerializable("eventId");
             params.setEventId(id );
             if (id!=null){
@@ -717,7 +719,7 @@ public class EventDetailsActivity extends ActionBarActivity implements View.OnCl
 
         try
         {
-            String urlString="http://188.227.16.166:8080/utils/uploadFile";
+            String urlString = ApplicationSettings.getServerURL() + "/utils/uploadFile";
             URL url = new URL(urlString);
             HttpURLConnection conn =(HttpURLConnection) url.openConnection();
             conn.setDoOutput(true);
