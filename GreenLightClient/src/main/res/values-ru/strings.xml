@@ -1,0 +1,5 @@
+<resources>
+    <string name="name_with_colon">Наименование:</string>
+    <string name="create_new_event">Новое событие</string>
+    <string name="event_list">Список событий</string>
+</resources>
