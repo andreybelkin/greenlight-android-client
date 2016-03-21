@@ -2,4 +2,8 @@
     <string name="name_with_colon">Наименование:</string>
     <string name="create_new_event">Новое событие</string>
     <string name="event_list">Список событий</string>
+    <string name="event_view_radius">Радиус отображения событий (км)</string>
+    <string name="login_with_colon">Логин:</string>
+    <string name="pwd_with_colon">Пароль:</string>
+    <string name="new_user">Новый пользователь</string>
 </resources>

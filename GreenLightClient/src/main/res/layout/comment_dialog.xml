@@ -27,7 +27,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textAppearance="?android:attr/textAppearanceMedium"
-                            android:text="Комментарий"
+                            android:text="@string/comment"
                             android:id="@+id/textView3" android:textSize="20sp"
                             android:gravity="right" android:layout_marginLeft="30dp" android:textColor="#111111"/>
                     <!--<DigitalClock-->
@@ -58,7 +58,7 @@
                                 style="?android:attr/buttonStyleSmall"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Воспроизвести"
+                                android:text="@string/play"
                                 android:id="@+id/btnPlayAudio"
                                 android:background="@null"
                                 android:src="@drawable/icon_audio_play"/>

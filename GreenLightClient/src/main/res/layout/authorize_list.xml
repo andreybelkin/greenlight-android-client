@@ -19,13 +19,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="Добро пожаловать в GreenLight!"
+                    android:text="@string/welcome_message"
                     android:id="@+id/textView2" android:layout_gravity="center_horizontal"
                     android:gravity="center_horizontal"/>
             <ImageButton
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Авторизация GL"
+                    android:text="@string/authorization_type_gl"
                     android:id="@+id/btnAuthorizeGl"
                     android:src="@drawable/icon_login_greenlight"
                     android:layout_gravity="center"
@@ -34,14 +34,14 @@
             <ImageButton
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="VK"
+                    android:text="@string/authorization_type_vk"
                     android:id="@+id/btnVKLogin"
                     android:layout_gravity="center" android:background="@null" android:src="@drawable/icon_login_vk"
                     android:layout_marginTop="10dp"/>
             <ImageButton
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="facebook"
+                    android:text="@string/authorization_type_facebook"
                     android:id="@+id/btnFBLogin"
                     android:layout_gravity="center"
                     android:background="@null" android:layout_marginTop="10dp" android:layout_marginBottom="10dp"
@@ -50,13 +50,13 @@
             <ImageButton
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="TWITTER"
+                    android:text="@string/authorization_type_twitter"
                     android:id="@+id/btnTwitterLogin"
                     android:layout_gravity="center" android:src="@drawable/icon_login_twitter" android:background="@null"/>
             <ImageButton
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Без авторизации"
+                    android:text="@string/authorization_type_none"
                     android:id="@+id/btnNotAuthorized"
                     android:layout_gravity="center"
                     android:src="@drawable/not_authorized"
@@ -66,13 +66,13 @@
             <Button android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:layout_marginTop="10dp" android:text="регистрация" android:id="@+id/btnGLreg"
+                    android:layout_marginTop="10dp" android:text="@string/sign_in" android:id="@+id/btnGLreg"
                     android:visibility="gone"/>
 
             <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceSmall" android:text="Войдите через одну из соцсетей, чтобы создавать и просматривать события в ленте с привязкой к вашему местоположению, или войдите как гость, чтобы видеть события, создаваемые другими пользователями."
+                    android:textAppearance="?android:attr/textAppearanceSmall" android:text="@string/authorization_message"
                     android:id="@+id/textView6" android:textColor="#010101" android:layout_marginTop="20dp"
                     android:layout_marginLeft="20dp" android:layout_marginRight="20dp"
                     android:layout_gravity="center_horizontal" android:gravity="center"/>

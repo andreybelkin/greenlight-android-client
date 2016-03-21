@@ -35,7 +35,7 @@
                         <Button
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Создать"
+                                android:text="@string/create"
                                 android:background="#3FA43A"
                                 android:layout_weight="1"
                                 android:id="@+id/btnCreateEventTop" android:textColor="#f9f9ff"
@@ -74,7 +74,7 @@
                                     style="?android:attr/buttonStyleSmall"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Воспроизвести"
+                                    android:text="@string/play"
                                     android:id="@+id/btnPlayAudio"
                                     android:background="@null"
                                     android:src="@drawable/icon_audio_play"/>
@@ -179,7 +179,7 @@
             <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Создать"
+                    android:text="@string/create"
                     android:id="@+id/btnCreateEvent"
                     android:layout_weight="1"
                     android:background="@null" android:textColor="#f9f9ff"/>

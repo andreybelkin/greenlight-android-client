@@ -17,7 +17,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:text="Логин"
+                    android:text="@string/login"
                     android:id="@+id/textView9"
                     android:layout_weight="1"/>
             <EditText
@@ -35,7 +35,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:text="Пароль"
+                    android:text="@string/password"
                     android:id="@+id/textView10"
                     android:layout_weight="1"/>
             <EditText
@@ -53,7 +53,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="35dp"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:text="Подтвердите пароль"
+                    android:text="@string/confirm_password"
                     android:id="@+id/textView11"
             />
             <EditText
@@ -70,7 +70,7 @@
             <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Зарегистрировать"
+                    android:text="@string/do_sign_up"
                     android:id="@+id/btnSend"/>
         </TableRow>
     </LinearLayout>

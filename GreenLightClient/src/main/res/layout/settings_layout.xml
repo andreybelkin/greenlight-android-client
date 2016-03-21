@@ -17,7 +17,7 @@
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:text="Радиус отображения событий(км)"
+                    android:text="@string/event_view_radius"
                     android:id="@+id/textView"
                     android:layout_weight="1"
                     android:layout_gravity="center_vertical"

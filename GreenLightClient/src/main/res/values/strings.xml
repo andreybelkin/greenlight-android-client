@@ -40,8 +40,7 @@
     <string name="open_in_browser">Open in browser</string>
     <string name="github">GitHub</string>
     <string name="copyright">Copyright</string>
-    <string name="welcome">Welcome</string>
-    <string name="welcome_message">Tiny Stock Quotes is tiny app which allows you follow any NASDAQ stock in simple and comfortable way. It is totally free, open-source and contains no advertising. App is still in beta, so I am open to any feedback.</string>
+    <string name="welcome_message">Добро пожаловать в GreenLight!</string>
     <string name="feedback">Feedback</string>
     <string name="send_email">Send Email</string>
     <integer name="com_vk_sdk_AppId">5226579</integer>
@@ -49,4 +48,26 @@
     <string name="server_gcm_api_key">AIzaSyDinxX3M7r156stdVeEy1b5c63v_7ukPaU</string>
     <string name="server_gcm_sender_id" translatable="false">364386966248</string>
     <string name="name_with_colon">Name:</string>
+    <string name="event_radius">Event View Radius (Km)</string>
+    <string name="login_with_colon">Login:</string>
+    <string name="pwd_with_colon">Password:</string>
+    <string name="new_user">New User</string>
+    <string name="sign_in">Войти</string>
+    <string name="sign_up">регистрация</string>
+    <string name="do_sign_up">Зарегистрировать</string>
+    <string name="create">Создать</string>
+    <string name="play">Воспроизвести</string>
+    <string name="comment">Комментарий</string>
+    <string name="abc">abc</string>
+    <string name="photo">фото</string>
+    <string name="audio">аудио</string>
+    <string name="authorization_type_gl">Авторизация GL</string>
+    <string name="authorization_type_vk">VK</string>
+    <string name="authorization_type_facebook">facebook</string>
+    <string name="authorization_type_twitter">TWITTER</string>
+    <string name="authorization_type_none">Без авторизации</string>
+    <string name="authorization_message">Войдите через одну из соцсетей, чтобы создавать и просматривать события в ленте с привязкой к вашему местоположению, или войдите как гость, чтобы видеть события, создаваемые другими пользователями.</string>
+    <string name="login">Логин</string>
+    <string name="password">Пароль</string>
+    <string name="confirm_password">Подтвердите пароль</string>
 </resources>
