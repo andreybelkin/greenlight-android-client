@@ -31,6 +31,7 @@ public class ApplicationSettings {
             try{
                 AssetManager assetManager = applicationContext.getAssets();
                 InputStream inputStream = assetManager.open("app.properties");
+                properties = new Properties();
                 properties.load(inputStream);
 
             }catch (Exception e){

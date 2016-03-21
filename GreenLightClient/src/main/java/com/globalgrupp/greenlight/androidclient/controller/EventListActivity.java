@@ -181,7 +181,6 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ApplicationSettings.setApplicationContext(getApplicationContext());
         Thread.setDefaultUncaughtExceptionHandler(new TopExceptionHandler(this));
         try {
             setContentView(R.layout.event_list);
@@ -352,7 +351,6 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
     @Override
     public void onResume() {
         super.onResume();
-        ApplicationSettings.setApplicationContext(getApplicationContext());
         if (ApplicationSettings.getMGoogleApiClient() == null) {
             ApplicationSettings.setMGoogleApiClient(new GoogleApiClient.Builder(this)
                     .addApi(LocationServices.API)

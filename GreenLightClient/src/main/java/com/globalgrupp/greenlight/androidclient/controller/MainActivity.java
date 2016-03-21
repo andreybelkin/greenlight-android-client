@@ -46,8 +46,6 @@ public class MainActivity extends ActionBarActivity  implements GoogleApiClient.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ApplicationSettings.setApplicationContext(getApplicationContext());
-        ApplicationSettings.setApplicationContext(this);
         if (ApplicationSettings.getMGoogleApiClient()==null){
             ApplicationSettings.setMGoogleApiClient(new GoogleApiClient.Builder(this)
 //                    .addConnectionCallbacks(this)
