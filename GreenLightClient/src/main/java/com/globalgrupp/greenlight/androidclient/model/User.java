@@ -1,13 +1,15 @@
 package com.globalgrupp.greenlight.androidclient.model;
 
 
+import java.io.Serializable;
+
 /**
  * Created with IntelliJ IDEA.
  * User: Andrey Belkin
  * Date: 02.12.2015
  * Time: 11:21
  */
-public class User {
+public class User implements Serializable {
     private Long id;
 
     public Long getId() {

@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -110,7 +111,7 @@ public class EventsAdapter  extends ArrayAdapter<Event> {
                 EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);
         String registrationId = prefs.getString("regId", "");
 //        if (true){//тут должна быть проверка, что может удалять
-        if (registrationId.equals(commentsItem.getUser().getPushAppId())){
+        if (!TextUtils.isEmpty(registrationId) && registrationId.equals(commentsItem.getUser().getPushAppId())){
             viewHolder.ivDelete.setVisibility(View.VISIBLE);
             viewHolder.ivDelete.setOnClickListener(new View.OnClickListener() {
                 Long eventId=commentsItem.getId();
