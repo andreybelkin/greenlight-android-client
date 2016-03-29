@@ -4,12 +4,12 @@
 
     To get one, follow this link, follow the directions and press "Create" at the end:
 
-https://console.developers.google.com/flows/enableapi?apiid=maps_android_backend&keyType=CLIENT_SIDE_ANDROID&r=E8:E0:86:F2:4A:8F:87:7A:41:04:9C:A7:A3:8C:89:C7:3C:F8:7D:06%3Bcom.globalgrupp.greenlight.androidclient
+https://console.developers.google.com/flows/enableapi?apiid=maps_android_backend&keyType=CLIENT_SIDE_ANDROID&r=29:C8:6A:33:B8:2A:CD:1C:E0:32:53:7A:76:C0:78:8A:D9:51:B1:7D%3Bcom.globalgrupp.greenlight.androidclient
 
-    You can also add your credentials to an existing key, using this line:    E8:E0:86:F2:4A:8F:87:7A:41:04:9C:A7:A3:8C:89:C7:3C:F8:7D:06;com.globalgrupp.greenlight.androidclient
+    You can also add your credentials to an existing key, using this line:    29:C8:6A:33:B8:2A:CD:1C:E0:32:53:7A:76:C0:78:8A:D9:51:B1:7D;com.globalgrupp.greenlight.androidclient
 
     Once you have your key (it starts with "AIza"), replace the "google_maps_key"
     string in this file.
     -->
-    <string name="google_maps_key" translatable="false" templateMergeStrategy="preserve">AIzaSyDIjgEImgcjuGnzKOFrG3ehups_qjPF050</string>
+    <string name="google_maps_key" translatable="false" templateMergeStrategy="preserve">AIzaSyAuJWoAyTMP2f7-4HyXjeTYT4p3CNiY8LQ</string>
 </resources>

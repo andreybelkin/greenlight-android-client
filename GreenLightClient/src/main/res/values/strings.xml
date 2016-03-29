@@ -1,11 +1,11 @@
 <resources>
     <string name="app_name">GreenLight</string>
     <string name="edit">Edit</string>
-    <string name="create_new_event">New Event</string>
+    <string name="create_new_event">Новое событие</string>
     <string name="title_activity_main">GreenLight</string>
     <string name="microphone">Microphone</string>
-    <string name="event_list">Event List</string>
-    <string name="map">Map</string>
+    <string name="event_list">Список событий</string>
+    <string name="map">Карта</string>
     <string name="remove">Remove</string>
     <string name="checked">Checked</string>
     <string name="search_hint">Company name</string>
@@ -45,10 +45,10 @@
     <string name="send_email">Send Email</string>
     <integer name="com_vk_sdk_AppId">5226579</integer>
     <string name="facebook_app_id" translatable="false">1505046203136521</string>
-    <string name="server_gcm_api_key">AIzaSyDIjgEImgcjuGnzKOFrG3ehups_qjPF050</string>
+    <string name="server_gcm_api_key">AIzaSyAuJWoAyTMP2f7-4HyXjeTYT4p3CNiY8LQ</string>
     <string name="server_gcm_sender_id" translatable="false">364386966248</string>
     <string name="name_with_colon">Name:</string>
-    <string name="event_radius">Event View Radius (Km)</string>
+    <string name="event_view_radius">Event View Radius (Km)</string>
     <string name="login_with_colon">Login:</string>
     <string name="pwd_with_colon">Password:</string>
     <string name="new_user">New User</string>

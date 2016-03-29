@@ -24,8 +24,6 @@ public class ApplicationSettings {
         applicationContext = applicationContext1;
     }
 
-    private static String serverAddress;
-
     public static String getProperty(String name) {
         if (properties == null) {
             try{
