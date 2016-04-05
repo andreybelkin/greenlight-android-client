@@ -1,6 +1,8 @@
 package com.globalgrupp.greenlight.androidclient.controller;
 
 import android.content.*;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.media.MediaPlayer;
 import android.media.Ringtone;
@@ -245,12 +247,38 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
     }
 
     public void initChannels() {
-        try {
+
+        TextView cityName = (TextView)findViewById(R.id.cityName);
+        SimpleGeoCoords simpleGeoCoords;
+
+        if (getIntent().hasExtra("location")){
+            simpleGeoCoords = (SimpleGeoCoords) getIntent().getExtras().getSerializable("location");
+            Geocoder gc = new Geocoder(this, Locale.getDefault());
+
+            try {
+                Address address = gc.getFromLocation(simpleGeoCoords.getLatitude()
+                        ,simpleGeoCoords.getLongtitude(),
+                        1)
+                        .get(0);
+
+                cityName.setText(address.getLocality());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        } else {
+            cityName.setText("Пермь");
+        }
+
+        //todo получение списка событий не привязано к городу
+        refreshEventList(null);
+
+        /*try {
             String url = ApplicationSettings.getServerURL() + "/channel/getBaseChannels";
             List<Channel> channels = new AsyncTask<String, Void, List<Channel>>() {
                 @Override
                 protected List<Channel> doInBackground(String... params) {
-                    /************ Make Post Call To Web Server ***********/
+                    *//************ Make Post Call To Web Server ***********//*
                     BufferedReader reader = null;
                     List<Channel> result = new ArrayList<Channel>();
                     try {
@@ -261,9 +289,9 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                         conn.setDoOutput(true);
                         conn.setDoInput(true);
                         conn.setRequestMethod("POST");
-                        conn.setRequestProperty("User-Agent", "Mozilla/5.0");
-                        conn.setRequestProperty("Accept", "*/*");
-                        conn.setRequestProperty("Content-Type", "application/json");
+                        conn.setRequestProperty("User-Agent", "Mozilla/5.0");*/
+                        //conn.setRequestProperty("Accept", "**/*//*");
+                        /*conn.setRequestProperty("Content-Type", "application/json");
                         conn.setRequestProperty("charset", "utf-8");
                         conn.setConnectTimeout(5000);
                         conn.setReadTimeout(20000);
@@ -345,7 +373,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
             });
         } catch (Exception e) {
             e.printStackTrace();
-        }
+        }*/
     }
 
     @Override

@@ -18,11 +18,16 @@
             android:id="@+id/tvGl" android:text="@string/app_name" android:gravity="center_vertical"
             android:textColor="#ffffff" android:visibility="gone" android:textSize="20sp"/>
     <ImageView android:layout_width="wrap_content" android:layout_height="wrap_content"
-               android:src="@drawable/triangle_down" android:id="@+id/ivDropDown"/>
-    <Spinner
+               android:src="@drawable/triangle_down" android:id="@+id/ivDropDown"
+            android:visibility="invisible"/>
+    <TextView
+        android:id="@+id/cityName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+    <!--Spinner
             android:id="@+id/spinnerChannel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@null"
-            />
+            /-->
 </android.support.v7.widget.Toolbar>

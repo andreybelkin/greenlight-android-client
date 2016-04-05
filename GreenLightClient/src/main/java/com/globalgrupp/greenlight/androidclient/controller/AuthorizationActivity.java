@@ -53,7 +53,7 @@ import java.net.URL;
 import java.util.Arrays;
 
 /**
- * Created by Lenovo on 14.01.2016.
+ * Created by Andrey Belkin on 14.01.2016.
  */
 public class AuthorizationActivity extends ActionBarActivity implements View.OnClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
@@ -244,6 +244,8 @@ public class AuthorizationActivity extends ActionBarActivity implements View.OnC
 
             TextView tvGl=(TextView)findViewById(R.id.tvGl);
             tvGl.setVisibility(View.VISIBLE);
+
+
             if (ApplicationSettings.getMGoogleApiClient() == null){
                 ApplicationSettings.setMGoogleApiClient(new GoogleApiClient.Builder(this)
                         .addConnectionCallbacks(this)
