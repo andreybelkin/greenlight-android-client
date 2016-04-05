@@ -111,8 +111,8 @@ public class EventsAdapter  extends ArrayAdapter<Event> {
                 EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);
         String registrationId = prefs.getString("regId", "");
 //        if (true){//тут должна быть проверка, что может удалять
-        if (!TextUtils.isEmpty(registrationId) && commentsItem != null &&
-                commentsItem.getUser() != null && registrationId.equals(commentsItem.getUser().getPushAppId())){
+        if (!TextUtils.isEmpty(registrationId) && commentsItem.getUser() != null &&
+                registrationId.equals(commentsItem.getUser().getPushAppId())){
             viewHolder.ivDelete.setVisibility(View.VISIBLE);
             viewHolder.ivDelete.setOnClickListener(new View.OnClickListener() {
                 Long eventId=commentsItem.getId();
