@@ -1,27 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
 
     <include layout="@layout/toolbar" />
     <ScrollView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
             android:id="@+id/scrollView3">
         <LinearLayout
                 android:orientation="vertical"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" android:layout_gravity="center"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
                 android:id="@+id/layout_buttons">
             <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="@string/welcome_message"
-                    android:id="@+id/textView2" android:layout_gravity="center_horizontal"
-                    android:gravity="center_horizontal"/>
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="@string/welcome_message"
+                android:id="@+id/textView2"
+                android:layout_gravity="bottom"
+                android:gravity="center"
+                />
             <ImageButton
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
