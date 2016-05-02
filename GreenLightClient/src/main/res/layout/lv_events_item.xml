@@ -41,10 +41,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textAppearance="?android:attr/textAppearanceSmall"
+                            android:textColor="@color/symbol_black"
                             android:text="Small Text"
-                            android:id="@+id/tvUserName" android:layout_marginTop="2dp"
-                            android:layout_marginBottom="2dp" android:textStyle="italic"
-                            android:layout_gravity="center_vertical" android:gravity="center_vertical"/>
+                            android:id="@+id/tvUserName"
+                            android:layout_marginTop="2dp"
+                            android:layout_marginBottom="2dp"
+                            android:textStyle="italic"
+                            android:layout_gravity="center_vertical"
+                            android:gravity="center_vertical"/>
                 </TableRow>
                 <TableRow
                         android:layout_width="match_parent"

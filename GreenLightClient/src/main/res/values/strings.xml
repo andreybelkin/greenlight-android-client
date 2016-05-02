@@ -1,4 +1,8 @@
-<resources>
+<?xml version="1.0" encoding="utf-8"?>
+<resources
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="MissingTranslation">
+
     <string name="app_name">GreenLight</string>
     <string name="edit">Edit</string>
     <string name="create_new_event">Новое событие</string>
@@ -46,6 +50,7 @@
     <integer name="com_vk_sdk_AppId">5226579</integer>
     <string name="facebook_app_id" translatable="false">1505046203136521</string>
     <string name="server_gcm_api_key">AIzaSyAuJWoAyTMP2f7-4HyXjeTYT4p3CNiY8LQ</string>
+    <!--string name="server_gcm_api_key">AIzaSyD4XjS7JuVTFBBLgh4RP9734Zjb-uzLSt4</string-->
     <string name="server_gcm_sender_id" translatable="false">364386966248</string>
     <string name="name_with_colon">Name:</string>
     <string name="event_view_radius">Event View Radius (Km)</string>
