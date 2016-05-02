@@ -1,35 +1,29 @@
 {
   "project_info": {
-    "project_id": "silent-card-117016",
-    "project_number": "364386966248",
-    "name": "My Project GreenLight"
+    "project_number": "224996615525",
+    "project_id": "greenlight-1280"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:364386966248:android:0a26197afe3dafdf",
-        "client_id": "android:com.globalgrupp.greenlight.greenlightclient",
-        "client_type": 1,
+        "mobilesdk_app_id": "1:224996615525:android:bcbe99a3302159dc",
         "android_client_info": {
-          "package_name": "com.globalgrupp.greenlight.greenlightclient"
+          "package_name": "com.globalgrupp.greenlight.androidclient"
         }
       },
       "oauth_client": [],
-      "api_key": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA_JaglsgXmfLmg1oTPYWy_7moGXMj3lgw"
+        }
+      ],
       "services": {
         "analytics_service": {
           "status": 1
         },
-        "cloud_messaging_service": {
-          "status": 2,
-          "apns_config": []
-        },
         "appinvite_service": {
           "status": 1,
           "other_platform_oauth_client": []
-        },
-        "google_signin_service": {
-          "status": 1
         },
         "ads_service": {
           "status": 1
@@ -37,6 +31,5 @@
       }
     }
   ],
-  "client_info": [],
-  "ARTIFACT_VERSION": "1"
+  "configuration_version": "1"
 }

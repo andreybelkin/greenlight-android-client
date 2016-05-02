@@ -4,19 +4,19 @@ package com.globalgrupp.greenlight.androidclient.controller;
  * Created by Lenovo on 19.01.2016.
  */
 
-        import android.app.Activity;
-        import android.content.Context;
-        import android.content.Intent;
-        import android.os.Bundle;
-        import android.text.TextUtils;
-        import android.util.Log;
-        import android.view.View;
-        import android.widget.Button;
-        import android.widget.Toast;
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.Toast;
 
-        import com.globalgrupp.greenlight.androidclient.R;
-        import com.globalgrupp.greenlight.androidclient.util.GCMRegistrationHelper;
-        import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.globalgrupp.greenlight.androidclient.R;
+import com.globalgrupp.greenlight.androidclient.util.GCMRegistrationHelper;
+import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 public class RegistrationGCMActivity extends Activity {
 
@@ -43,7 +43,7 @@ public class RegistrationGCMActivity extends Activity {
             @Override
             public void onClick(View arg0) {
                 if (TextUtils.isEmpty(regId)) {
-                    GCMRegistrationHelper regHelper=new GCMRegistrationHelper(getApplicationContext());
+                    GCMRegistrationHelper regHelper = new GCMRegistrationHelper(getApplicationContext());
                     regId = regHelper.registerGCM();
                     Log.d("RegisterActivity", "GCM RegId: " + regId);
                 } else {

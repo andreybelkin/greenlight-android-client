@@ -68,93 +68,93 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
 
     private class EventUploaderThread extends Thread {
 
-        public boolean shouldRefresh=false;
-        public boolean shouldContinue=true;
+        public boolean shouldRefresh = false;
+        public boolean shouldContinue = true;
+
         @Override
         public void run() {
 
-            while (shouldContinue){
-                try{
+            while (shouldContinue) {
+                try {
 
 
-                ConnectivityManager cm = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-                NetworkInfo info = cm.getActiveNetworkInfo();
-                if (info==null||!info.isConnected()){
-                    try {
-                        Thread.sleep(10000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-                SharedPreferences prefs = getApplicationContext().getSharedPreferences(
-                        EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);
-                String queueString = prefs.getString("queueEvents","[]");
-                SharedPreferences.Editor prefsEditor = prefs.edit();
-                prefsEditor.putString("queueEvents", "[]");
-                prefsEditor.commit();
-
-                Gson gson = new Gson();
-                Type listType = new TypeToken<ArrayList<Event>>() {
-                }.getType();
-                List<Event> queueResults=gson.fromJson(queueString,listType);
-                String oldQueueString = prefs.getString("oldMessageQueue","[]");
-                queueResults.addAll((ArrayList<Event>)gson.fromJson(oldQueueString,listType));
-                prefsEditor = prefs.edit();
-                prefsEditor.putString("oldMessageQueue",gson.toJson(queueResults));
-                prefsEditor.commit();
-
-                Iterator<Event> iter = queueResults.iterator();
-                while(iter.hasNext()&&!shouldRefresh){
-                    Event res=iter.next();
-                    try{
-                        Long audioId=new Long(0);
-                        if (res.getAudioPath()!=null && res.getAudioId().equals(new Long(-1))){
-                            CreateEventParams cep=new CreateEventParams();
-                            cep.setURL(res.getAudioPath());
-                            audioId=new UploadFileOperation().execute(cep).get();
-                            res.setAudioId(audioId);
+                    ConnectivityManager cm = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+                    NetworkInfo info = cm.getActiveNetworkInfo();
+                    if (info == null || !info.isConnected()) {
+                        try {
+                            Thread.sleep(10000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
                         }
+                    }
+                    SharedPreferences prefs = getApplicationContext().getSharedPreferences(
+                            EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);
+                    String queueString = prefs.getString("queueEvents", "[]");
+                    SharedPreferences.Editor prefsEditor = prefs.edit();
+                    prefsEditor.putString("queueEvents", "[]");
+                    prefsEditor.commit();
+
+                    Gson gson = new Gson();
+                    Type listType = new TypeToken<ArrayList<Event>>() {
+                    }.getType();
+                    List<Event> queueResults = gson.fromJson(queueString, listType);
+                    String oldQueueString = prefs.getString("oldMessageQueue", "[]");
+                    queueResults.addAll((ArrayList<Event>) gson.fromJson(oldQueueString, listType));
+                    prefsEditor = prefs.edit();
+                    prefsEditor.putString("oldMessageQueue", gson.toJson(queueResults));
+                    prefsEditor.commit();
+
+                    Iterator<Event> iter = queueResults.iterator();
+                    while (iter.hasNext() && !shouldRefresh) {
+                        Event res = iter.next();
+                        try {
+                            Long audioId = new Long(0);
+                            if (res.getAudioPath() != null && res.getAudioId().equals(new Long(-1))) {
+                                CreateEventParams cep = new CreateEventParams();
+                                cep.setURL(res.getAudioPath());
+                                audioId = new UploadFileOperation().execute(cep).get();
+                                res.setAudioId(audioId);
+                            }
 
 
-
-                        List<Long> photoIds=new ArrayList<Long>();
-                        if (res.getPhotoPathList().size()>0){
-                            for (int i=0;i<res.getPhotoPathList().size();i++){
-                                if (res.getPhotoIds().get(i).equals(new Long(-1))){
-                                    CreateEventParams cep=new CreateEventParams();
-                                    cep.setURL(res.getPhotoPathList().get(i));
-                                    Long phId=new UploadFileOperation().execute(cep).get();
-                                    photoIds.add(phId);
-                                }else{
-                                    photoIds.add(res.getPhotoIds().get(i));
+                            List<Long> photoIds = new ArrayList<Long>();
+                            if (res.getPhotoPathList().size() > 0) {
+                                for (int i = 0; i < res.getPhotoPathList().size(); i++) {
+                                    if (res.getPhotoIds().get(i).equals(new Long(-1))) {
+                                        CreateEventParams cep = new CreateEventParams();
+                                        cep.setURL(res.getPhotoPathList().get(i));
+                                        Long phId = new UploadFileOperation().execute(cep).get();
+                                        photoIds.add(phId);
+                                    } else {
+                                        photoIds.add(res.getPhotoIds().get(i));
+                                    }
                                 }
                             }
-                        }
-                        res.setPhotoIds(photoIds);
-                        Long videoId=new Long(0);
-                        if (res.getVideoPath()!=null && (res.getVideoId().equals(new Long(-1)))){
-                            CreateEventParams cep=new CreateEventParams();
-                            cep.setURL(res.getVideoPath());
-                            videoId=new UploadFileOperation().execute(cep).get();
-                            res.setVideoId(videoId);
-                        }
+                            res.setPhotoIds(photoIds);
+                            Long videoId = new Long(0);
+                            if (res.getVideoPath() != null && (res.getVideoId().equals(new Long(-1)))) {
+                                CreateEventParams cep = new CreateEventParams();
+                                cep.setURL(res.getVideoPath());
+                                videoId = new UploadFileOperation().execute(cep).get();
+                                res.setVideoId(videoId);
+                            }
 
-                        Boolean result=new CreateEventOperation().execute(res).get();
-                        if (result){
-                            iter.remove();
-                        }
+                            Boolean result = new CreateEventOperation().execute(res).get();
+                            if (result) {
+                                iter.remove();
+                            }
 
-                    }catch (Exception e){
-                        e.printStackTrace();
-                        break; //connection problem again?
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            break; //connection problem again?
+                        }
                     }
-                }
-                SharedPreferences.Editor prefsEditor2 = prefs.edit();
-                String json = gson.toJson(queueResults);
-                prefsEditor2.putString("oldMessageQueue", json);
-                prefsEditor2.commit();
-                shouldRefresh=false;
-                }catch (Exception e){
+                    SharedPreferences.Editor prefsEditor2 = prefs.edit();
+                    String json = gson.toJson(queueResults);
+                    prefsEditor2.putString("oldMessageQueue", json);
+                    prefsEditor2.commit();
+                    shouldRefresh = false;
+                } catch (Exception e) {
                     e.printStackTrace();
                     //wtf
                 }
@@ -166,9 +166,11 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
             }
 
         }
-    };
+    }
 
-    EventUploaderThread eventUploader=new EventUploaderThread();
+    ;
+
+    EventUploaderThread eventUploader = new EventUploaderThread();
 
     @Override
     public void onClick(View v) {
@@ -199,37 +201,37 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
             ibIconUp.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    try{
+                    try {
 //                        ScrollView scrollView = (ScrollView) findViewById(R.id.scrollView);
 //                        scrollView.fullScroll(ScrollView.FOCUS_UP);
-                        ((ListView)findViewById(R.id.listViewEvents)).setSelectionAfterHeaderView();
+                        ((ListView) findViewById(R.id.listViewEvents)).setSelectionAfterHeaderView();
 
-                    }catch (Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
 
                 }
             });
 
-            if (ApplicationSettings.getAuthorizationType() == AuthorizationType.NONE){
-                LinearLayout trBottomButtons=(LinearLayout)findViewById(R.id.trBottomButtons);
+            if (ApplicationSettings.getAuthorizationType() == AuthorizationType.NONE) {
+                LinearLayout trBottomButtons = (LinearLayout) findViewById(R.id.trBottomButtons);
                 trBottomButtons.setVisibility(View.GONE);
-            } else{
-                ImageButton ibRed=(ImageButton)findViewById(R.id.ibRed);
+            } else {
+                ImageButton ibRed = (ImageButton) findViewById(R.id.ibRed);
                 ibRed.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         startNewEventActivity();
                     }
                 });
-                ImageButton ibYellow=(ImageButton)findViewById(R.id.ibYellow);
+                ImageButton ibYellow = (ImageButton) findViewById(R.id.ibYellow);
                 ibYellow.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         startNewEventActivity();
                     }
                 });
-                ImageButton ibWhite=(ImageButton)findViewById(R.id.ibWhite);
+                ImageButton ibWhite = (ImageButton) findViewById(R.id.ibWhite);
                 ibWhite.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -248,16 +250,16 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
 
     public void initChannels() {
 
-        TextView cityName = (TextView)findViewById(R.id.cityName);
+        TextView cityName = (TextView) findViewById(R.id.cityName);
         SimpleGeoCoords simpleGeoCoords;
 
-        if (getIntent().hasExtra("location")){
+        if (getIntent().hasExtra("location")) {
             simpleGeoCoords = (SimpleGeoCoords) getIntent().getExtras().getSerializable("location");
             Geocoder gc = new Geocoder(this, Locale.getDefault());
 
             try {
                 Address address = gc.getFromLocation(simpleGeoCoords.getLatitude()
-                        ,simpleGeoCoords.getLongtitude(),
+                        , simpleGeoCoords.getLongtitude(),
                         1)
                         .get(0);
 
@@ -290,7 +292,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                         conn.setDoInput(true);
                         conn.setRequestMethod("POST");
                         conn.setRequestProperty("User-Agent", "Mozilla/5.0");*/
-                        //conn.setRequestProperty("Accept", "**/*//*");
+        //conn.setRequestProperty("Accept", "**/*//*");
                         /*conn.setRequestProperty("Content-Type", "application/json");
                         conn.setRequestProperty("charset", "utf-8");
                         conn.setConnectTimeout(5000);
@@ -391,9 +393,9 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
         }
         getApplicationContext().registerReceiver(mMessageReceiver, new IntentFilter("newEventBroadCast"));
         initChannels();
-        try{
-            eventUploader.shouldRefresh=true;
-        }catch (Exception e){
+        try {
+            eventUploader.shouldRefresh = true;
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -404,12 +406,12 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
         if (newEventAsyncTask != null && !newEventAsyncTask.isCancelled()) {
             newEventAsyncTask.cancel(true);
             newEventAsyncTask = null;
-            if (mPlayer!=null){
-                try{
+            if (mPlayer != null) {
+                try {
                     mPlayer.stop();
                     mPlayer.release();
-                    mPlayer=null;
-                }catch (Exception e){
+                    mPlayer = null;
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -492,29 +494,28 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
 //            final ArrayList<Event> events = (ArrayList<Event>) new GetEventsOperation().execute(params).get();
 
 
-            final ArrayList<Event> events =(ArrayList<Event>) new AsyncTask<GetEventParams, Void, List<Event>>(){
+            final ArrayList<Event> events = (ArrayList<Event>) new AsyncTask<GetEventParams, Void, List<Event>>() {
                 @Override
                 protected List<Event> doInBackground(GetEventParams... params) {
 
-                    BufferedReader reader=null;
-                    Log.i("doInBackground service ","doInBackground service ");
+                    BufferedReader reader = null;
+                    Log.i("doInBackground service ", "doInBackground service ");
                     // Send data
-                    List<Event> result=new ArrayList<Event>();
-                    try
-                    {
-                        String urlString=params[0].getURL();
+                    List<Event> result = new ArrayList<Event>();
+                    try {
+                        String urlString = params[0].getURL();
                         // Defined URL  where to send data
-                        JSONObject msg=new JSONObject();
-                        if (params[0].getCurrentCoords()!=null){
-                            msg.put("longitude",params[0].getCurrentCoords().getLongtitude());
-                            msg.put("latitude",params[0].getCurrentCoords().getLatitude());
-                            msg.put("altitude",params[0].getCurrentCoords().getAltitude());
-                            msg.put("radius",params[0].getRadius());
+                        JSONObject msg = new JSONObject();
+                        if (params[0].getCurrentCoords() != null) {
+                            msg.put("longitude", params[0].getCurrentCoords().getLongtitude());
+                            msg.put("latitude", params[0].getCurrentCoords().getLatitude());
+                            msg.put("altitude", params[0].getCurrentCoords().getAltitude());
+                            msg.put("radius", params[0].getRadius());
                         }
-                        if (params[0].getEventId()!=null){
-                            msg.put("eventId",params[0].getEventId());
-                            if (params[0].getChannelId()!=null && !params[0].getChannelId().equals(new Long(0))){
-                                msg.put("channelId",params[0].getChannelId());
+                        if (params[0].getEventId() != null) {
+                            msg.put("eventId", params[0].getEventId());
+                            if (params[0].getChannelId() != null && !params[0].getChannelId().equals(new Long(0))) {
+                                msg.put("channelId", params[0].getChannelId());
                             }
 
                         }
@@ -523,45 +524,43 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
 
                         // Send POST data request
 
-                        HttpURLConnection conn =(HttpURLConnection) url.openConnection();
+                        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                         conn.setDoOutput(true);
                         conn.setDoInput(true);
                         conn.setRequestMethod("POST");
-                        conn.setRequestProperty("User-Agent","Mozilla/5.0");
-                        conn.setRequestProperty("Accept","*/*");
-                        conn.setRequestProperty("Content-Type","application/json");
+                        conn.setRequestProperty("User-Agent", "Mozilla/5.0");
+                        conn.setRequestProperty("Accept", "*/*");
+                        conn.setRequestProperty("Content-Type", "application/json");
                         conn.setRequestProperty("charset", "utf-8");
                         conn.setConnectTimeout(5000);
                         conn.setReadTimeout(20000);
 
                         DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
                         String str = msg.toString();
-                        byte[] data=str.getBytes("UTF-8");
+                        byte[] data = str.getBytes("UTF-8");
                         wr.write(data);
                         wr.flush();
                         wr.close();
                         // Get the server response
                         InputStream is; //todo conn.getResponseCode() for errors
-                        try{
-                            is= conn.getInputStream();
+                        try {
+                            is = conn.getInputStream();
 
-                        }
-                        catch (Exception e){
+                        } catch (Exception e) {
                             e.printStackTrace();
-                            is=conn.getErrorStream();
+                            is = conn.getErrorStream();
                         }
                         reader = new BufferedReader(new InputStreamReader(is));
                         StringBuilder sb = new StringBuilder();
                         String line = null;
 
                         // Read Server Response
-                        while((line = reader.readLine()) != null)
-                        {
+                        while ((line = reader.readLine()) != null) {
                             // Append server response in string
                             sb.append(line + "\n");
                         }
 
-                        GsonBuilder builder=new GsonBuilder();
+                        GsonBuilder builder = new GsonBuilder();
                         builder.registerTypeAdapter(Date.class, new JsonDeserializer<Date>() {
                             public Date deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
 
@@ -569,24 +568,18 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                             }
                         });
                         Gson gson = builder.create();
-                        List<Event> queueResults=new ArrayList<Event>();
+                        List<Event> queueResults = new ArrayList<Event>();
                         Type listType = new TypeToken<ArrayList<Event>>() {
                         }.getType();
-                        queueResults=gson.fromJson(sb.toString(),listType);
-                        result=queueResults;
-                    }
-                    catch(Exception ex)
-                    {
-                        Log.d(ex.getMessage(),ex.getMessage());
+                        queueResults = gson.fromJson(sb.toString(), listType);
+                        result = queueResults;
+                    } catch (Exception ex) {
+                        Log.d(ex.getMessage(), ex.getMessage());
                         ex.printStackTrace();
-                    }
-                    finally
-                    {
-                        try
-                        {
+                    } finally {
+                        try {
                             reader.close();
-                        }
-                        catch(Exception ex) {
+                        } catch (Exception ex) {
                             ex.printStackTrace();
                         }
                     }
@@ -597,32 +590,32 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
 
             SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(
                     EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);
-            String queueString = sharedPreferences.getString("queueEvents","[]");
+            String queueString = sharedPreferences.getString("queueEvents", "[]");
 
             Gson gson = new Gson();
             Type listType = new TypeToken<ArrayList<Event>>() {
             }.getType();
-            List<Event> queueResults=gson.fromJson(queueString,listType);
-            String oldQueueString = prefs.getString("oldMessageQueue","[]");
-            queueResults.addAll((ArrayList<Event>)gson.fromJson(oldQueueString,listType));
+            List<Event> queueResults = gson.fromJson(queueString, listType);
+            String oldQueueString = prefs.getString("oldMessageQueue", "[]");
+            queueResults.addAll((ArrayList<Event>) gson.fromJson(oldQueueString, listType));
 
-            for(int q=0;q<queueResults.size();q++){
-                Event param=queueResults.get(q);
+            for (int q = 0; q < queueResults.size(); q++) {
+                Event param = queueResults.get(q);
                 //вставляем очередь в список
-                int position=0;
-                for(int k=0;k<events.size();k++){
-                    if (events.get(k).getCreateDate().compareTo(param.getCreateDate())==-1 ){
-                        position=k;
+                int position = 0;
+                for (int k = 0; k < events.size(); k++) {
+                    if (events.get(k).getCreateDate().compareTo(param.getCreateDate()) == -1) {
+                        position = k;
                         break;
                     }
-                    position=k;
+                    position = k;
                 }
-                events.add(position,param);
+                events.add(position, param);
             }
-            allEvents=events;
+            allEvents = events;
 
-            eventsAdapter=new EventsAdapter(getApplicationContext(),events);
-            ListView listView=(ListView)findViewById(R.id.listViewEvents);
+            eventsAdapter = new EventsAdapter(getApplicationContext(), events);
+            ListView listView = (ListView) findViewById(R.id.listViewEvents);
             listView.setAdapter(eventsAdapter);
 
             newEventAsyncTask = new AsyncTask<List<Event>, Void, Void>() {
@@ -631,31 +624,40 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
 
                 @Override
                 protected Void doInBackground(List<Event>... lists) {
-                    try{
+                    try {
+
                         SharedPreferences prefs = getApplicationContext().getSharedPreferences(
                                 EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);
-                        String sharedGuids=prefs.getString("oldEventGuid","");
-                        String sharedIds=prefs.getString("oldEventsId","");
+                        String sharedGuids = prefs.getString("oldEventGuid", "");
+                        String sharedIds = prefs.getString("oldEventsId", "");
+
+                        System.out.println("oldEventGuid: " +sharedGuids);
+                        System.out.println("oldEventId: " + sharedIds);
+
                         List<Event> events = lists[0];
                         List<String> oldId = new ArrayList<String>(Arrays.asList(sharedIds.split(",")));
-                        if (oldId==null){
-                            oldId=new ArrayList<String>();
+
+                        if (oldId == null) {
+                            oldId = new ArrayList<String>();
                         }
-                        List<String> oldGuids= new ArrayList<String>(Arrays.asList(sharedGuids.split(",")));
-                        if (oldGuids==null){
-                            oldGuids=new ArrayList<String>();
+                        List<String> oldGuids = new ArrayList<String>(Arrays.asList(sharedGuids.split(",")));
+                        if (oldGuids == null) {
+                            oldGuids = new ArrayList<String>();
                         }
+
                         for (int i = events.size() - 1; i >= 0; i--) {
-                            String guid=events.get(i).getUniqueGUID()!=null?events.get(i).getUniqueGUID().toString():"";
-                            String id=events.get(i).getId()!=null?events.get(i).getId().toString():"";
-                            if (!oldId.contains(id) &&(!oldGuids.contains(guid))) {
+
+                            String guid = events.get(i).getUniqueGUID() != null ?
+                                    events.get(i).getUniqueGUID().toString() : "";
+                            String id = events.get(i).getId() != null ? events.get(i).getId().toString() : "";
+                            if (!oldId.contains(id) && (!oldGuids.contains(guid))) {
                                 oldId.add(id);
                                 oldGuids.add(guid);
-                                String listString = TextUtils.join(",",oldId);
-                                String oldEventsGuid=TextUtils.join(",",oldGuids);
+                                String listString = TextUtils.join(",", oldId);
+                                String oldEventsGuid = TextUtils.join(",", oldGuids);
                                 SharedPreferences.Editor editor = prefs.edit();
                                 editor.putString("oldEventsId", listString);
-                                editor.putString("oldEventGuid",oldEventsGuid);
+                                editor.putString("oldEventGuid", oldEventsGuid);
                                 editor.commit();
 
 
@@ -667,7 +669,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                                     File file = null;
                                     try {
                                         String DownloadUrl = ApplicationSettings.getServerURL() + "/utils/getFile/" + events.get(i).getAudioId().toString();
-                                        String fileName = events.get(i).getUniqueGUID()+"_"+events.get(i).getAudioId().toString()+".3gp";
+                                        String fileName = events.get(i).getUniqueGUID() + "_" + events.get(i).getAudioId().toString() + ".3gp";
                                         String root = Environment.getExternalStorageDirectory().getAbsolutePath();
 
                                         File dir = new File(root + "/gl");
@@ -676,7 +678,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                                         }
                                         URL url = new URL(DownloadUrl);
                                         file = new File(dir, fileName);
-                                        if (!file.exists()){
+                                        if (!file.exists()) {
                                             URLConnection ucon = url.openConnection();
                                             InputStream is = ucon.getInputStream();
                                             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
@@ -713,10 +715,10 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                                         }
                                         isplayed = false;
                                         if (isCancelled()) {
-                                            try{
+                                            try {
                                                 mPlayer.stop();
                                                 mPlayer.release();
-                                            }catch (Exception e){
+                                            } catch (Exception e) {
                                                 e.printStackTrace();
                                             }
 
@@ -730,17 +732,17 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
 
                             }
                         }
-                        if (mPlayer!=null){
-                            try{
+                        if (mPlayer != null) {
+                            try {
                                 mPlayer.stop();
                                 mPlayer.release();
-                                mPlayer=null;
-                            }catch (Exception e){
+                                mPlayer = null;
+                            } catch (Exception e) {
                                 e.printStackTrace();
                             }
 
                         }
-                    }catch (Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
 
@@ -798,10 +800,10 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_activity_main, menu);
-        if (ApplicationSettings.getAuthorizationType() != AuthorizationType.NONE){
+        if (ApplicationSettings.getAuthorizationType() != AuthorizationType.NONE) {
             MenuItem editMenuItem = menu.findItem(R.id.action_new_event);
             editMenuItem.setOnMenuItemClickListener(this);
-        }else {
+        } else {
             MenuItem editMenuItem = menu.findItem(R.id.action_new_event);
             editMenuItem.setVisible(false);
         }
@@ -815,21 +817,21 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
         logoutItem.setOnMenuItemClickListener(this);
         MenuItem settingItem = menu.findItem(R.id.action_settings);
         settingItem.setOnMenuItemClickListener(this);
-        MenuItem channelsItem=menu.findItem(R.id.action_groups);
+        MenuItem channelsItem = menu.findItem(R.id.action_groups);
         channelsItem.setOnMenuItemClickListener(this);
         return true;
     }
 
 
-    private void startNewEventActivity(){
-        try{
+    private void startNewEventActivity() {
+        try {
             Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
                     ApplicationSettings.getMGoogleApiClient());
             SimpleGeoCoords coords = new SimpleGeoCoords(mLastLocation.getLongitude(), mLastLocation.getLatitude(), mLastLocation.getAltitude());
             Intent startIntent = new Intent(this, NewEventActivity.class);
             startIntent.putExtra("location", coords);
             startActivityForResult(startIntent, 1);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -843,7 +845,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
             if (menuItem.getItemId() == R.id.action_new_event) {
                 startNewEventActivity();
             } else if (menuItem.getItemId() == R.id.action_groups) {
-                startIntent=new Intent(this,GroupListActivity.class);
+                startIntent = new Intent(this, GroupListActivity.class);
                 startActivity(startIntent);
             } else if (menuItem.getItemId() == R.id.action_event_list) {
                 startIntent = new Intent(this, EventListActivity.class);
@@ -860,16 +862,16 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                 final SharedPreferences prefs = getApplicationContext().getSharedPreferences(
                         EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = prefs.edit();
-                editor.putString("FacebookToken","");
-                editor.putString("VKToken","");
-                editor.putString("TwitterToken","");
-                editor.putString("GreenLightToken","");
+                editor.putString("FacebookToken", "");
+                editor.putString("VKToken", "");
+                editor.putString("TwitterToken", "");
+                editor.putString("GreenLightToken", "");
                 editor.commit();
-                if (ApplicationSettings.getAuthorizationType() == AuthorizationType.FACEBOOK){
+                if (ApplicationSettings.getAuthorizationType() == AuthorizationType.FACEBOOK) {
                     LoginManager.getInstance().logOut();
-                } else if (ApplicationSettings.getAuthorizationType() == AuthorizationType.VK){
+                } else if (ApplicationSettings.getAuthorizationType() == AuthorizationType.VK) {
                     VKSdk.logout();
-                } else if (ApplicationSettings.getAuthorizationType() == AuthorizationType.TWITTER){
+                } else if (ApplicationSettings.getAuthorizationType() == AuthorizationType.TWITTER) {
 //                    Twitter twitter=new TwitterFactory().getInstance();
 //                    twitter.setOAuthAccessToken(ApplicationSettings.getInstance().getTwitterAccessToken());
 //                    twitter.shutdown();
@@ -903,7 +905,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        if (connectionResult.getErrorCode()==ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED){
+        if (connectionResult.getErrorCode() == ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED) {
             Toast toast = Toast.makeText(getApplicationContext(),
                     "Для корректной работы необходимо обновить Google Play Services", Toast.LENGTH_LONG);
             toast.show();
@@ -972,30 +974,30 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
             if (events.size() == 0) return;
             final Event newEvent = events.get(0);
 //            Thread.sleep(1000);
-            boolean isMyEvent=false;
-            for (int k=0;k<allEvents.size();k++){
-                if (allEvents.get(k).getUniqueGUID()!=null&&allEvents.get(k).getUniqueGUID().equals(newEvent.getUniqueGUID())){
+            boolean isMyEvent = false;
+            for (int k = 0; k < allEvents.size(); k++) {
+                if (allEvents.get(k).getUniqueGUID() != null && allEvents.get(k).getUniqueGUID().equals(newEvent.getUniqueGUID())) {
                     allEvents.remove(k);
-                    allEvents.add(k,newEvent);
+                    allEvents.add(k, newEvent);
                     eventsAdapter.remove(eventsAdapter.getItem(k));
-                    eventsAdapter.insert(newEvent,k);
-                    isMyEvent=true;
+                    eventsAdapter.insert(newEvent, k);
+                    isMyEvent = true;
                     break;
                 }
             }
-            if (!isMyEvent){
+            if (!isMyEvent) {
                 for (int i = 0; i < allEvents.size(); i++) {
                     if (eventId.equals(allEvents.get(i).getId())) {
                         return;
                     }
                 }
 //                allEvents.add(0,newEvent);
-                eventsAdapter.insert(newEvent,0);
+                eventsAdapter.insert(newEvent, 0);
             }
 
-            if (newEventAsyncTask!=null){
+            if (newEventAsyncTask != null) {
                 newEventAsyncTask.cancel(true);
-                newEventAsyncTask=null;
+                newEventAsyncTask = null;
             }
             newEventAsyncTask = new AsyncTask<List<Event>, Void, Void>() {
                 private boolean isplayed = false;
@@ -1005,23 +1007,23 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                 protected Void doInBackground(List<Event>... lists) {
                     SharedPreferences prefs = getApplicationContext().getSharedPreferences(
                             EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);
-                    String sharedGuids=prefs.getString("oldEventGuid","");
-                    String sharedIds=prefs.getString("oldEventsId","");
+                    String sharedGuids = prefs.getString("oldEventGuid", "");
+                    String sharedIds = prefs.getString("oldEventsId", "");
                     List<Event> events = lists[0];
                     List<String> oldId = new ArrayList<String>(Arrays.asList(sharedIds.split(",")));
 
-                    List<String> oldGuids=new ArrayList<String>(Arrays.asList(sharedGuids.split(",")));
+                    List<String> oldGuids = new ArrayList<String>(Arrays.asList(sharedGuids.split(",")));
                     for (int i = events.size() - 1; i >= 0; i--) {
-                        String guid=events.get(i).getUniqueGUID()!=null?events.get(i).getUniqueGUID().toString():"";
-                        String id=events.get(i).getId()!=null?events.get(i).getId().toString():"";
-                        if (!oldId.contains(id) &&(!oldGuids.contains(guid))) {
+                        String guid = events.get(i).getUniqueGUID() != null ? events.get(i).getUniqueGUID().toString() : "";
+                        String id = events.get(i).getId() != null ? events.get(i).getId().toString() : "";
+                        if (!oldId.contains(id) && (!oldGuids.contains(guid))) {
                             oldId.add(id);
                             oldGuids.add(guid);
-                            String listString = TextUtils.join(",",oldId);
-                            String oldEventsGuid=TextUtils.join(",",oldGuids);
+                            String listString = TextUtils.join(",", oldId);
+                            String oldEventsGuid = TextUtils.join(",", oldGuids);
                             SharedPreferences.Editor editor = prefs.edit();
                             editor.putString("oldEventsId", listString);
-                            editor.putString("oldEventGuid",oldEventsGuid);
+                            editor.putString("oldEventGuid", oldEventsGuid);
                             editor.commit();
 
                             if (events.get(i).getAudioId() == null || events.get(i).getAudioId().equals(new Long(0))) {
@@ -1032,7 +1034,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                                 File file = null;
                                 try {
                                     String DownloadUrl = ApplicationSettings.getServerURL() + "/utils/getFile/" + events.get(i).getAudioId().toString();
-                                    String fileName = events.get(i).getUniqueGUID()+"_"+events.get(i).getAudioId().toString()+".3gp";
+                                    String fileName = events.get(i).getUniqueGUID() + "_" + events.get(i).getAudioId().toString() + ".3gp";
                                     String root = Environment.getExternalStorageDirectory().getAbsolutePath();
 
                                     File dir = new File(root + "/gl");
@@ -1042,7 +1044,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                                     URL url = new URL(DownloadUrl); //you can write here any link
                                     file = new File(dir, fileName);
 
-                                    if (!file.exists()){
+                                    if (!file.exists()) {
                                         URLConnection ucon = url.openConnection();
                                         InputStream is = ucon.getInputStream();
                                         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
@@ -1080,10 +1082,10 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
                                     }
                                     isplayed = false;
                                     if (isCancelled()) {
-                                        try{
+                                        try {
                                             mPlayer.stop();
                                             mPlayer.release();
-                                        }catch (Exception e){
+                                        } catch (Exception e) {
                                             e.printStackTrace();
                                         }
                                         break;
@@ -1141,7 +1143,7 @@ public class EventListActivity extends ActionBarActivity implements GoogleApiCli
         folder.delete();
     }
 
-    public void deleteEvent(Long eventId){
+    public void deleteEvent(Long eventId) {
 
     }
 

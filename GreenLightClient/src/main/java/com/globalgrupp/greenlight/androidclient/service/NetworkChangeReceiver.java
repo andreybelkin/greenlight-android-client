@@ -19,8 +19,7 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
                 //start service
 //                Intent intent = new Intent(this, ItemServiceManager.class);
                 startService(context);
-            }
-            else {
+            } else {
                 //stop service
 //                Intent intent = new Intent(this, ItemServiceManager.class);
                 stopService(context);
@@ -28,7 +27,7 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
         }
     }
 
-    private void startService(Context context){
+    private void startService(Context context) {
 
 //        SharedPreferences prefs = context.getSharedPreferences(
 //                EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);
@@ -80,7 +79,8 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
 //        prefsEditor.putString("messageQueue", json);
 //        prefsEditor.commit();
     }
-    private void stopService(Context context){
+
+    private void stopService(Context context) {
 
     }
 }

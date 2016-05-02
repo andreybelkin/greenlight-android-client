@@ -3,6 +3,7 @@ package com.globalgrupp.greenlight.androidclient.service;
 /**
  * Created by Lenovo on 19.01.2016.
  */
+
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;

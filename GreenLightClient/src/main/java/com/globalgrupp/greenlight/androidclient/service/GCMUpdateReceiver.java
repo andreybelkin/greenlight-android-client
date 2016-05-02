@@ -14,8 +14,8 @@ public class GCMUpdateReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        currentContext=context;
-        GCMRegistrationHelper helper=new GCMRegistrationHelper(context);
+        currentContext = context;
+        GCMRegistrationHelper helper = new GCMRegistrationHelper(context);
         helper.registerGCM();
     }
 }

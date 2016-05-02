@@ -67,13 +67,13 @@ public class GCMNotificationIntentService extends IntentService {
                 }
                 Log.i(TAG, "Completed work @ " + SystemClock.elapsedRealtime());
 
-                try{
+                try {
                     //todo fields from push notification
-                    String  senderId=extras.get("senderId")!=null?extras.get("senderId").toString():"";
+                    String senderId = extras.get("senderId") != null ? extras.get("senderId").toString() : "";
                     sendNotification("Новое событие: "
-                            + extras.get("message"),new Long(extras.get("eventId").toString()),senderId);
+                            + extras.get("message"), new Long(extras.get("eventId").toString()), senderId);
                     Log.i(TAG, "Received: " + extras.toString());
-                }catch (Exception e){
+                } catch (Exception e) {
 
                     e.printStackTrace();
                 }
@@ -84,26 +84,26 @@ public class GCMNotificationIntentService extends IntentService {
         com.globalgrupp.greenlight.androidclient.service.GCMBroadcastReceiver.completeWakefulIntent(intent);
     }
 
-    private void sendNotification(String msg,Long id,String senderId) {
+    private void sendNotification(String msg, Long id, String senderId) {
         Log.d(TAG, "Preparing to send notification...: " + msg);
-        String registrationId =GCMRegistrationHelper.getRegistrationId(getApplicationContext());
+        String registrationId = GCMRegistrationHelper.getRegistrationId(getApplicationContext());
         SharedPreferences prefs = getApplicationContext().getSharedPreferences(
                 EventListActivity.class.getSimpleName(), Context.MODE_PRIVATE);
-        String gettedIds=prefs.getString("eventIdsFromPush","");
+        String gettedIds = prefs.getString("eventIdsFromPush", "");
         List<String> oldId = new ArrayList<String>(Arrays.asList(gettedIds.split(",")));
-        if (oldId.contains(id.toString())){
+        if (oldId.contains(id.toString())) {
             return;
-        }else {
+        } else {
             oldId.add(id.toString());
             SharedPreferences.Editor editor = prefs.edit();
-            editor.putString("eventIdsFromPush",TextUtils.join(",",oldId));
+            editor.putString("eventIdsFromPush", TextUtils.join(",", oldId));
             editor.commit();
         }
 
-        if (!senderId.equals(registrationId)){
+        if (!senderId.equals(registrationId)) {
             mNotificationManager = (NotificationManager) this
                     .getSystemService(Context.NOTIFICATION_SERVICE);
-            Intent newEventIntent=new Intent(this, EventDetailsActivity.class);
+            Intent newEventIntent = new Intent(this, EventDetailsActivity.class);
             newEventIntent.putExtra("eventId", id);
 //        newEventIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
 //                | Intent.FLAG_ACTIVITY_SINGLE_TOP);
